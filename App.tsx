@@ -44,6 +44,15 @@ export default function App() {
   }, [fontError]);
 
   useEffect(() => {
+    const hideSplash = async () => {
+      if (fontsLoaded || fontError) {
+        await SplashScreen.hideAsync();
+      }
+    };
+    hideSplash();
+  }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
     if (Platform.OS === 'web') {
       return;
     }

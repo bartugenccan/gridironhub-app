@@ -18,6 +18,7 @@ export enum AppRoutes {
   PROFILE_EDIT = 'ProfileEdit',
   SETTINGS = 'Settings',
   SETTINGS_DETAIL = 'SettingsDetail',
+  WELCOME = 'Welcome',
 }
 
 export enum TabRoutes {

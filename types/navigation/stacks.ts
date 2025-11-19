@@ -12,6 +12,7 @@ export type AuthStackParamList = {
 export type HomeStackParamList = {
   [AppRoutes.HOME]: undefined;
   [AppRoutes.HOME_DETAIL]: undefined;
+  [AppRoutes.WELCOME]: undefined;
 };
 
 export type ProfileStackParamList = {

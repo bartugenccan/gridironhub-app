@@ -1,8 +1,8 @@
 import type { ExpoConfig } from '@expo/config-types';
 
 const config: ExpoConfig = {
-  name: 'rn-template',
-  slug: 'rn-template',
+  name: 'GridIron Hub',
+  slug: 'gridironhub-app',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
