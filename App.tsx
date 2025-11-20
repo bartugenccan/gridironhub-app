@@ -8,31 +8,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppState, AppStateStatus, Platform, StyleSheet } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 
 // i18n
 import './i18n';
+import { AuthProvider } from './contexts/AuthContext';
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function App() {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-            refetchOnReconnect: true,
-            refetchOnWindowFocus: true,
-            retry: 1,
-          },
-          mutations: {
-            retry: 0,
-          },
-        },
-      })
-  );
-
   const [fontsLoaded, fontError] = useFonts({
     'YuseiMagic-Regular': require('./assets/fonts/YuseiMagic-Regular.ttf'),
   });
@@ -52,22 +35,6 @@ export default function App() {
     hideSplash();
   }, [fontsLoaded, fontError]);
 
-  useEffect(() => {
-    if (Platform.OS === 'web') {
-      return;
-    }
-
-    const onAppStateChange = (status: AppStateStatus) => {
-      focusManager.setFocused(status === 'active');
-    };
-
-    const subscription = AppState.addEventListener('change', onAppStateChange);
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
-
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
       await SplashScreen.hideAsync();
@@ -80,13 +47,13 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={styles.container} onLayout={onLayoutRootView}>
-      <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
-          <NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <AuthProvider>
             <AppNavigator />
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </QueryClientProvider>
+          </AuthProvider>
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

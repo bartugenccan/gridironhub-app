@@ -4,7 +4,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Auth Stack
 export type AuthStackParamList = {
+  [AppRoutes.WELCOME]: undefined;
   [AppRoutes.SIGN_UP]: undefined;
+  [AppRoutes.LOGIN]: undefined;
   // Add other auth routes as needed
 };
 
@@ -12,7 +14,6 @@ export type AuthStackParamList = {
 export type HomeStackParamList = {
   [AppRoutes.HOME]: undefined;
   [AppRoutes.HOME_DETAIL]: undefined;
-  [AppRoutes.WELCOME]: undefined;
 };
 
 export type ProfileStackParamList = {
@@ -52,7 +53,8 @@ export type AppNavigationProp = NativeStackNavigationProp<
     MainStackParamList &
     HomeStackParamList &
     ProfileStackParamList &
-    SettingsStackParamList
+    SettingsStackParamList &
+    AuthStackParamList
 >;
 export type AppRouteProp<T extends keyof RootStackParamList> = RouteProp<RootStackParamList, T>;
 

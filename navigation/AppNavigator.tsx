@@ -5,6 +5,7 @@ import { AppRoutes, RootStackParamList } from '@/types/navigation';
 import { useMemo, useState, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Enable native screens optimization
 enableScreens();
@@ -12,7 +13,7 @@ enableScreens();
 const RootStack = createStackNavigator<RootStackParamList>();
 
 export const AppNavigator = () => {
-  const [isAuthenticated, _setIsAuthenticated] = useState<boolean>(true);
+  const { isAuthenticated } = useAuth();
 
   const screenOptions = useMemo(
     () => ({

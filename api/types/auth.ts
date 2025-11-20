@@ -1,27 +1,45 @@
 import { BaseResponse } from '../common';
 import { User } from './user';
+import {
+  loginSchema,
+  registerSchema,
+  forgotPasswordSchema,
+  type LoginSchema,
+  type RegisterSchema,
+  type UserRole as ZodUserRole,
+} from '@/validations/auth.schema';
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+// Export Zod schemas for validation
+export { loginSchema, registerSchema, forgotPasswordSchema };
+
+// Type aliases using Zod inferred types
+export type LoginRequest = LoginSchema;
+export type RegisterRequest = RegisterSchema;
+export type UserRole = ZodUserRole;
 
 export interface LoginResponse extends BaseResponse {
-  data: {
-    token: string;
-    user: User;
+  session: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    tokenType: string;
   };
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  user: {
+    id: string;
+    email: string;
+    role: UserRole;
+    metadata: Record<string, unknown>;
+  };
 }
 
 export interface RegisterResponse extends BaseResponse {
   data: {
-    user: User;
+    user: {
+      id: string;
+      email: string;
+      role: UserRole;
+      metadata: Record<string, unknown>;
+    };
+    token: string;
   };
 }

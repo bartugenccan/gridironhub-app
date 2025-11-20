@@ -1,10 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import CustomButton from '../../components/CustomButton/CustomButton';
+import { useAppNavigation } from '@/hooks';
+import { AppRoutes } from '@/types';
 
 export const Welcome = () => {
+  const navigation = useAppNavigation();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -18,26 +21,26 @@ export const Welcome = () => {
         <View style={styles.buttonContainer}>
           <CustomButton
             title="I am a Player"
-            onPress={() => {}}
+            onPress={() => { }}
             size="medium"
             variant="primary"
             style={{ width: 300 }}
           />
           <CustomButton
             title="I am a Coach"
-            onPress={() => {}}
+            onPress={() => { }}
             size="medium"
             variant="lightGray"
             style={{ marginTop: 10, width: 300 }}
           />
         </View>
       </View>
-      <View style={{ alignItems: 'center', marginBottom: 20 }}>
+      <TouchableOpacity style={{ alignItems: 'center', marginBottom: 20 }} onPress={() => navigation.navigate(AppRoutes.LOGIN)}>
         <Text style={{ color: '#fff' }}>
           Already have an account?{' '}
           <Text style={{ fontWeight: 'bold', color: '#135bed' }}>Sign In</Text>
         </Text>
-      </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -68,6 +71,7 @@ const styles = StyleSheet.create({
   subHeaderText: {
     color: '#fff',
     fontSize: 34,
+    fontWeight: 'bold',
   },
   subText: {
     color: '#fff',

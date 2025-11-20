@@ -6,6 +6,7 @@ import { SignUp } from './SignUp';
 import { ModalScreen } from './ModalScreen';
 import { HomeDetail } from './HomeDetail';
 import { Welcome } from './Welcome';
+import { Login } from './Login';
 
 export {
   NonTabScreen,
@@ -16,4 +17,5 @@ export {
   ModalScreen,
   HomeDetail,
   Welcome,
+  Login,
 };
