@@ -5,7 +5,7 @@ const config: ExpoConfig = {
   slug: 'gridironhub-app',
   version: '1.0.0',
   orientation: 'portrait',
-  icon: './assets/images/icon.png',
+  icon: './assets/AppIcons/Assets.xcassets/AppIcon.appiconset/1024.png',
   userInterfaceStyle: 'light',
   newArchEnabled: true,
   splash: {
@@ -19,7 +19,7 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      foregroundImage: './assets/images/adaptive-icon.png',
+      foregroundImage: './assets/AppIcons/playstore.png',
       backgroundColor: '#ffffff',
     },
   },
