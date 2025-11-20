@@ -13,7 +13,7 @@ interface CustomButtonProps {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'lightGray';
   size?: 'small' | 'medium' | 'large';
   style?: ViewStyle;
   textStyle?: TextStyle;
@@ -56,10 +56,13 @@ const styles = StyleSheet.create({
   },
   // Variants
   primary: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#135bed',
   },
   secondary: {
     backgroundColor: '#5856D6',
+  },
+  lightGray: {
+    backgroundColor: '#4e525b',
   },
   outline: {
     backgroundColor: 'transparent',
@@ -91,6 +94,9 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   secondaryText: {
+    color: '#FFF',
+  },
+  lightGrayText: {
     color: '#FFF',
   },
   outlineText: {

@@ -17,20 +17,26 @@ export const Welcome = () => {
         </View>
         <View style={styles.buttonContainer}>
           <CustomButton
-            title="Submit"
+            title="I am a Player"
             onPress={() => {}}
             size="medium"
             variant="primary"
-            style={{ width: 200 }}
+            style={{ width: 300 }}
           />
           <CustomButton
-            title="Submit"
+            title="I am a Coach"
             onPress={() => {}}
             size="medium"
-            variant="primary"
-            style={{ marginTop: 10, width: 200 }}
+            variant="lightGray"
+            style={{ marginTop: 10, width: 300 }}
           />
         </View>
+      </View>
+      <View style={{ alignItems: 'center', marginBottom: 20 }}>
+        <Text style={{ color: '#fff' }}>
+          Already have an account?{' '}
+          <Text style={{ fontWeight: 'bold', color: '#135bed' }}>Sign In</Text>
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -39,25 +45,25 @@ export const Welcome = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: Colors.darkGray,
   },
   headerContainer: {
     flex: 0.5,
     height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.primary,
+
+    marginBottom: 20,
   },
   headerText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   subHeaderContainer: {
     flex: 0.7,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: Colors.secondary,
   },
   subHeaderText: {
     color: '#fff',
