@@ -80,7 +80,7 @@ export const LightColors = {
   info: '#3B82F6',
 
   // Legacy/Specific
-  playerDashboardBackground: '#F8FAFC',
+  playerDashboardBackground: '#eceef0ff',
   sectionBackground: '#FFFFFF',
   border: '#E2E8F0',
   borderLight: '#CBD5E1',

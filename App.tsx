@@ -3,7 +3,12 @@ import 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppNavigator } from './navigation/AppNavigator';
-import { useFonts } from 'expo-font';
+import {
+  useFonts,
+  Montserrat_400Regular,
+  Montserrat_600SemiBold,
+  Montserrat_700Bold,
+} from '@expo-google-fonts/montserrat';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppState, AppStateStatus, Platform, StyleSheet } from 'react-native';
@@ -18,7 +23,9 @@ SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
-    'YuseiMagic-Regular': require('./assets/fonts/YuseiMagic-Regular.ttf'),
+    Montserrat_400Regular,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
   });
 
   useEffect(() => {

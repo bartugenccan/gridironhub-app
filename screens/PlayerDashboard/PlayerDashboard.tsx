@@ -1,14 +1,17 @@
-import { StyleSheet, View, ScrollView, Image, FlatList } from 'react-native';
+import { StyleSheet, View, ScrollView, Image, FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { CustomText } from '@/components';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Typography } from '@/constants/Typography';
 
 interface RecentActivity {
   id: string;
   title: string;
   date: string;
   description: string;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
 }
 
 interface PersonalRecord {
@@ -16,20 +19,64 @@ interface PersonalRecord {
   exercise: string;
   weight: string;
   date: string;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  isNewPr?: boolean;
 }
 
 const recentActivities: RecentActivity[] = [
-  { id: '1', title: 'Leg Day Workout', date: 'Nov 20, 2025', description: '45 min session' },
-  { id: '2', title: 'Upper Body', date: 'Nov 18, 2025', description: '60 min session' },
-  { id: '3', title: 'Cardio Training', date: 'Nov 16, 2025', description: '30 min session' },
+  {
+    id: '1',
+    title: 'Team meeting tomorrow at 8 AM in the main gym. Be on time.',
+    date: '1h ago',
+    description: 'Coach Miller',
+    icon: 'bullhorn-outline',
+  },
+  {
+    id: '2',
+    title: 'You set a new Personal Record in Bench Press: 315 lbs',
+    date: 'Nov 15, 2023',
+    description: '',
+    icon: 'chart-line-variant',
+  },
+  {
+    id: '3',
+    title: 'You updated your Back Squat: 405 lbs',
+    date: 'Oct 28, 2023',
+    description: '',
+    icon: 'dumbbell',
+  },
 ];
 
 const personalRecords: PersonalRecord[] = [
-  { id: '1', exercise: 'Bench Press', weight: '225 lbs', date: 'Nov 15, 2025' },
-  { id: '2', exercise: 'Squat', weight: '315 lbs', date: 'Nov 10, 2025' },
-  { id: '3', exercise: 'Deadlift', weight: '405 lbs', date: 'Nov 5, 2025' },
-  { id: '4', exercise: 'Clean and Jerk', weight: '185 lbs', date: 'Nov 1, 2025' },
-  { id: '5', exercise: '40- Yard Dash', weight: '4.78 sec', date: 'Oct 28, 2025' },
+  {
+    id: '1',
+    exercise: 'Back Squat',
+    weight: '405 lbs',
+    date: 'Oct 28, 2023',
+    icon: 'dumbbell',
+  },
+  {
+    id: '2',
+    exercise: 'Bench Press',
+    weight: '315 lbs',
+    date: 'Nov 15, 2023',
+    icon: 'minus',
+    isNewPr: true,
+  },
+  {
+    id: '3',
+    exercise: 'Deadlift',
+    weight: '495 lbs',
+    date: 'Sep 05, 2023',
+    icon: 'weight-lifter',
+  },
+  {
+    id: '4',
+    exercise: '40-Yard Dash',
+    weight: '4.52s',
+    date: 'Aug 12, 2023',
+    icon: 'run-fast',
+  },
 ];
 
 export const PlayerDashboard = () => {
@@ -38,127 +85,180 @@ export const PlayerDashboard = () => {
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
     <View style={styles.activityCard}>
-      <CustomText style={styles.activityTitle}>{item.title}</CustomText>
-      <CustomText style={styles.activityDate}>{item.date}</CustomText>
-      <CustomText style={styles.activityDescription}>{item.description}</CustomText>
+      <View style={styles.activityIconContainer}>
+        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.primary} />
+      </View>
+      <View style={styles.activityContent}>
+        <CustomText style={styles.activityTitle}>{item.title}</CustomText>
+        {item.description ? (
+          <CustomText style={styles.activityDescription}>
+            {item.description} - {item.date}
+          </CustomText>
+        ) : (
+          <CustomText style={styles.activityDescription}>{item.date}</CustomText>
+        )}
+      </View>
+      <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
     </View>
   );
 
   const renderRecordItem = ({ item }: { item: PersonalRecord }) => (
     <View style={styles.recordCard}>
-      <View style={styles.recordLeft}>
-        <CustomText style={styles.recordExercise}>{item.exercise}</CustomText>
+      {item.isNewPr && (
+        <View style={styles.newPrBadge}>
+          <CustomText style={styles.newPrText}>NEW PR!</CustomText>
+        </View>
+      )}
+      <View style={styles.recordIconContainer}>
+        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.text} />
+      </View>
+      <View style={styles.recordContent}>
+        <View style={styles.recordHeader}>
+          <CustomText style={styles.recordExercise}>{item.exercise}</CustomText>
+        </View>
         <CustomText style={styles.recordDate}>{item.date}</CustomText>
       </View>
-      <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
+      <View style={styles.recordRight}>
+        <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
+        <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+      </View>
     </View>
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header Section */}
-      <View style={styles.headerSection}>
-        <View>
-          <Image style={styles.teamLogo} source={require('../../assets/images/sakarya-logo.png')} />
-        </View>
-        <CustomText style={styles.teamName}>Sakarya Tatankaları</CustomText>
-      </View>
-
-      {/* Player Info Section */}
-      <View style={styles.playerInfoSection}>
-        <View style={styles.playerHeaderRow}>
-          <View style={styles.playerImageContainer}>
+    <View style={styles.mainContainer}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.logoContainer}>
             <Image
-              source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }}
-              style={styles.playerImage}
+              style={styles.teamLogo}
+              source={require('../../assets/images/sakarya-logo.png')}
+              resizeMode="contain"
             />
           </View>
-          <View style={styles.playerInfoContainer}>
-            <CustomText style={styles.playerName}>Bartu Gençcan</CustomText>
-            <View style={styles.playerMetaRow}>
-              <CustomText style={styles.playerNumber}>#4</CustomText>
-              <CustomText style={styles.playerPosition}>-</CustomText>
-              <CustomText style={styles.playerPosition}>QuarterBack</CustomText>
+          <View style={styles.headerTextContainer}>
+            <CustomText style={styles.teamName}>Sakarya Tatankaları</CustomText>
+            <CustomText style={styles.pageTitle}>Player Dashboard</CustomText>
+          </View>
+          <TouchableOpacity style={styles.settingsButton}>
+            <Ionicons name="settings-outline" size={scale(24)} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Player Info Section */}
+        <View style={styles.playerInfoSection}>
+          <View style={styles.playerHeaderRow}>
+            <View style={styles.playerImageContainer}>
+              <Image
+                source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }}
+                style={styles.playerImage}
+              />
+            </View>
+            <View style={styles.playerInfoContainer}>
+              <CustomText style={styles.playerName}>Bartu Gençcan</CustomText>
+              <CustomText style={styles.playerPosition}>#4 - Tight End</CustomText>
+            </View>
+          </View>
+          <View style={styles.statsContainer}>
+            <View style={styles.statBox}>
+              <CustomText style={styles.statLabel}>Height</CustomText>
+              <CustomText style={styles.statValue}>198cm</CustomText>
+            </View>
+            <View style={styles.statBox}>
+              <CustomText style={styles.statLabel}>Weight</CustomText>
+              <CustomText style={styles.statValue}>107kg</CustomText>
             </View>
           </View>
         </View>
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <CustomText style={styles.statLabel}>Height</CustomText>
-            <CustomText style={styles.statValue}>6'2"</CustomText>
-          </View>
-          <View style={styles.statBox}>
-            <CustomText style={styles.statLabel}>Weight</CustomText>
-            <CustomText style={styles.statValue}>185 lbs</CustomText>
-          </View>
+
+        {/* Recent Activity Section */}
+        <View style={styles.section}>
+          <CustomText style={styles.sectionTitle}>Recent Activity</CustomText>
+          <FlatList
+            data={recentActivities}
+            renderItem={renderActivityItem}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
-      </View>
 
-      {/* Recent Activity Section */}
-      <View style={styles.section}>
-        <CustomText style={styles.sectionTitle}>Recent Activity</CustomText>
-        <FlatList
-          data={recentActivities}
-          renderItem={renderActivityItem}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+        {/* Personal Records Section */}
+        <View style={styles.section}>
+          <CustomText style={styles.sectionTitle}>Personal Records</CustomText>
+          <FlatList
+            data={personalRecords}
+            renderItem={renderRecordItem}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+        <View style={{ height: verticalScale(80) }} />
+      </ScrollView>
 
-      {/* Personal Records Section */}
-      <View style={styles.section}>
-        <CustomText style={styles.sectionTitle}>Personal Records</CustomText>
-        <FlatList
-          data={personalRecords}
-          renderItem={renderRecordItem}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </ScrollView>
+      {/* FAB */}
+      <TouchableOpacity style={styles.fab}>
+        <MaterialCommunityIcons name="plus" size={scale(30)} color="#fff" />
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
   StyleSheet.create({
-    container: {
+    mainContainer: {
       flex: 1,
       backgroundColor: colors.playerDashboardBackground,
     },
+    container: {
+      flex: 1,
+    },
     headerSection: {
-      paddingTop: verticalScale(20),
+      paddingTop: verticalScale(50), // Increased for status bar
       paddingBottom: verticalScale(15),
       paddingHorizontal: scale(20),
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    logoContainer: {
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(20),
+      backgroundColor: colors.white,
       justifyContent: 'center',
       alignItems: 'center',
-      flexDirection: 'row',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
     teamLogo: {
-      width: scale(90),
-      height: scale(90),
-      marginBottom: verticalScale(10),
+      width: scale(36),
+      height: scale(36),
+    },
+    headerTextContainer: {
+      alignItems: 'center',
     },
     teamName: {
-      fontSize: scale(20),
-      fontWeight: 'bold',
+      fontSize: scale(16),
+      fontFamily: Typography.fontFamily.bold,
       color: colors.text,
-      marginBottom: verticalScale(5),
     },
     pageTitle: {
-      fontSize: scale(10),
+      fontSize: scale(12),
       color: colors.textSecondary,
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
+      fontFamily: Typography.fontFamily.regular,
+    },
+    settingsButton: {
+      padding: scale(5),
     },
     playerInfoSection: {
-      paddingVertical: verticalScale(30),
+      paddingVertical: verticalScale(20),
       paddingHorizontal: scale(20),
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
     },
     playerHeaderRow: {
       flexDirection: 'row',
@@ -166,14 +266,13 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       marginBottom: verticalScale(20),
     },
     playerImageContainer: {
-      width: scale(80),
-      height: scale(80),
-      borderRadius: scale(40),
+      width: scale(70),
+      height: scale(70),
+      borderRadius: scale(35),
       overflow: 'hidden',
       marginRight: scale(15),
-      backgroundColor: colors.surface,
-      borderWidth: 3,
-      borderColor: colors.primary,
+      borderWidth: 2,
+      borderColor: colors.white,
     },
     playerImage: {
       width: '100%',
@@ -184,135 +283,177 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       justifyContent: 'center',
     },
     playerName: {
-      fontSize: scale(24),
-      fontWeight: 'bold',
+      fontSize: scale(20),
+      fontFamily: Typography.fontFamily.bold,
       color: colors.text,
-      marginBottom: verticalScale(5),
-    },
-    playerMetaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: scale(10),
+      marginBottom: verticalScale(2),
     },
     playerPosition: {
-      fontSize: scale(16),
-      fontWeight: '600',
+      fontSize: scale(14),
       color: colors.textSecondary,
-    },
-    playerNumber: {
-      fontSize: scale(16),
-      fontWeight: '600',
-      color: colors.primary,
+      fontFamily: Typography.fontFamily.regular,
     },
     statsContainer: {
       flexDirection: 'row',
-      alignItems: 'stretch',
-      justifyContent: 'space-between',
       gap: scale(15),
     },
     statBox: {
       flex: 1,
-      backgroundColor: colors.cardBackground,
+      borderWidth: scale(1),
+      borderColor: colors.borderLight,
+      backgroundColor: colors.white,
       paddingVertical: verticalScale(15),
-      paddingHorizontal: scale(15),
-      borderRadius: scale(12),
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    statItem: {
-      alignItems: 'stretch',
       paddingHorizontal: scale(20),
-      borderWidth: 1,
-      borderColor: colors.border,
+      borderRadius: scale(12),
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
     },
     statLabel: {
-      fontSize: scale(14),
+      fontSize: scale(12),
       color: colors.textSecondary,
       marginBottom: verticalScale(5),
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
+      fontFamily: Typography.fontFamily.semiBold,
     },
     statValue: {
       fontSize: scale(20),
-      fontWeight: 'bold',
+      fontFamily: Typography.fontFamily.bold,
       color: colors.text,
     },
-    statDivider: {
-      width: 1,
-      height: verticalScale(40),
-      backgroundColor: colors.border,
-    },
     section: {
-      marginTop: verticalScale(20),
+      marginTop: verticalScale(10),
       paddingHorizontal: scale(20),
     },
     sectionTitle: {
-      fontSize: scale(20),
-      fontWeight: 'bold',
-      marginBottom: verticalScale(15),
+      fontSize: scale(18),
+      fontFamily: Typography.fontFamily.bold,
+      marginBottom: verticalScale(10),
       color: colors.text,
     },
     activityCard: {
-      backgroundColor: colors.cardBackground,
-      padding: scale(15),
-      borderRadius: scale(12),
-      marginBottom: verticalScale(10),
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    activityTitle: {
-      fontSize: scale(16),
-      fontWeight: '600',
-      color: colors.text,
-      marginBottom: verticalScale(5),
-    },
-    activityDate: {
-      fontSize: scale(12),
-      color: colors.textMuted,
-      marginBottom: verticalScale(5),
-    },
-    activityDescription: {
-      fontSize: scale(14),
-      color: colors.textSecondary,
-    },
-    recordCard: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.white,
+      borderWidth: scale(1),
+      borderColor: colors.borderLight,
       padding: scale(15),
       borderRadius: scale(12),
       marginBottom: verticalScale(10),
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
     },
-    recordLeft: {
+    activityIconContainer: {
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(8),
+      backgroundColor: '#EEF2FF', // Light indigo background
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: scale(15),
+    },
+    activityContent: {
+      flex: 1,
+      marginRight: scale(10),
+    },
+    activityTitle: {
+      fontSize: scale(14),
+      fontFamily: Typography.fontFamily.semiBold,
+      color: colors.text,
+      marginBottom: verticalScale(4),
+    },
+    activityDescription: {
+      fontSize: scale(12),
+      color: colors.textSecondary,
+      fontFamily: Typography.fontFamily.regular,
+    },
+    recordCard: {
+      backgroundColor: colors.white,
+      padding: scale(15),
+      borderWidth: scale(1),
+      borderColor: colors.borderLight,
+      borderRadius: scale(12),
+      marginBottom: verticalScale(10),
+      flexDirection: 'row',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    recordIconContainer: {
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(8),
+      backgroundColor: '#F1F5F9', // Light slate background
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: scale(15),
+    },
+    recordContent: {
       flex: 1,
     },
+    recordHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: verticalScale(4),
+    },
     recordExercise: {
-      fontSize: scale(16),
-      fontWeight: '600',
+      fontSize: scale(14),
+      fontFamily: Typography.fontFamily.semiBold,
       color: colors.text,
-      marginBottom: verticalScale(5),
+      marginRight: scale(8),
+    },
+    newPrBadge: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      backgroundColor: '#2563EB', // Blue
+      paddingHorizontal: scale(8),
+      paddingVertical: verticalScale(4),
+      borderTopRightRadius: scale(12),
+      borderBottomLeftRadius: scale(12),
+      zIndex: 1,
+    },
+    newPrText: {
+      color: '#fff',
+      fontSize: scale(10),
+      fontFamily: Typography.fontFamily.bold,
     },
     recordDate: {
       fontSize: scale(12),
-      color: colors.textMuted,
+      color: colors.info, // Using blue for date as in design
+      fontFamily: Typography.fontFamily.semiBold,
+    },
+    recordRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     recordWeight: {
-      fontSize: scale(18),
-      fontWeight: 'bold',
-      color: colors.accent,
+      fontSize: scale(14),
+      fontFamily: Typography.fontFamily.bold,
+      color: colors.text,
+      marginRight: scale(5),
+    },
+    fab: {
+      position: 'absolute',
+      bottom: verticalScale(20),
+      right: scale(20),
+      width: scale(56),
+      height: scale(56),
+      borderRadius: scale(28),
+      backgroundColor: '#2563EB', // Blue
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 8,
     },
   });
