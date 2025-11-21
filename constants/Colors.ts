@@ -14,6 +14,7 @@ export const DarkColors = {
   background: '#0F172A', // Slate 900 - deep dark blue
   backgroundLight: '#1E293B', // Slate 800
   cardBackground: '#1E293B', // Slate 800
+  tabBarBackground: '#1E293B', // Slate 800
 
   // Surface Colors
   surface: '#334155', // Slate 700
@@ -38,6 +39,7 @@ export const DarkColors = {
   // Legacy/Specific
   playerDashboardBackground: '#0F172A',
   sectionBackground: '#1E293B',
+  tabBarDot: '#6366F1',
   border: '#334155',
   borderLight: '#475569',
 
@@ -65,6 +67,7 @@ export const LightColors = {
   background: '#F8FAFC', // Slate 50
   backgroundLight: '#FFFFFF', // White
   cardBackground: '#FFFFFF', // White
+  tabBarBackground: '#FFFFFF', // White
 
   // Surface Colors
   surface: '#F1F5F9', // Slate 100
@@ -89,6 +92,7 @@ export const LightColors = {
   // Legacy/Specific
   playerDashboardBackground: '#eceef0ff',
   sectionBackground: '#FFFFFF',
+  tabBarDot: '#6366F1',
   border: '#E2E8F0',
   borderLight: '#CBD5E1',
 

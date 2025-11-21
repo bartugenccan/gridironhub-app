@@ -29,7 +29,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.playerDashboardBackground }]}>
+    <View style={[styles.container, { backgroundColor: colors.tabBarBackground }]}>
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
 
@@ -60,7 +60,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
               <CustomText style={[styles.tabLabel, { color: colors.text }]}>
                 {translatedName?.toLocaleUpperCase()}
               </CustomText>
-              {isFocused && <View style={[styles.activeDot, { backgroundColor: colors.accent }]} />}
+              {isFocused && <View style={[styles.activeDot, { backgroundColor: colors.tabBarDot }]} />}
             </View>
           </TouchableOpacity>
         );
@@ -72,8 +72,8 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: verticalScale(84),
-    paddingBottom: verticalScale(23),
+    height: verticalScale(76),
+    paddingBottom: verticalScale(6),
   },
   tabButton: {
     flex: 1,

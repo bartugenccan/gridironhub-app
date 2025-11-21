@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.transparent,
+    backgroundColor: Colors.tabBarBackground,
     height: 60,
     alignItems: 'center',
     justifyContent: 'space-around',
