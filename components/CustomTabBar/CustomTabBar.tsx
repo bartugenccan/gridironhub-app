@@ -4,30 +4,32 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomText } from '@/components/CustomText';
 import { scale, verticalScale } from 'react-native-size-matters';
-import { Colors } from '@/constants/Colors';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { TabRoutes } from '@/types/navigation/routes';
 
 const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
   const { t } = useTranslation();
+  const { colors } = useTheme();
 
   const getIconName = (routeName: string, isFocused: boolean) => {
     // Use original route names instead of translated ones
     switch (routeName) {
-      case TabRoutes.HOME:
-        return isFocused ? 'home' : 'home-outline';
-
+      case TabRoutes.DASHBOARD:
+        return isFocused ? 'grid' : 'grid-outline';
+      case TabRoutes.TEAM:
+        return isFocused ? 'people' : 'people-outline';
+      case TabRoutes.WORKOUTS:
+        return isFocused ? 'barbell' : 'barbell-outline';
       case TabRoutes.PROFILE:
         return isFocused ? 'person' : 'person-outline';
-      case TabRoutes.SETTINGS:
-        return isFocused ? 'settings' : 'settings-outline';
       default:
         return 'help-circle-outline';
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.playerDashboardBackground }]}>
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
 
@@ -51,14 +53,14 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
           <TouchableOpacity
             key={index}
             onPress={onPress}
-            style={styles.tabButton}
+            style={[styles.tabButton, { borderTopColor: colors.border }]}
             activeOpacity={0.7}>
             <View style={styles.tabContent}>
-              <Ionicons name={iconName as any} size={24} color={isFocused ? '#fff' : '#8080C8'} />
-              <CustomText style={[styles.tabLabel, { color: isFocused ? '#fff' : '#8080C8' }]}>
+              <Ionicons name={iconName as any} size={24} color={colors.text} />
+              <CustomText style={[styles.tabLabel, { color: colors.text }]}>
                 {translatedName?.toLocaleUpperCase()}
               </CustomText>
-              {isFocused && <View style={styles.activeDot} />}
+              {isFocused && <View style={[styles.activeDot, { backgroundColor: colors.accent }]} />}
             </View>
           </TouchableOpacity>
         );
@@ -70,7 +72,6 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#2D10FF',
     height: verticalScale(84),
     paddingBottom: verticalScale(23),
   },
@@ -78,6 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    borderTopWidth: 1,
   },
   tabContent: {
     alignItems: 'center',
@@ -91,7 +93,6 @@ const styles = StyleSheet.create({
     width: scale(4),
     height: scale(4),
     borderRadius: scale(2),
-    backgroundColor: Colors.secondary,
     marginTop: verticalScale(4),
   },
 });

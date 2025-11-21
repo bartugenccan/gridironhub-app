@@ -12,6 +12,7 @@ import * as SplashScreen from 'expo-splash-screen';
 // i18n
 import './i18n';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
@@ -47,13 +48,15 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={styles.container} onLayout={onLayoutRootView}>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <AuthProvider>
-            <AppNavigator />
-          </AuthProvider>
-        </NavigationContainer>
-      </SafeAreaProvider>
+      <ThemeProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <AuthProvider>
+              <AppNavigator />
+            </AuthProvider>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

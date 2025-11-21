@@ -11,14 +11,28 @@ export type AuthStackParamList = {
 };
 
 // Tab Stack Param Lists
-export type HomeStackParamList = {
-  [AppRoutes.HOME]: undefined;
-  [AppRoutes.HOME_DETAIL]: undefined;
+export type DashboardStackParamList = {
+  [AppRoutes.DASHBOARD]: undefined;
+};
+
+export type TeamStackParamList = {
+  [AppRoutes.TEAM]: undefined;
+  [AppRoutes.LOGIN]: undefined;
+};
+
+export type WorkoutsStackParamList = {
+  [AppRoutes.WORKOUTS]: undefined;
 };
 
 export type ProfileStackParamList = {
   [AppRoutes.PROFILE]: undefined;
   [AppRoutes.PROFILE_EDIT]: undefined;
+};
+
+// Old stacks (kept for compatibility)
+export type HomeStackParamList = {
+  [AppRoutes.HOME]: undefined;
+  [AppRoutes.HOME_DETAIL]: undefined;
 };
 
 export type SettingsStackParamList = {
@@ -28,9 +42,10 @@ export type SettingsStackParamList = {
 
 // Tab Navigator
 export type TabNavigatorParamList = {
-  [TabRoutes.HOME]: NavigatorScreenParams<HomeStackParamList>;
+  [TabRoutes.DASHBOARD]: NavigatorScreenParams<DashboardStackParamList>;
+  [TabRoutes.TEAM]: NavigatorScreenParams<TeamStackParamList>;
+  [TabRoutes.WORKOUTS]: NavigatorScreenParams<WorkoutsStackParamList>;
   [TabRoutes.PROFILE]: NavigatorScreenParams<ProfileStackParamList>;
-  [TabRoutes.SETTINGS]: NavigatorScreenParams<SettingsStackParamList>;
 };
 
 // Main Stack - Contains both TabNavigator and non-tab screens
@@ -51,8 +66,11 @@ export type RootStackParamList = {
 export type AppNavigationProp = NativeStackNavigationProp<
   RootStackParamList &
     MainStackParamList &
-    HomeStackParamList &
+    DashboardStackParamList &
+    TeamStackParamList &
+    WorkoutsStackParamList &
     ProfileStackParamList &
+    HomeStackParamList &
     SettingsStackParamList &
     AuthStackParamList
 >;

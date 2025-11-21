@@ -14,16 +14,22 @@ export enum AppRoutes {
   LOGIN = 'Login',
 
   // Tab Screens
-  HOME = 'Home',
-  HOME_DETAIL = 'HomeDetail',
+  DASHBOARD = 'Dashboard',
+  TEAM = 'Team',
+  WORKOUTS = 'Workouts',
   PROFILE = 'Profile',
   PROFILE_EDIT = 'ProfileEdit',
+
+  // Old routes (kept for compatibility)
+  HOME = 'Home',
+  HOME_DETAIL = 'HomeDetail',
   SETTINGS = 'Settings',
   SETTINGS_DETAIL = 'SettingsDetail',
 }
 
 export enum TabRoutes {
-  HOME = 'HomeTab',
+  DASHBOARD = 'DashboardTab',
+  TEAM = 'TeamTab',
+  WORKOUTS = 'WorkoutsTab',
   PROFILE = 'ProfileTab',
-  SETTINGS = 'SettingsTab',
 }

@@ -7,6 +7,9 @@ import { ModalScreen } from './ModalScreen';
 import { HomeDetail } from './HomeDetail';
 import { Welcome } from './Welcome';
 import { Login } from './Login';
+import { PlayerDashboard } from './PlayerDashboard';
+import { TeamScreen } from './TeamScreen';
+import { WorkoutsScreen } from './WorkoutsScreen';
 
 export {
   NonTabScreen,
@@ -18,4 +21,7 @@ export {
   HomeDetail,
   Welcome,
   Login,
+  PlayerDashboard,
+  TeamScreen,
+  WorkoutsScreen,
 };
