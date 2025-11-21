@@ -56,7 +56,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
             style={[styles.tabButton, { borderTopColor: colors.border }]}
             activeOpacity={0.7}>
             <View style={styles.tabContent}>
-              <Ionicons name={iconName as any} size={24} color={colors.text} />
+              <Ionicons name={iconName as any} size={20} color={colors.text} />
               <CustomText style={[styles.tabLabel, { color: colors.text }]}>
                 {translatedName?.toLocaleUpperCase()}
               </CustomText>
@@ -86,8 +86,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabLabel: {
-    fontSize: scale(12),
+    fontSize: scale(8),
     marginTop: verticalScale(4),
+    fontWeight: "semibold"
   },
   activeDot: {
     width: scale(4),

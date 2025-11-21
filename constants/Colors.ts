@@ -40,6 +40,13 @@ export const DarkColors = {
   sectionBackground: '#1E293B',
   border: '#334155',
   borderLight: '#475569',
+
+  // Player Dashboard Specific
+  playerCardBackground: '#14171f',
+  activityIconBackground: '#272729',
+  recordIconBackground: '#272729',
+  activityIconColor: '#FFFFFF',
+  recordIconColor: '#FFFFFF',
 };
 
 // Light Theme Colors
@@ -84,6 +91,13 @@ export const LightColors = {
   sectionBackground: '#FFFFFF',
   border: '#E2E8F0',
   borderLight: '#CBD5E1',
+
+  // Player Dashboard Specific
+  playerCardBackground: '#FFFFFF',
+  activityIconBackground: '#EEF2FF',
+  recordIconBackground: '#F1F5F9',
+  activityIconColor: '#6366F1', // primary
+  recordIconColor: '#0F172A', // text
 };
 
 // Default export (Dark theme by default)

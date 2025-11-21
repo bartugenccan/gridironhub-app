@@ -86,7 +86,7 @@ export const PlayerDashboard = () => {
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
     <View style={styles.activityCard}>
       <View style={styles.activityIconContainer}>
-        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.primary} />
+        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.activityIconColor} />
       </View>
       <View style={styles.activityContent}>
         <CustomText style={styles.activityTitle}>{item.title}</CustomText>
@@ -110,7 +110,7 @@ export const PlayerDashboard = () => {
         </View>
       )}
       <View style={styles.recordIconContainer}>
-        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.text} />
+        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.recordIconColor} />
       </View>
       <View style={styles.recordContent}>
         <View style={styles.recordHeader}>
@@ -272,7 +272,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       overflow: 'hidden',
       marginRight: scale(15),
       borderWidth: 2,
-      borderColor: colors.white,
+      borderColor: colors.playerCardBackground,
     },
     playerImage: {
       width: '100%',
@@ -301,7 +301,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       flex: 1,
       borderWidth: scale(1),
       borderColor: colors.borderLight,
-      backgroundColor: colors.white,
+      backgroundColor: colors.playerCardBackground,
       paddingVertical: verticalScale(15),
       paddingHorizontal: scale(20),
       borderRadius: scale(12),
@@ -333,7 +333,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       color: colors.text,
     },
     activityCard: {
-      backgroundColor: colors.white,
+      backgroundColor: colors.playerCardBackground,
       borderWidth: scale(1),
       borderColor: colors.borderLight,
       padding: scale(15),
@@ -351,7 +351,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       width: scale(40),
       height: scale(40),
       borderRadius: scale(8),
-      backgroundColor: '#EEF2FF', // Light indigo background
+      backgroundColor: colors.activityIconBackground,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: scale(15),
@@ -372,7 +372,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       fontFamily: Typography.fontFamily.regular,
     },
     recordCard: {
-      backgroundColor: colors.white,
+      backgroundColor: colors.playerCardBackground,
       padding: scale(15),
       borderWidth: scale(1),
       borderColor: colors.borderLight,
@@ -390,7 +390,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       width: scale(40),
       height: scale(40),
       borderRadius: scale(8),
-      backgroundColor: '#F1F5F9', // Light slate background
+      backgroundColor: colors.recordIconBackground,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: scale(15),
