@@ -13,13 +13,16 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { CustomText } from '@/components';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { Typography } from '@/constants/Typography';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation/routes';
 import { DashboardStackParamList } from '@/types/navigation/stacks';
-import { statsService, PersonalRecord } from '@/api/services/stats.service';
+import { usePersonalRecordHistory, useAddPersonalRecord, useDeletePersonalRecord } from '@/hooks/useStats';
+import { PersonalRecord } from '@/api/services/stats.service';
 import { LineChart } from 'react-native-chart-kit';
 import { formatDate } from '@/utils/formatDate';
+import { Swipeable } from 'react-native-gesture-handler';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type PRDetailScreenRouteProp = RouteProp<DashboardStackParamList, typeof AppRoutes.PR_DETAIL>;
 
@@ -30,62 +33,68 @@ export const PRDetailScreen = () => {
     const route = useRoute<PRDetailScreenRouteProp>();
     const { liftName } = route.params;
 
-    const [history, setHistory] = useState<PersonalRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { data: historyData, isLoading } = usePersonalRecordHistory(liftName);
+    const { mutate: addRecord, isPending: isSubmitting } = useAddPersonalRecord();
+    const { mutate: deleteRecord } = useDeletePersonalRecord();
+
     const [newMax, setNewMax] = useState('');
     const [notes, setNotes] = useState('');
 
-    useEffect(() => {
-        fetchHistory();
-    }, [liftName]);
+    const history = React.useMemo(() => {
+        if (!historyData) return [];
+        // Sort by date ascending for chart
+        return [...historyData].sort(
+            (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
+        );
+    }, [historyData]);
 
-    const fetchHistory = async () => {
-        try {
-            setIsLoading(true);
-            const data = await statsService.getPersonalRecordHistory(liftName);
-            // Sort by date ascending for chart
-            const sortedData = data.sort(
-                (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
-            );
-            setHistory(sortedData);
-        } catch (error) {
-            console.error('Error fetching history:', error);
-            Alert.alert('Error', 'Failed to load history');
-        } finally {
-            setIsLoading(false);
-        }
+    const handleDeleteHistory = (record: PersonalRecord) => {
+        Alert.alert(
+            'Delete Record',
+            `Are you sure you want to delete this ${liftName} record (${record.oneRepMax} kg)?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => {
+                        deleteRecord(record.id);
+                    },
+                },
+            ]
+        );
     };
 
-    const handleUpdate = async () => {
+    const handleUpdate = () => {
         if (!newMax) {
             Alert.alert('Error', 'Please enter a new max weight');
             return;
         }
 
-        try {
-            setIsSubmitting(true);
-            await statsService.updatePersonalRecord({
+        addRecord(
+            {
                 liftName,
                 oneRepMax: parseFloat(newMax),
                 notes: notes || undefined,
-            });
-
-            Alert.alert('Success', 'Personal record updated!', [
-                {
-                    text: 'OK', onPress: () => {
-                        setNewMax('');
-                        setNotes('');
-                        fetchHistory(); // Refresh chart
-                    }
-                }
-            ]);
-        } catch (error) {
-            console.error('Error updating PR:', error);
-            Alert.alert('Error', 'Failed to update personal record');
-        } finally {
-            setIsSubmitting(false);
-        }
+            },
+            {
+                onSuccess: () => {
+                    Alert.alert('Success', 'Personal record updated!', [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                setNewMax('');
+                                setNotes('');
+                            },
+                        },
+                    ]);
+                },
+                onError: (error: any) => {
+                    console.error('Error updating PR:', error);
+                    Alert.alert('Error', error.message || 'Failed to update personal record');
+                },
+            }
+        );
     };
 
     const getChartData = () => {
@@ -164,7 +173,7 @@ export const PRDetailScreen = () => {
                             <CustomText style={styles.sectionTitle}>Update Record</CustomText>
 
                             <View style={styles.inputGroup}>
-                                <CustomText style={styles.label}>New 1 Rep Max (lbs)</CustomText>
+                                <CustomText style={styles.label}>New 1 Rep Max (kg)</CustomText>
                                 <TextInput
                                     style={styles.input}
                                     value={newMax}
@@ -204,19 +213,33 @@ export const PRDetailScreen = () => {
                         {/* History List */}
                         <View style={styles.historyContainer}>
                             <CustomText style={styles.sectionTitle}>History</CustomText>
-                            {history.slice().reverse().map((record, index) => (
-                                <View key={index} style={styles.historyItem}>
-                                    <View style={styles.historyLeft}>
-                                        <CustomText style={styles.historyWeight}>{record.oneRepMax} lbs</CustomText>
-                                        <CustomText style={styles.historyDate}>{formatDate(record.recordedAt)}</CustomText>
-                                    </View>
-                                    {index === 0 && (
-                                        <View style={styles.currentBadge}>
-                                            <CustomText style={styles.currentBadgeText}>Current</CustomText>
+                            {history.slice().reverse().map((record, index) => {
+                                const renderRightActions = () => (
+                                    <TouchableOpacity
+                                        style={styles.deleteButton}
+                                        onPress={() => handleDeleteHistory(record)}
+                                    >
+                                        <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
+                                        <CustomText style={styles.deleteText}>Delete</CustomText>
+                                    </TouchableOpacity>
+                                );
+
+                                return (
+                                    <Swipeable key={record.id} renderRightActions={renderRightActions} overshootRight={false}>
+                                        <View style={styles.historyItem}>
+                                            <View style={styles.historyLeft}>
+                                                <CustomText style={styles.historyWeight}>{record.oneRepMax} kg</CustomText>
+                                                <CustomText style={styles.historyDate}>{formatDate(record.recordedAt)}</CustomText>
+                                            </View>
+                                            {index === 0 && (
+                                                <View style={styles.currentBadge}>
+                                                    <CustomText style={styles.currentBadgeText}>Current</CustomText>
+                                                </View>
+                                            )}
                                         </View>
-                                    )}
-                                </View>
-                            ))}
+                                    </Swipeable>
+                                );
+                            })}
                         </View>
                     </>
                 )}
@@ -362,5 +385,19 @@ const getStyles = (colors: any) => StyleSheet.create({
         color: '#2563EB',
         fontSize: scale(12),
         fontFamily: Typography.fontFamily.semiBold,
+    },
+    deleteButton: {
+        backgroundColor: '#EF4444',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: scale(80),
+        height: '85%',
+        borderRadius: scale(12),
+    },
+    deleteText: {
+        color: '#fff',
+        fontSize: scale(12),
+        fontFamily: Typography.fontFamily.semiBold,
+        marginTop: verticalScale(4),
     },
 });

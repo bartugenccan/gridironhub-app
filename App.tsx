@@ -19,6 +19,10 @@ import './i18n';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function App() {
@@ -57,11 +61,13 @@ export default function App() {
     <GestureHandlerRootView style={styles.container} onLayout={onLayoutRootView}>
       <ThemeProvider>
         <SafeAreaProvider>
-          <NavigationContainer>
-            <AuthProvider>
-              <AppNavigator />
-            </AuthProvider>
-          </NavigationContainer>
+          <QueryClientProvider client={queryClient}>
+            <NavigationContainer>
+              <AuthProvider>
+                <AppNavigator />
+              </AuthProvider>
+            </NavigationContainer>
+          </QueryClientProvider>
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

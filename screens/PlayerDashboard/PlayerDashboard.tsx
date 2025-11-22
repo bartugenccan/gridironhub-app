@@ -6,15 +6,18 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { CustomText } from '@/components';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
 import { useAuth } from '@/contexts/AuthContext';
-import { statsService, PersonalRecord as ApiPersonalRecord } from '@/api/services/stats.service';
+import { usePersonalRecords, useDeletePersonalRecord } from '@/hooks/useStats';
 import { formatDate } from '@/utils/formatDate';
 import { useNavigation } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
@@ -48,14 +51,14 @@ const recentActivities: RecentActivity[] = [
   },
   {
     id: '2',
-    title: 'You set a new Personal Record in Bench Press: 315 lbs',
+    title: 'You set a new Personal Record in Bench Press: 315 kg',
     date: 'Nov 15, 2023',
     description: '',
     icon: 'chart-line-variant',
   },
   {
     id: '3',
-    title: 'You updated your Back Squat: 405 lbs',
+    title: 'You updated your Back Squat: 405 kg',
     date: 'Oct 28, 2023',
     description: '',
     icon: 'dumbbell',
@@ -64,13 +67,13 @@ const recentActivities: RecentActivity[] = [
 
 // Icon mapping for different exercises
 const getExerciseIcon = (liftName: string): keyof typeof MaterialCommunityIcons.glyphMap => {
-  const lowerName = liftName.toLowerCase();
+  const lowerName = liftName?.toLowerCase();
 
-  if (lowerName.includes('squat')) return 'dumbbell';
-  if (lowerName.includes('bench') || lowerName.includes('press')) return 'minus';
-  if (lowerName.includes('deadlift')) return 'weight-lifter';
-  if (lowerName.includes('dash') || lowerName.includes('run')) return 'run-fast';
-  if (lowerName.includes('clean')) return 'dumbbell';
+  if (lowerName?.includes('squat')) return 'dumbbell';
+  if (lowerName?.includes('bench') || lowerName?.includes('press')) return 'minus';
+  if (lowerName?.includes('deadlift')) return 'weight-lifter';
+  if (lowerName?.includes('dash') || lowerName?.includes('run')) return 'run-fast';
+  if (lowerName?.includes('clean')) return 'dumbbell';
 
   return 'dumbbell'; // default icon
 };
@@ -81,45 +84,40 @@ export const PlayerDashboard = () => {
   const { user } = useAuth();
   const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
 
-  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: records, isLoading, error, refetch } = usePersonalRecords();
+  const { mutate: deleteRecord } = useDeletePersonalRecord();
 
-  useEffect(() => {
-    fetchPersonalRecords();
-  }, []);
+  const personalRecords = React.useMemo(() => {
+    if (!records) return [];
+    return records.map((record, index) => ({
+      id: record.id,
+      recordId: record.id, // Store the actual record ID for deletion
+      exercise: record.liftName,
+      weight:
+        record.liftName?.includes('Dash') || record.liftName?.includes('Run')
+          ? `${record.oneRepMax}s`
+          : `${record.oneRepMax} kg`,
+      date: formatDate(record.recordedAt),
+      icon: getExerciseIcon(record.liftName),
+      isNewPr: false,
+    }));
+  }, [records]);
 
-  const fetchPersonalRecords = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const records = await statsService.getPersonalRecords();
-
-      // Transform API data to component format
-      const transformedRecords: PersonalRecord[] = records.map((record, index) => ({
-        id: `${record.liftName}-${index}`,
-        exercise: record.liftName,
-        weight:
-          record.liftName.includes('Dash') || record.liftName.includes('Run')
-            ? `${record.oneRepMax}s`
-            : `${record.oneRepMax} lbs`,
-        date: formatDate(record.recordedAt),
-        icon: getExerciseIcon(record.liftName),
-        isNewPr: false, // You can add logic to determine if it's a new PR
-      }));
-
-      setPersonalRecords(transformedRecords);
-    } catch (err: any) {
-      console.error('Error fetching personal records:', err);
-      console.error('Error message:', err.message);
-      console.error('Error stack:', err.stack);
-      setError(err.message || 'Failed to load personal records');
-      // Set empty array so UI still renders
-      setPersonalRecords([]);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleDelete = (item: PersonalRecord) => {
+    Alert.alert(
+      'Delete PR',
+      `Are you sure you want to delete all ${item.exercise} records?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteRecord(item.id);
+          },
+        },
+      ]
+    );
   };
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
@@ -145,35 +143,49 @@ export const PlayerDashboard = () => {
     </View>
   );
 
-  const renderRecordItem = ({ item }: { item: PersonalRecord }) => (
-    <TouchableOpacity
-      style={styles.recordCard}
-      onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}
-    >
-      {item.isNewPr && (
-        <View style={styles.newPrBadge}>
-          <CustomText style={styles.newPrText}>NEW PR!</CustomText>
-        </View>
-      )}
-      <View style={styles.recordIconContainer}>
-        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.recordIconColor} />
-      </View>
-      <View style={styles.recordContent}>
-        <View style={styles.recordHeader}>
-          <CustomText style={styles.recordExercise}>{item.exercise}</CustomText>
-        </View>
-        <CustomText style={styles.recordDate}>{item.date}</CustomText>
-      </View>
-      <View style={styles.recordRight}>
-        <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
-        <MaterialCommunityIcons
-          name="chevron-right"
-          size={scale(20)}
-          color={colors.textSecondary}
-        />
-      </View>
-    </TouchableOpacity>
-  );
+  const renderRecordItem = ({ item }: { item: PersonalRecord }) => {
+    const renderRightActions = () => (
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDelete(item)}
+      >
+        <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
+        <CustomText style={styles.deleteText}>Delete</CustomText>
+      </TouchableOpacity>
+    );
+
+    return (
+      <Swipeable renderRightActions={renderRightActions} overshootRight={false}>
+        <TouchableOpacity
+          style={styles.recordCard}
+          onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}
+        >
+          {item.isNewPr && (
+            <View style={styles.newPrBadge}>
+              <CustomText style={styles.newPrText}>NEW PR!</CustomText>
+            </View>
+          )}
+          <View style={styles.recordIconContainer}>
+            <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.recordIconColor} />
+          </View>
+          <View style={styles.recordContent}>
+            <View style={styles.recordHeader}>
+              <CustomText style={styles.recordExercise}>{item.exercise}</CustomText>
+            </View>
+            <CustomText style={styles.recordDate}>{item.date}</CustomText>
+          </View>
+          <View style={styles.recordRight}>
+            <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={scale(20)}
+              color={colors.textSecondary}
+            />
+          </View>
+        </TouchableOpacity>
+      </Swipeable>
+    );
+  };
 
   const renderPersonalRecordsContent = () => {
     if (isLoading) {
@@ -189,8 +201,10 @@ export const PlayerDashboard = () => {
       return (
         <View style={styles.errorContainer}>
           <MaterialCommunityIcons name="alert-circle" size={scale(40)} color={colors.error} />
-          <CustomText style={styles.errorText}>{error}</CustomText>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchPersonalRecords}>
+          <CustomText style={styles.errorText}>
+            {error instanceof Error ? error.message : 'Failed to load records'}
+          </CustomText>
+          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
             <CustomText style={styles.retryButtonText}>Retry</CustomText>
           </TouchableOpacity>
         </View>
@@ -287,7 +301,10 @@ export const PlayerDashboard = () => {
       </ScrollView>
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate(AppRoutes.ADD_PR)}
+      >
         <MaterialCommunityIcons name="plus" size={scale(30)} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -591,5 +608,19 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       shadowOpacity: 0.3,
       shadowRadius: 4,
       elevation: 8,
+    },
+    deleteButton: {
+      backgroundColor: '#EF4444',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: scale(80),
+      height: '85%',
+      borderRadius: scale(12),
+    },
+    deleteText: {
+      color: '#fff',
+      fontSize: scale(12),
+      fontFamily: Typography.fontFamily.semiBold,
+      marginTop: verticalScale(4),
     },
   });

@@ -54,29 +54,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const storedUser = await AsyncStorage.getItem(STORAGE_KEYS.USER);
 
       if (storedToken && storedUser) {
-        // Optimistically set user and token to avoid flash if valid
-        // But we really should wait for validation to be sure.
-        // Let's just validate.
-
-        // Set token for axios interceptors to work if they use the context or storage
-        // Assuming axiosInstance gets token from storage or we need to set it?
-        // Usually axios interceptors read from storage.
-
+        // First, set the stored user and token to avoid flash
         try {
-          // We need to make sure the token is available for the request
-          // If axios interceptor reads from storage, we are good.
-          // If it reads from state, we might need to set it first, but setting state is async/batch.
-          // Let's assume axios reads from storage or we pass it.
-          // Actually, if we look at client.ts (not visible here but common pattern), it likely reads from storage.
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          setToken(storedToken);
+        } catch (parseError) {
+          console.error('Error parsing stored user:', parseError);
+        }
 
+        // Then validate the token in the background
+        try {
           const response = await authService.validateToken();
-          setToken(response.session.accessToken);
-          setUser(response.user);
 
-          // Update storage with fresh data if needed
-          await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.session.accessToken);
-          await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.session.refreshToken);
-          await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
+          // Backend returns { user: {...} }
+          if (response?.user) {
+            // Update with fresh user data from backend
+            setUser(response.user);
+
+            // Update user in storage
+            await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
+          }
         } catch (validationError) {
           console.error('Token validation failed:', validationError);
           // Token is invalid, clear everything
