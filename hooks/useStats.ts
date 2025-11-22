@@ -34,3 +34,16 @@ export const useAddPersonalRecord = () => {
     },
   });
 };
+
+export const useDeletePersonalRecord = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: statsService.deletePersonalRecord,
+    onSuccess: () => {
+      // Invalidate all queries to refresh data
+      queryClient.invalidateQueries({ queryKey: STATS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ['personalRecordHistory'] });
+    },
+  });
+};

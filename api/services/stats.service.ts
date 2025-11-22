@@ -2,6 +2,7 @@ import axiosInstance from '../client';
 import { API_ENDPOINTS } from '../endpoints';
 
 export interface PersonalRecord {
+  id: string;
   liftName: string;
   oneRepMax: number;
   recordedAt: string;
@@ -11,9 +12,22 @@ export const statsService = {
   getPersonalRecords: async (): Promise<PersonalRecord[]> => {
     try {
       const response = await axiosInstance.get<PersonalRecord[]>(
-        API_ENDPOINTS.STATS.GET_PERSONAL_RECORDS
+        API_ENDPOINTS.STATS.GET_PERSONAL_RECORDS,
+        {
+          headers: {
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+          },
+        }
       );
 
+      // Handle 304 Not Modified or empty response
+      if (!response.data) {
+        console.warn('No data received, returning empty array');
+        return [];
+      }
+
+      // Backend already returns camelCase, no mapping needed
       return response.data;
     } catch (error: any) {
       console.error('Error in getPersonalRecords:', error);
@@ -34,6 +48,7 @@ export const statsService = {
 
       // Map snake_case to camelCase
       return response.data.map((item) => ({
+        id: item.id,
         liftName: item.lift_name,
         oneRepMax: item.one_rep_max,
         recordedAt: item.recorded_at,
@@ -74,6 +89,15 @@ export const statsService = {
       return response.data;
     } catch (error: any) {
       console.error('Error in addPersonalRecord:', error);
+      throw error;
+    }
+  },
+
+  deletePersonalRecord: async (id: string): Promise<void> => {
+    try {
+      await axiosInstance.delete(`${API_ENDPOINTS.STATS.DELETE_PERSONAL_RECORD}/${id}`);
+    } catch (error: any) {
+      console.error('Error in deletePersonalRecord:', error);
       throw error;
     }
   },

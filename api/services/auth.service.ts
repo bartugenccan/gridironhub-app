@@ -30,7 +30,12 @@ const forgotPassword = async (email: string): Promise<void> => {
 };
 
 const validateToken = async (): Promise<LoginResponse> => {
-  const response = await axiosInstance.get<LoginResponse>(API_ENDPOINTS.AUTH.ME);
+  const response = await axiosInstance.get<LoginResponse>(API_ENDPOINTS.AUTH.ME, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+    },
+  });
   return response.data;
 };
 

@@ -6,15 +6,18 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { CustomText } from '@/components';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePersonalRecords } from '@/hooks/useStats';
+import { usePersonalRecords, useDeletePersonalRecord } from '@/hooks/useStats';
 import { formatDate } from '@/utils/formatDate';
 import { useNavigation } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
@@ -64,13 +67,13 @@ const recentActivities: RecentActivity[] = [
 
 // Icon mapping for different exercises
 const getExerciseIcon = (liftName: string): keyof typeof MaterialCommunityIcons.glyphMap => {
-  const lowerName = liftName.toLowerCase();
+  const lowerName = liftName?.toLowerCase();
 
-  if (lowerName.includes('squat')) return 'dumbbell';
-  if (lowerName.includes('bench') || lowerName.includes('press')) return 'minus';
-  if (lowerName.includes('deadlift')) return 'weight-lifter';
-  if (lowerName.includes('dash') || lowerName.includes('run')) return 'run-fast';
-  if (lowerName.includes('clean')) return 'dumbbell';
+  if (lowerName?.includes('squat')) return 'dumbbell';
+  if (lowerName?.includes('bench') || lowerName?.includes('press')) return 'minus';
+  if (lowerName?.includes('deadlift')) return 'weight-lifter';
+  if (lowerName?.includes('dash') || lowerName?.includes('run')) return 'run-fast';
+  if (lowerName?.includes('clean')) return 'dumbbell';
 
   return 'dumbbell'; // default icon
 };
@@ -82,14 +85,16 @@ export const PlayerDashboard = () => {
   const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
 
   const { data: records, isLoading, error, refetch } = usePersonalRecords();
+  const { mutate: deleteRecord } = useDeletePersonalRecord();
 
   const personalRecords = React.useMemo(() => {
     if (!records) return [];
     return records.map((record, index) => ({
-      id: `${record.liftName}-${index}`,
+      id: record.id,
+      recordId: record.id, // Store the actual record ID for deletion
       exercise: record.liftName,
       weight:
-        record.liftName.includes('Dash') || record.liftName.includes('Run')
+        record.liftName?.includes('Dash') || record.liftName?.includes('Run')
           ? `${record.oneRepMax}s`
           : `${record.oneRepMax} kg`,
       date: formatDate(record.recordedAt),
@@ -97,6 +102,23 @@ export const PlayerDashboard = () => {
       isNewPr: false,
     }));
   }, [records]);
+
+  const handleDelete = (item: PersonalRecord) => {
+    Alert.alert(
+      'Delete PR',
+      `Are you sure you want to delete all ${item.exercise} records?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteRecord(item.id);
+          },
+        },
+      ]
+    );
+  };
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
     <View style={styles.activityCard}>
@@ -121,35 +143,49 @@ export const PlayerDashboard = () => {
     </View>
   );
 
-  const renderRecordItem = ({ item }: { item: PersonalRecord }) => (
-    <TouchableOpacity
-      style={styles.recordCard}
-      onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}
-    >
-      {item.isNewPr && (
-        <View style={styles.newPrBadge}>
-          <CustomText style={styles.newPrText}>NEW PR!</CustomText>
-        </View>
-      )}
-      <View style={styles.recordIconContainer}>
-        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.recordIconColor} />
-      </View>
-      <View style={styles.recordContent}>
-        <View style={styles.recordHeader}>
-          <CustomText style={styles.recordExercise}>{item.exercise}</CustomText>
-        </View>
-        <CustomText style={styles.recordDate}>{item.date}</CustomText>
-      </View>
-      <View style={styles.recordRight}>
-        <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
-        <MaterialCommunityIcons
-          name="chevron-right"
-          size={scale(20)}
-          color={colors.textSecondary}
-        />
-      </View>
-    </TouchableOpacity>
-  );
+  const renderRecordItem = ({ item }: { item: PersonalRecord }) => {
+    const renderRightActions = () => (
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDelete(item)}
+      >
+        <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
+        <CustomText style={styles.deleteText}>Delete</CustomText>
+      </TouchableOpacity>
+    );
+
+    return (
+      <Swipeable renderRightActions={renderRightActions} overshootRight={false}>
+        <TouchableOpacity
+          style={styles.recordCard}
+          onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}
+        >
+          {item.isNewPr && (
+            <View style={styles.newPrBadge}>
+              <CustomText style={styles.newPrText}>NEW PR!</CustomText>
+            </View>
+          )}
+          <View style={styles.recordIconContainer}>
+            <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.recordIconColor} />
+          </View>
+          <View style={styles.recordContent}>
+            <View style={styles.recordHeader}>
+              <CustomText style={styles.recordExercise}>{item.exercise}</CustomText>
+            </View>
+            <CustomText style={styles.recordDate}>{item.date}</CustomText>
+          </View>
+          <View style={styles.recordRight}>
+            <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={scale(20)}
+              color={colors.textSecondary}
+            />
+          </View>
+        </TouchableOpacity>
+      </Swipeable>
+    );
+  };
 
   const renderPersonalRecordsContent = () => {
     if (isLoading) {
@@ -572,5 +608,19 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       shadowOpacity: 0.3,
       shadowRadius: 4,
       elevation: 8,
+    },
+    deleteButton: {
+      backgroundColor: '#EF4444',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: scale(80),
+      height: '85%',
+      borderRadius: scale(12),
+    },
+    deleteText: {
+      color: '#fff',
+      fontSize: scale(12),
+      fontFamily: Typography.fontFamily.semiBold,
+      marginTop: verticalScale(4),
     },
   });
