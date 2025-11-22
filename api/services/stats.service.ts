@@ -60,4 +60,21 @@ export const statsService = {
       throw error;
     }
   },
+  addPersonalRecord: async (data: {
+    liftName: string;
+    oneRepMax: number;
+    recordedAt?: string;
+    notes?: string;
+  }): Promise<PersonalRecord> => {
+    try {
+      const response = await axiosInstance.post<PersonalRecord>(
+        API_ENDPOINTS.STATS.UPDATE_PERSONAL_RECORD, // Using the same endpoint for creation as per request
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error('Error in addPersonalRecord:', error);
+      throw error;
+    }
+  },
 };

@@ -16,6 +16,7 @@ export enum AppRoutes {
   // Tab Screens
   DASHBOARD = 'Dashboard',
   PR_DETAIL = 'PRDetail',
+  ADD_PR = 'AddPR',
   TEAM = 'Team',
   WORKOUTS = 'Workouts',
   PROFILE = 'Profile',

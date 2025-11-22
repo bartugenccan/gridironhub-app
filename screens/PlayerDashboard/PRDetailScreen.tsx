@@ -164,7 +164,7 @@ export const PRDetailScreen = () => {
                             <CustomText style={styles.sectionTitle}>Update Record</CustomText>
 
                             <View style={styles.inputGroup}>
-                                <CustomText style={styles.label}>New 1 Rep Max (lbs)</CustomText>
+                                <CustomText style={styles.label}>New 1 Rep Max (kg)</CustomText>
                                 <TextInput
                                     style={styles.input}
                                     value={newMax}
@@ -207,7 +207,7 @@ export const PRDetailScreen = () => {
                             {history.slice().reverse().map((record, index) => (
                                 <View key={index} style={styles.historyItem}>
                                     <View style={styles.historyLeft}>
-                                        <CustomText style={styles.historyWeight}>{record.oneRepMax} lbs</CustomText>
+                                        <CustomText style={styles.historyWeight}>{record.oneRepMax} kg</CustomText>
                                         <CustomText style={styles.historyDate}>{formatDate(record.recordedAt)}</CustomText>
                                     </View>
                                     {index === 0 && (

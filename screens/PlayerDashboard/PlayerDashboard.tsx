@@ -48,14 +48,14 @@ const recentActivities: RecentActivity[] = [
   },
   {
     id: '2',
-    title: 'You set a new Personal Record in Bench Press: 315 lbs',
+    title: 'You set a new Personal Record in Bench Press: 315 kg',
     date: 'Nov 15, 2023',
     description: '',
     icon: 'chart-line-variant',
   },
   {
     id: '3',
-    title: 'You updated your Back Squat: 405 lbs',
+    title: 'You updated your Back Squat: 405 kg',
     date: 'Oct 28, 2023',
     description: '',
     icon: 'dumbbell',
@@ -103,7 +103,7 @@ export const PlayerDashboard = () => {
         weight:
           record.liftName.includes('Dash') || record.liftName.includes('Run')
             ? `${record.oneRepMax}s`
-            : `${record.oneRepMax} lbs`,
+            : `${record.oneRepMax} kg`,
         date: formatDate(record.recordedAt),
         icon: getExerciseIcon(record.liftName),
         isNewPr: false, // You can add logic to determine if it's a new PR
@@ -287,7 +287,10 @@ export const PlayerDashboard = () => {
       </ScrollView>
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate(AppRoutes.ADD_PR)}
+      >
         <MaterialCommunityIcons name="plus" size={scale(30)} color="#fff" />
       </TouchableOpacity>
     </View>
