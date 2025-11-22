@@ -13,11 +13,11 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { CustomText } from '@/components';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { Typography } from '@/constants/Typography';
-import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation/routes';
 import { DashboardStackParamList } from '@/types/navigation/stacks';
-import { statsService, PersonalRecord } from '@/api/services/stats.service';
+import { usePersonalRecordHistory, useAddPersonalRecord } from '@/hooks/useStats';
 import { LineChart } from 'react-native-chart-kit';
 import { formatDate } from '@/utils/formatDate';
 
@@ -30,62 +30,50 @@ export const PRDetailScreen = () => {
     const route = useRoute<PRDetailScreenRouteProp>();
     const { liftName } = route.params;
 
-    const [history, setHistory] = useState<PersonalRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { data: historyData, isLoading } = usePersonalRecordHistory(liftName);
+    const { mutate: addRecord, isPending: isSubmitting } = useAddPersonalRecord();
+
     const [newMax, setNewMax] = useState('');
     const [notes, setNotes] = useState('');
 
-    useEffect(() => {
-        fetchHistory();
-    }, [liftName]);
+    const history = React.useMemo(() => {
+        if (!historyData) return [];
+        // Sort by date ascending for chart
+        return [...historyData].sort(
+            (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
+        );
+    }, [historyData]);
 
-    const fetchHistory = async () => {
-        try {
-            setIsLoading(true);
-            const data = await statsService.getPersonalRecordHistory(liftName);
-            // Sort by date ascending for chart
-            const sortedData = data.sort(
-                (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime()
-            );
-            setHistory(sortedData);
-        } catch (error) {
-            console.error('Error fetching history:', error);
-            Alert.alert('Error', 'Failed to load history');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleUpdate = async () => {
+    const handleUpdate = () => {
         if (!newMax) {
             Alert.alert('Error', 'Please enter a new max weight');
             return;
         }
 
-        try {
-            setIsSubmitting(true);
-            await statsService.updatePersonalRecord({
+        addRecord(
+            {
                 liftName,
                 oneRepMax: parseFloat(newMax),
                 notes: notes || undefined,
-            });
-
-            Alert.alert('Success', 'Personal record updated!', [
-                {
-                    text: 'OK', onPress: () => {
-                        setNewMax('');
-                        setNotes('');
-                        fetchHistory(); // Refresh chart
-                    }
-                }
-            ]);
-        } catch (error) {
-            console.error('Error updating PR:', error);
-            Alert.alert('Error', 'Failed to update personal record');
-        } finally {
-            setIsSubmitting(false);
-        }
+            },
+            {
+                onSuccess: () => {
+                    Alert.alert('Success', 'Personal record updated!', [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                setNewMax('');
+                                setNotes('');
+                            },
+                        },
+                    ]);
+                },
+                onError: (error: any) => {
+                    console.error('Error updating PR:', error);
+                    Alert.alert('Error', error.message || 'Failed to update personal record');
+                },
+            }
+        );
     };
 
     const getChartData = () => {

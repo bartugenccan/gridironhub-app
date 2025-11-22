@@ -14,7 +14,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
 import { useAuth } from '@/contexts/AuthContext';
-import { statsService, PersonalRecord as ApiPersonalRecord } from '@/api/services/stats.service';
+import { usePersonalRecords } from '@/hooks/useStats';
 import { formatDate } from '@/utils/formatDate';
 import { useNavigation } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
@@ -81,46 +81,22 @@ export const PlayerDashboard = () => {
   const { user } = useAuth();
   const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
 
-  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: records, isLoading, error, refetch } = usePersonalRecords();
 
-  useEffect(() => {
-    fetchPersonalRecords();
-  }, []);
-
-  const fetchPersonalRecords = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const records = await statsService.getPersonalRecords();
-
-      // Transform API data to component format
-      const transformedRecords: PersonalRecord[] = records.map((record, index) => ({
-        id: `${record.liftName}-${index}`,
-        exercise: record.liftName,
-        weight:
-          record.liftName.includes('Dash') || record.liftName.includes('Run')
-            ? `${record.oneRepMax}s`
-            : `${record.oneRepMax} kg`,
-        date: formatDate(record.recordedAt),
-        icon: getExerciseIcon(record.liftName),
-        isNewPr: false, // You can add logic to determine if it's a new PR
-      }));
-
-      setPersonalRecords(transformedRecords);
-    } catch (err: any) {
-      console.error('Error fetching personal records:', err);
-      console.error('Error message:', err.message);
-      console.error('Error stack:', err.stack);
-      setError(err.message || 'Failed to load personal records');
-      // Set empty array so UI still renders
-      setPersonalRecords([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const personalRecords = React.useMemo(() => {
+    if (!records) return [];
+    return records.map((record, index) => ({
+      id: `${record.liftName}-${index}`,
+      exercise: record.liftName,
+      weight:
+        record.liftName.includes('Dash') || record.liftName.includes('Run')
+          ? `${record.oneRepMax}s`
+          : `${record.oneRepMax} kg`,
+      date: formatDate(record.recordedAt),
+      icon: getExerciseIcon(record.liftName),
+      isNewPr: false,
+    }));
+  }, [records]);
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
     <View style={styles.activityCard}>
@@ -189,8 +165,10 @@ export const PlayerDashboard = () => {
       return (
         <View style={styles.errorContainer}>
           <MaterialCommunityIcons name="alert-circle" size={scale(40)} color={colors.error} />
-          <CustomText style={styles.errorText}>{error}</CustomText>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchPersonalRecords}>
+          <CustomText style={styles.errorText}>
+            {error instanceof Error ? error.message : 'Failed to load records'}
+          </CustomText>
+          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
             <CustomText style={styles.retryButtonText}>Retry</CustomText>
           </TouchableOpacity>
         </View>

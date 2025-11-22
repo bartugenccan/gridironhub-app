@@ -16,7 +16,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
 import { useNavigation } from '@react-navigation/native';
-import { statsService } from '@/api/services/stats.service';
+import { useAddPersonalRecord } from '@/hooks/useStats';
 
 const LIFT_OPTIONS = [
     'Bench Press',
@@ -35,9 +35,9 @@ export const AddPRScreen = () => {
     const [liftName, setLiftName] = useState('');
     const [oneRepMax, setOneRepMax] = useState('');
     const [notes, setNotes] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const { mutate: addRecord, isPending: isLoading } = useAddPersonalRecord();
 
-    const handleSave = async () => {
+    const handleSave = () => {
         if (!liftName) {
             Alert.alert('Error', 'Please select a lift');
             return;
@@ -47,21 +47,23 @@ export const AddPRScreen = () => {
             return;
         }
 
-        try {
-            setIsLoading(true);
-            await statsService.addPersonalRecord({
+        addRecord(
+            {
                 liftName,
                 oneRepMax: Number(oneRepMax),
                 notes,
-            });
-            Alert.alert('Success', 'Personal Record added successfully', [
-                { text: 'OK', onPress: () => navigation.goBack() },
-            ]);
-        } catch (error: any) {
-            Alert.alert('Error', error.message || 'Failed to add Personal Record');
-        } finally {
-            setIsLoading(false);
-        }
+            },
+            {
+                onSuccess: () => {
+                    Alert.alert('Success', 'Personal Record added successfully', [
+                        { text: 'OK', onPress: () => navigation.goBack() },
+                    ]);
+                },
+                onError: (error: any) => {
+                    Alert.alert('Error', error.message || 'Failed to add Personal Record');
+                },
+            }
+        );
     };
 
     return (
