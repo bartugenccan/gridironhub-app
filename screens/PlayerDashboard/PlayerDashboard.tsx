@@ -16,6 +16,10 @@ import { Typography } from '@/constants/Typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { statsService, PersonalRecord as ApiPersonalRecord } from '@/api/services/stats.service';
 import { formatDate } from '@/utils/formatDate';
+import { useNavigation } from '@react-navigation/native';
+import { AppRoutes } from '@/types/navigation';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { DashboardStackParamList } from '@/types/navigation/stacks';
 
 interface RecentActivity {
   id: string;
@@ -75,6 +79,7 @@ export const PlayerDashboard = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const { user } = useAuth();
+  const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
 
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -141,7 +146,10 @@ export const PlayerDashboard = () => {
   );
 
   const renderRecordItem = ({ item }: { item: PersonalRecord }) => (
-    <View style={styles.recordCard}>
+    <TouchableOpacity
+      style={styles.recordCard}
+      onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}
+    >
       {item.isNewPr && (
         <View style={styles.newPrBadge}>
           <CustomText style={styles.newPrText}>NEW PR!</CustomText>
@@ -164,7 +172,7 @@ export const PlayerDashboard = () => {
           color={colors.textSecondary}
         />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderPersonalRecordsContent = () => {
@@ -242,7 +250,7 @@ export const PlayerDashboard = () => {
             <View style={styles.playerInfoContainer}>
               <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
               <CustomText style={styles.playerPosition}>
-                {/* #{user?.position || '4'} - {user?.positionName || 'Tight End'} */}
+                # 4 - Tight End
               </CustomText>
             </View>
           </View>

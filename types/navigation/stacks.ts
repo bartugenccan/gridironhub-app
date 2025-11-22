@@ -13,6 +13,7 @@ export type AuthStackParamList = {
 // Tab Stack Param Lists
 export type DashboardStackParamList = {
   [AppRoutes.DASHBOARD]: undefined;
+  [AppRoutes.PR_DETAIL]: { liftName: string };
 };
 
 export type TeamStackParamList = {

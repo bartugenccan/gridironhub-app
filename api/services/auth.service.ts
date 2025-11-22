@@ -29,8 +29,14 @@ const forgotPassword = async (email: string): Promise<void> => {
   await axiosInstance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, validatedData);
 };
 
+const validateToken = async (): Promise<LoginResponse> => {
+  const response = await axiosInstance.get<LoginResponse>(API_ENDPOINTS.AUTH.ME);
+  return response.data;
+};
+
 export const authService = {
   login,
   register,
   forgotPassword,
+  validateToken,
 };
