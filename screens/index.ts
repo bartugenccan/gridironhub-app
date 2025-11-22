@@ -5,5 +5,23 @@ import { SettingsScreen } from './SettingsScreen';
 import { SignUp } from './SignUp';
 import { ModalScreen } from './ModalScreen';
 import { HomeDetail } from './HomeDetail';
+import { Welcome } from './Welcome';
+import { Login } from './Login';
+import { PlayerDashboard } from './PlayerDashboard';
+import { TeamScreen } from './TeamScreen';
+import { WorkoutsScreen } from './WorkoutsScreen';
 
-export { NonTabScreen, HomeScreen, ProfileScreen, SettingsScreen, SignUp, ModalScreen, HomeDetail };
+export {
+  NonTabScreen,
+  HomeScreen,
+  ProfileScreen,
+  SettingsScreen,
+  SignUp,
+  ModalScreen,
+  HomeDetail,
+  Welcome,
+  Login,
+  PlayerDashboard,
+  TeamScreen,
+  WorkoutsScreen,
+};

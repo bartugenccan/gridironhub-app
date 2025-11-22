@@ -1,8 +1,9 @@
 {
   "tabs": {
-    "hometab": "Home",
-    "profiletab": "Profile",
-    "settingstab": "Settings"
+    "dashboardtab": "Dashboard",
+    "teamtab": "Team",
+    "workoutstab": "Workouts",
+    "profiletab": "Profile"
   },
   "home": {
     "mainBox": {
