@@ -5,9 +5,13 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: '/auth/forgot-password',
   },
   USER: {
-    PROFILE: '/user/profile',
     UPDATE_PROFILE: '/user/profile/update',
-    SETTINGS: '/user/settings',
+    GET_PROFILE: '/user/profile',
+    GET_TEAM: '/user/team',
   },
+  STATS: {
+    GET_PERSONAL_RECORDS: '/api/stats/personal-records',
+  },
+
   // Add other endpoint groups
 } as const;
