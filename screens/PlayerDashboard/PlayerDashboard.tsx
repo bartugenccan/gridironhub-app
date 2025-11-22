@@ -5,6 +5,7 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface RecentActivity {
   id: string;
@@ -82,11 +83,18 @@ const personalRecords: PersonalRecord[] = [
 export const PlayerDashboard = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const { user } = useAuth();
+
+  console.log('User in PlayerDashboard:', user);
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
     <View style={styles.activityCard}>
       <View style={styles.activityIconContainer}>
-        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.activityIconColor} />
+        <MaterialCommunityIcons
+          name={item.icon}
+          size={scale(20)}
+          color={colors.activityIconColor}
+        />
       </View>
       <View style={styles.activityContent}>
         <CustomText style={styles.activityTitle}>{item.title}</CustomText>
@@ -120,7 +128,11 @@ export const PlayerDashboard = () => {
       </View>
       <View style={styles.recordRight}>
         <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
-        <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={scale(20)}
+          color={colors.textSecondary}
+        />
       </View>
     </View>
   );
@@ -138,7 +150,7 @@ export const PlayerDashboard = () => {
             />
           </View>
           <View style={styles.headerTextContainer}>
-            <CustomText style={styles.teamName}>Sakarya Tatankaları</CustomText>
+            <CustomText style={styles.teamName}>{user?.teamName || 'Team Name'}</CustomText>
             <CustomText style={styles.pageTitle}>Player Dashboard</CustomText>
           </View>
           <TouchableOpacity style={styles.settingsButton}>
@@ -156,7 +168,7 @@ export const PlayerDashboard = () => {
               />
             </View>
             <View style={styles.playerInfoContainer}>
-              <CustomText style={styles.playerName}>Bartu Gençcan</CustomText>
+              <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
               <CustomText style={styles.playerPosition}>#4 - Tight End</CustomText>
             </View>
           </View>
