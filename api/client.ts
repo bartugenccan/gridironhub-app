@@ -1,8 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import ENV from '@/config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const publicRoutes = ['/industries', '/auth/login', '/register'];
+const publicRoutes = ['/api/auth/login', '/api/auth/register'];
 
 const axiosInstance = axios.create({
   baseURL: ENV.apiUrl,
@@ -18,7 +18,7 @@ axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig
     const isPublicRoute = publicRoutes.some((route) => config.url?.includes(route));
 
     if (!isPublicRoute) {
-      const accessToken = await SecureStore.getItemAsync('accessToken');
+      const accessToken = await AsyncStorage.getItem('accessToken');
 
       if (accessToken) {
         config.headers = config.headers || {};
