@@ -11,6 +11,8 @@ export const API_ENDPOINTS = {
   },
   STATS: {
     GET_PERSONAL_RECORDS: '/api/stats/personal-records',
+    UPDATE_PERSONAL_RECORD: '/api/stats/personal-records',
+    GET_PERSONAL_RECORD_HISTORY: '/api/stats/personal-records/history', // Appending /:liftName in service
   },
 
   // Add other endpoint groups
