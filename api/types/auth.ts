@@ -28,7 +28,9 @@ export interface LoginResponse extends BaseResponse {
     id: string;
     email: string;
     role: UserRole;
-    metadata: Record<string, unknown>;
+    fullName: string;
+    teamId: string;
+    teamName: string;
   };
 }
 
@@ -38,7 +40,9 @@ export interface RegisterResponse extends BaseResponse {
       id: string;
       email: string;
       role: UserRole;
-      metadata: Record<string, unknown>;
+      fullName: string;
+      teamId: string;
+      teamName: string;
     };
     token: string;
   };

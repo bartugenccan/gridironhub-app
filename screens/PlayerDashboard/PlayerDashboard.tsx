@@ -1,10 +1,21 @@
-import { StyleSheet, View, ScrollView, Image, FlatList, TouchableOpacity } from 'react-native';
-import React from 'react';
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { CustomText } from '@/components';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
+import { useAuth } from '@/contexts/AuthContext';
+import { statsService, PersonalRecord as ApiPersonalRecord } from '@/api/services/stats.service';
+import { formatDate } from '@/utils/formatDate';
 
 interface RecentActivity {
   id: string;
@@ -47,46 +58,73 @@ const recentActivities: RecentActivity[] = [
   },
 ];
 
-const personalRecords: PersonalRecord[] = [
-  {
-    id: '1',
-    exercise: 'Back Squat',
-    weight: '405 lbs',
-    date: 'Oct 28, 2023',
-    icon: 'dumbbell',
-  },
-  {
-    id: '2',
-    exercise: 'Bench Press',
-    weight: '315 lbs',
-    date: 'Nov 15, 2023',
-    icon: 'minus',
-    isNewPr: true,
-  },
-  {
-    id: '3',
-    exercise: 'Deadlift',
-    weight: '495 lbs',
-    date: 'Sep 05, 2023',
-    icon: 'weight-lifter',
-  },
-  {
-    id: '4',
-    exercise: '40-Yard Dash',
-    weight: '4.52s',
-    date: 'Aug 12, 2023',
-    icon: 'run-fast',
-  },
-];
+// Icon mapping for different exercises
+const getExerciseIcon = (liftName: string): keyof typeof MaterialCommunityIcons.glyphMap => {
+  const lowerName = liftName.toLowerCase();
+
+  if (lowerName.includes('squat')) return 'dumbbell';
+  if (lowerName.includes('bench') || lowerName.includes('press')) return 'minus';
+  if (lowerName.includes('deadlift')) return 'weight-lifter';
+  if (lowerName.includes('dash') || lowerName.includes('run')) return 'run-fast';
+  if (lowerName.includes('clean')) return 'dumbbell';
+
+  return 'dumbbell'; // default icon
+};
 
 export const PlayerDashboard = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const { user } = useAuth();
+
+  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchPersonalRecords();
+  }, []);
+
+  const fetchPersonalRecords = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const records = await statsService.getPersonalRecords();
+
+      // Transform API data to component format
+      const transformedRecords: PersonalRecord[] = records.map((record, index) => ({
+        id: `${record.liftName}-${index}`,
+        exercise: record.liftName,
+        weight:
+          record.liftName.includes('Dash') || record.liftName.includes('Run')
+            ? `${record.oneRepMax}s`
+            : `${record.oneRepMax} lbs`,
+        date: formatDate(record.recordedAt),
+        icon: getExerciseIcon(record.liftName),
+        isNewPr: false, // You can add logic to determine if it's a new PR
+      }));
+
+      setPersonalRecords(transformedRecords);
+    } catch (err: any) {
+      console.error('Error fetching personal records:', err);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+      setError(err.message || 'Failed to load personal records');
+      // Set empty array so UI still renders
+      setPersonalRecords([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
     <View style={styles.activityCard}>
       <View style={styles.activityIconContainer}>
-        <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.activityIconColor} />
+        <MaterialCommunityIcons
+          name={item.icon}
+          size={scale(20)}
+          color={colors.activityIconColor}
+        />
       </View>
       <View style={styles.activityContent}>
         <CustomText style={styles.activityTitle}>{item.title}</CustomText>
@@ -120,10 +158,56 @@ export const PlayerDashboard = () => {
       </View>
       <View style={styles.recordRight}>
         <CustomText style={styles.recordWeight}>{item.weight}</CustomText>
-        <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={scale(20)}
+          color={colors.textSecondary}
+        />
       </View>
     </View>
   );
+
+  const renderPersonalRecordsContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <CustomText style={styles.loadingText}>Loading records...</CustomText>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.errorContainer}>
+          <MaterialCommunityIcons name="alert-circle" size={scale(40)} color={colors.error} />
+          <CustomText style={styles.errorText}>{error}</CustomText>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchPersonalRecords}>
+            <CustomText style={styles.retryButtonText}>Retry</CustomText>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    if (personalRecords.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <MaterialCommunityIcons name="dumbbell" size={scale(40)} color={colors.textSecondary} />
+          <CustomText style={styles.emptyText}>No personal records yet</CustomText>
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={personalRecords}
+        renderItem={renderRecordItem}
+        keyExtractor={(item) => item.id}
+        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -138,7 +222,7 @@ export const PlayerDashboard = () => {
             />
           </View>
           <View style={styles.headerTextContainer}>
-            <CustomText style={styles.teamName}>Sakarya Tatankaları</CustomText>
+            <CustomText style={styles.teamName}>{user?.teamName || 'Team Name'}</CustomText>
             <CustomText style={styles.pageTitle}>Player Dashboard</CustomText>
           </View>
           <TouchableOpacity style={styles.settingsButton}>
@@ -156,8 +240,10 @@ export const PlayerDashboard = () => {
               />
             </View>
             <View style={styles.playerInfoContainer}>
-              <CustomText style={styles.playerName}>Bartu Gençcan</CustomText>
-              <CustomText style={styles.playerPosition}>#4 - Tight End</CustomText>
+              <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
+              <CustomText style={styles.playerPosition}>
+                {/* #{user?.position || '4'} - {user?.positionName || 'Tight End'} */}
+              </CustomText>
             </View>
           </View>
           <View style={styles.statsContainer}>
@@ -187,13 +273,7 @@ export const PlayerDashboard = () => {
         {/* Personal Records Section */}
         <View style={styles.section}>
           <CustomText style={styles.sectionTitle}>Personal Records</CustomText>
-          <FlatList
-            data={personalRecords}
-            renderItem={renderRecordItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+          {renderPersonalRecordsContent()}
         </View>
         <View style={{ height: verticalScale(80) }} />
       </ScrollView>
@@ -208,6 +288,7 @@ export const PlayerDashboard = () => {
 
 const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
   StyleSheet.create({
+    // ...existing styles...
     mainContainer: {
       flex: 1,
       backgroundColor: colors.playerDashboardBackground,
@@ -215,8 +296,55 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
     container: {
       flex: 1,
     },
+    loadingContainer: {
+      paddingVertical: verticalScale(40),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    loadingText: {
+      marginTop: verticalScale(10),
+      fontSize: scale(14),
+      color: colors.textSecondary,
+      fontFamily: Typography.fontFamily.regular,
+    },
+    errorContainer: {
+      paddingVertical: verticalScale(40),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    errorText: {
+      marginTop: verticalScale(10),
+      fontSize: scale(14),
+      color: colors.error,
+      fontFamily: Typography.fontFamily.regular,
+      textAlign: 'center',
+    },
+    retryButton: {
+      marginTop: verticalScale(15),
+      backgroundColor: colors.primary,
+      paddingHorizontal: scale(20),
+      paddingVertical: verticalScale(10),
+      borderRadius: scale(8),
+    },
+    retryButtonText: {
+      color: colors.white,
+      fontSize: scale(14),
+      fontFamily: Typography.fontFamily.semiBold,
+    },
+    emptyContainer: {
+      paddingVertical: verticalScale(40),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    emptyText: {
+      marginTop: verticalScale(10),
+      fontSize: scale(14),
+      color: colors.textSecondary,
+      fontFamily: Typography.fontFamily.regular,
+    },
+    // ...keep all existing styles from the original file...
     headerSection: {
-      paddingTop: verticalScale(50), // Increased for status bar
+      paddingTop: verticalScale(50),
       paddingBottom: verticalScale(15),
       paddingHorizontal: scale(20),
       flexDirection: 'row',
@@ -413,7 +541,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       position: 'absolute',
       top: 0,
       right: 0,
-      backgroundColor: '#2563EB', // Blue
+      backgroundColor: '#2563EB',
       paddingHorizontal: scale(8),
       paddingVertical: verticalScale(4),
       borderTopRightRadius: scale(12),
@@ -427,7 +555,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
     },
     recordDate: {
       fontSize: scale(12),
-      color: colors.info, // Using blue for date as in design
+      color: colors.info,
       fontFamily: Typography.fontFamily.semiBold,
     },
     recordRight: {
@@ -447,7 +575,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
       width: scale(56),
       height: scale(56),
       borderRadius: scale(28),
-      backgroundColor: '#2563EB', // Blue
+      backgroundColor: '#2563EB',
       justifyContent: 'center',
       alignItems: 'center',
       shadowColor: '#000',

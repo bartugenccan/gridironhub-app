@@ -1,15 +1,18 @@
 import { StyleSheet, View, Text, TouchableOpacity, Switch } from 'react-native';
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CustomText } from '@/components';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ProfileScreen = () => {
   const { theme, colors, toggleTheme } = useTheme();
+  const { logout } = useAuth();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <CustomText style={[styles.headerTitle, { color: colors.text }]}>Profile</CustomText>
       </View>
@@ -88,8 +91,16 @@ export const ProfileScreen = () => {
             <CustomText style={[styles.infoValue, { color: colors.primary }]}>#4</CustomText>
           </View>
         </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: colors.error || '#FF3B30' }]}
+          onPress={logout}>
+          <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+          <CustomText style={styles.logoutText}>Log Out</CustomText>
+        </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -159,6 +170,21 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
   },
   infoValue: {
+    fontSize: scale(16),
+    fontWeight: '600',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: scale(16),
+    borderRadius: scale(12),
+    gap: scale(8),
+    marginTop: 'auto',
+    marginBottom: verticalScale(20),
+  },
+  logoutText: {
+    color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: '600',
   },

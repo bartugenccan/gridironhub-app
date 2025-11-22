@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from '../endpoints';
 import type { UpdateProfileRequest, UpdateProfileResponse, UserProfile } from '../types';
 
 const getProfile = async (): Promise<UserProfile> => {
-  const response = await axiosInstance.get<UserProfile>(API_ENDPOINTS.USER.PROFILE);
+  const response = await axiosInstance.get<UserProfile>(API_ENDPOINTS.USER.GET_PROFILE);
   return response.data;
 };
 
@@ -15,13 +15,7 @@ const updateProfile = async (data: UpdateProfileRequest): Promise<UpdateProfileR
   return response.data;
 };
 
-const getSettings = async () => {
-  const response = await axiosInstance.get(API_ENDPOINTS.USER.SETTINGS);
-  return response.data;
-};
-
 export const userService = {
   getProfile,
   updateProfile,
-  getSettings,
 };
