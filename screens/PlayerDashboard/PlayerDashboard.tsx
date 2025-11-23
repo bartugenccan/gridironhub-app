@@ -89,7 +89,7 @@ export const PlayerDashboard = () => {
 
   const personalRecords = React.useMemo(() => {
     if (!records) return [];
-    return records.map((record, index) => ({
+    return records.map((record: any) => ({
       id: record.id,
       recordId: record.id, // Store the actual record ID for deletion
       exercise: record.liftName,
@@ -104,20 +104,16 @@ export const PlayerDashboard = () => {
   }, [records]);
 
   const handleDelete = (item: PersonalRecord) => {
-    Alert.alert(
-      'Delete PR',
-      `Are you sure you want to delete all ${item.exercise} records?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            deleteRecord(item.id);
-          },
+    Alert.alert('Delete PR', `Are you sure you want to delete all ${item.exercise} records?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          deleteRecord(item.id);
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => (
@@ -145,10 +141,7 @@ export const PlayerDashboard = () => {
 
   const renderRecordItem = ({ item }: { item: PersonalRecord }) => {
     const renderRightActions = () => (
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDelete(item)}
-      >
+      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
         <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
         <CustomText style={styles.deleteText}>Delete</CustomText>
       </TouchableOpacity>
@@ -158,15 +151,18 @@ export const PlayerDashboard = () => {
       <Swipeable renderRightActions={renderRightActions} overshootRight={false}>
         <TouchableOpacity
           style={styles.recordCard}
-          onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}
-        >
+          onPress={() => navigation.navigate(AppRoutes.PR_DETAIL, { liftName: item.exercise })}>
           {item.isNewPr && (
             <View style={styles.newPrBadge}>
               <CustomText style={styles.newPrText}>NEW PR!</CustomText>
             </View>
           )}
           <View style={styles.recordIconContainer}>
-            <MaterialCommunityIcons name={item.icon} size={scale(20)} color={colors.recordIconColor} />
+            <MaterialCommunityIcons
+              name={item.icon}
+              size={scale(20)}
+              color={colors.recordIconColor}
+            />
           </View>
           <View style={styles.recordContent}>
             <View style={styles.recordHeader}>
@@ -263,9 +259,7 @@ export const PlayerDashboard = () => {
             </View>
             <View style={styles.playerInfoContainer}>
               <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
-              <CustomText style={styles.playerPosition}>
-                # 4 - Tight End
-              </CustomText>
+              <CustomText style={styles.playerPosition}># 4 - Tight End</CustomText>
             </View>
           </View>
           <View style={styles.statsContainer}>
@@ -301,10 +295,7 @@ export const PlayerDashboard = () => {
       </ScrollView>
 
       {/* FAB */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate(AppRoutes.ADD_PR)}
-      >
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate(AppRoutes.ADD_PR)}>
         <MaterialCommunityIcons name="plus" size={scale(30)} color="#fff" />
       </TouchableOpacity>
     </View>

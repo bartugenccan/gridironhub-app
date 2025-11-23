@@ -17,7 +17,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
     switch (routeName) {
       case TabRoutes.DASHBOARD:
         return isFocused ? 'grid' : 'grid-outline';
-      case TabRoutes.TEAM:
+      case TabRoutes.ROSTER:
         return isFocused ? 'people' : 'people-outline';
       case TabRoutes.WORKOUTS:
         return isFocused ? 'barbell' : 'barbell-outline';
@@ -60,7 +60,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
               <CustomText style={[styles.tabLabel, { color: colors.text }]}>
                 {translatedName?.toLocaleUpperCase()}
               </CustomText>
-              {isFocused && <View style={[styles.activeDot, { backgroundColor: colors.tabBarDot }]} />}
+              {isFocused && (
+                <View style={[styles.activeDot, { backgroundColor: colors.tabBarDot }]} />
+              )}
             </View>
           </TouchableOpacity>
         );
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: scale(8),
     marginTop: verticalScale(4),
-    fontWeight: "semibold"
+    fontWeight: 'semibold',
   },
   activeDot: {
     width: scale(4),
