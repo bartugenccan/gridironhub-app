@@ -15,7 +15,7 @@ export const TabNavigator = () => {
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{ headerShown: false }}>
       <Tab.Screen name={TabRoutes.DASHBOARD} component={DashboardNavigator} />
-      <Tab.Screen name={TabRoutes.TEAM} component={TeamNavigator} />
+      <Tab.Screen name={TabRoutes.ROSTER} component={TeamNavigator} />
       <Tab.Screen name={TabRoutes.WORKOUTS} component={WorkoutsNavigator} />
       <Tab.Screen name={TabRoutes.PROFILE} component={ProfileNavigator} />
     </Tab.Navigator>

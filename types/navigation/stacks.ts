@@ -17,8 +17,8 @@ export type DashboardStackParamList = {
   [AppRoutes.ADD_PR]: undefined;
 };
 
-export type TeamStackParamList = {
-  [AppRoutes.TEAM]: undefined;
+export type RosterStackParamList = {
+  [AppRoutes.ROSTER]: undefined;
   [AppRoutes.LOGIN]: undefined;
 };
 
@@ -45,7 +45,7 @@ export type SettingsStackParamList = {
 // Tab Navigator
 export type TabNavigatorParamList = {
   [TabRoutes.DASHBOARD]: NavigatorScreenParams<DashboardStackParamList>;
-  [TabRoutes.TEAM]: NavigatorScreenParams<TeamStackParamList>;
+  [TabRoutes.ROSTER]: NavigatorScreenParams<RosterStackParamList>;
   [TabRoutes.WORKOUTS]: NavigatorScreenParams<WorkoutsStackParamList>;
   [TabRoutes.PROFILE]: NavigatorScreenParams<ProfileStackParamList>;
 };
@@ -69,7 +69,7 @@ export type AppNavigationProp = NativeStackNavigationProp<
   RootStackParamList &
     MainStackParamList &
     DashboardStackParamList &
-    TeamStackParamList &
+    RosterStackParamList &
     WorkoutsStackParamList &
     ProfileStackParamList &
     HomeStackParamList &

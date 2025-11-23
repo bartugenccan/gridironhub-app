@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
     GET_PERSONAL_RECORD_HISTORY: '/api/stats/personal-records/history', // Appending /:liftName in service
     DELETE_PERSONAL_RECORD: '/api/stats/personal-records', // Appending /:id in service
   },
+  ROSTER: {
+    GET_ROSTER: '/api/roster',
+  },
 
   // Add other endpoint groups
 } as const;

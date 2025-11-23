@@ -104,5 +104,5 @@ export const LightColors = {
   recordIconColor: '#0F172A', // text
 };
 
-// Default export (Dark theme by default)
-export const Colors = DarkColors;
+// Default export (Light theme by default)
+export const Colors = LightColors;
