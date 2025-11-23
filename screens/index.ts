@@ -10,6 +10,7 @@ import { Login } from './Login';
 import { PlayerDashboard } from './PlayerDashboard';
 import { Roster } from './Roster';
 import { WorkoutsScreen } from './WorkoutsScreen';
+import { PlayerProfile } from './PlayerProfile';
 
 export {
   NonTabScreen,
@@ -24,4 +25,5 @@ export {
   PlayerDashboard,
   Roster,
   WorkoutsScreen,
+  PlayerProfile,
 };
