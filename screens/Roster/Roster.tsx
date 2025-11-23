@@ -7,7 +7,7 @@ import { rosterService } from '@/api/services/roster.service';
 import { RosterResponse } from '@/api/types/roster';
 import { useTheme } from '@/contexts/ThemeContext';
 
-export const TeamScreen = () => {
+export const Roster = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const [roster, setRoster] = useState<RosterResponse | null>(null);
