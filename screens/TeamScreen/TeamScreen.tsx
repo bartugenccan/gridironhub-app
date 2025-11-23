@@ -2,12 +2,14 @@ import { StyleSheet, Text, View, TextInput, ScrollView, ActivityIndicator } from
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { DarkColors } from '@/constants/Colors';
 import { Typography } from '@/constants/Typography';
 import { rosterService } from '@/api/services/roster.service';
 import { RosterResponse } from '@/api/types/roster';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export const TeamScreen = () => {
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
   const [roster, setRoster] = useState<RosterResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +45,7 @@ export const TeamScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.text}>
-          <MaterialCommunityIcons name="football-helmet" size={24} color="green" />
+          <MaterialCommunityIcons name="football-helmet" size={24} color={colors.accent} />
           Team Roster
         </Text>
       </View>
@@ -52,13 +54,13 @@ export const TeamScreen = () => {
         <MaterialCommunityIcons
           name="magnify"
           size={28}
-          color={DarkColors.borderLight}
+          color={colors.textSecondary}
           style={styles.searchIcon}
         />
         <TextInput
           style={styles.searchInput}
           placeholder="Search by name"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textMuted}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -66,7 +68,7 @@ export const TeamScreen = () => {
 
       <ScrollView style={styles.contentContainer}>
         {loading ? (
-          <ActivityIndicator size="large" color="green" style={styles.loader} />
+          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
         ) : (
           <>
             {/* Coaches Section */}
@@ -82,7 +84,7 @@ export const TeamScreen = () => {
                           <Text style={styles.memberPosition}>{coach.primaryPosition}</Text>
                         )}
                       </View>
-                      <MaterialCommunityIcons name="chevron-right" size={24} color="#999" />
+                      <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
                     </View>
                   </View>
                 ))
@@ -109,7 +111,7 @@ export const TeamScreen = () => {
                           <Text style={styles.memberPosition}>{player.position}</Text>
                         )}
                       </View>
-                      <MaterialCommunityIcons name="chevron-right" size={24} color="#999" />
+                      <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
                     </View>
                   </View>
                 ))
@@ -124,105 +126,115 @@ export const TeamScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  text: {
-    fontSize: 24,
-    fontFamily: Typography.fontFamily.semiBold,
-  },
-  headerContainer: {
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.playerDashboardBackground,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  searchIcon: {
-    marginRight: 12,
-    paddingRight: 12,
-    borderRightWidth: 1,
-    borderRightColor: DarkColors.borderLight,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000',
-    paddingVertical: 4,
-    fontFamily: Typography.fontFamily.semiBold,
-  },
-  contentContainer: {
-    flex: 1,
-    marginTop: 24,
-    marginHorizontal: 16,
-  },
-  loader: {
-    marginTop: 40,
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontFamily: Typography.fontFamily.bold,
-    marginBottom: 12,
-    color: '#333',
-  },
-  memberCard: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  memberInfo: {
-    flex: 1,
-  },
-  playerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  jerseyNumber: {
-    fontSize: 18,
-    fontFamily: Typography.fontFamily.bold,
-    color: 'green',
-  },
-  memberName: {
-    fontSize: 16,
-    fontFamily: Typography.fontFamily.semiBold,
-    color: '#000',
-  },
-  memberPosition: {
-    fontSize: 14,
-    fontFamily: Typography.fontFamily.regular,
-    color: '#666',
-    marginTop: 4,
-  },
-  emptyText: {
-    fontSize: 14,
-    fontFamily: Typography.fontFamily.regular,
-    color: '#999',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-});
+    text: {
+      fontSize: 24,
+      fontFamily: Typography.fontFamily.semiBold,
+      color: colors.text,
+    },
+    headerContainer: {
+      alignItems: 'center',
+      marginVertical: 16,
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginHorizontal: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: colors.cardBackground,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 5,
+    },
+    searchIcon: {
+      marginRight: 12,
+      paddingRight: 12,
+      borderRightWidth: 1,
+      borderRightColor: colors.borderLight,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text,
+      paddingVertical: 4,
+      fontFamily: Typography.fontFamily.semiBold,
+    },
+    contentContainer: {
+      flex: 1,
+      marginTop: 24,
+      marginHorizontal: 16,
+    },
+    loader: {
+      marginTop: 40,
+    },
+    section: {
+      marginBottom: 32,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontFamily: Typography.fontFamily.bold,
+      marginBottom: 12,
+      color: colors.text,
+    },
+    memberCard: {
+      backgroundColor: colors.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    cardContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    memberInfo: {
+      flex: 1,
+    },
+    playerInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    jerseyNumber: {
+      fontSize: 18,
+      fontFamily: Typography.fontFamily.bold,
+      color: colors.accent,
+    },
+    memberName: {
+      fontSize: 16,
+      fontFamily: Typography.fontFamily.semiBold,
+      color: colors.text,
+    },
+    memberPosition: {
+      fontSize: 14,
+      fontFamily: Typography.fontFamily.regular,
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    emptyText: {
+      fontSize: 14,
+      fontFamily: Typography.fontFamily.regular,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: 8,
+    },
+  });

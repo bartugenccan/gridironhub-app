@@ -302,7 +302,7 @@ export const PlayerDashboard = () => {
   );
 };
 
-const getStyles = (colors: typeof import('@/constants/Colors').DarkColors) =>
+const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
   StyleSheet.create({
     // ...existing styles...
     mainContainer: {
