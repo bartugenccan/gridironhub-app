@@ -18,6 +18,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePersonalRecords, useDeletePersonalRecord } from '@/hooks/useStats';
+import { useCurrentPlayerProfile } from '@/hooks/usePlayer';
 import { formatDate } from '@/utils/formatDate';
 import { useNavigation } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
@@ -86,6 +87,7 @@ export const PlayerDashboard = () => {
 
   const { data: records, isLoading, error, refetch } = usePersonalRecords();
   const { mutate: deleteRecord } = useDeletePersonalRecord();
+  const { data: playerProfile, isLoading: isLoadingProfile } = useCurrentPlayerProfile();
 
   const personalRecords = React.useMemo(() => {
     if (!records) return [];
@@ -259,17 +261,25 @@ export const PlayerDashboard = () => {
             </View>
             <View style={styles.playerInfoContainer}>
               <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
-              <CustomText style={styles.playerPosition}># 4 - Tight End</CustomText>
+              <CustomText style={styles.playerPosition}>
+                {playerProfile?.jerseyNumber ? `#${playerProfile.jerseyNumber}` : ''}
+                {playerProfile?.jerseyNumber && playerProfile?.position ? ' - ' : ''}
+                {playerProfile?.position || 'Position not set'}
+              </CustomText>
             </View>
           </View>
           <View style={styles.statsContainer}>
             <View style={styles.statBox}>
               <CustomText style={styles.statLabel}>Height</CustomText>
-              <CustomText style={styles.statValue}>198cm</CustomText>
+              <CustomText style={styles.statValue}>
+                {isLoadingProfile ? '...' : playerProfile?.heightCm ? `${playerProfile.heightCm}cm` : 'Not set'}
+              </CustomText>
             </View>
             <View style={styles.statBox}>
               <CustomText style={styles.statLabel}>Weight</CustomText>
-              <CustomText style={styles.statValue}>107kg</CustomText>
+              <CustomText style={styles.statValue}>
+                {isLoadingProfile ? '...' : playerProfile?.weightKg ? `${playerProfile.weightKg}kg` : 'Not set'}
+              </CustomText>
             </View>
           </View>
         </View>

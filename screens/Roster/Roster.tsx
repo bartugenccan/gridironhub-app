@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -6,10 +6,15 @@ import { Typography } from '@/constants/Typography';
 import { rosterService } from '@/api/services/roster.service';
 import { RosterResponse } from '@/api/types/roster';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RosterStackParamList } from '@/types/navigation/stacks';
+import { AppRoutes } from '@/types/navigation/routes';
 
 export const Roster = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const navigation = useNavigation<StackNavigationProp<RosterStackParamList>>();
   const [roster, setRoster] = useState<RosterResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,9 +27,6 @@ export const Roster = () => {
     try {
       setLoading(true);
       const data = await rosterService.getRoster();
-      console.log('Roster data:', data);
-      console.log('Coaches:', data.coaches);
-      console.log('Players:', data.players);
       setRoster(data);
     } catch (error) {
       console.error('Failed to fetch roster:', error);
@@ -98,7 +100,12 @@ export const Roster = () => {
               <Text style={styles.sectionTitle}>Players ({filteredPlayers?.length || 0})</Text>
               {filteredPlayers && filteredPlayers.length > 0 ? (
                 filteredPlayers.map((player) => (
-                  <View key={player.id} style={styles.memberCard}>
+                  <TouchableOpacity
+                    key={player.id}
+                    style={styles.memberCard}
+                    onPress={() => navigation.navigate(AppRoutes.PLAYER_PROFILE, { playerId: player.id })}
+                    activeOpacity={0.7}
+                  >
                     <View style={styles.cardContent}>
                       <View style={styles.memberInfo}>
                         <View style={styles.playerInfo}>
@@ -113,7 +120,7 @@ export const Roster = () => {
                       </View>
                       <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))
               ) : (
                 <Text style={styles.emptyText}>No players found</Text>

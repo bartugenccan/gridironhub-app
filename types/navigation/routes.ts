@@ -18,6 +18,7 @@ export enum AppRoutes {
   PR_DETAIL = 'PRDetail',
   ADD_PR = 'AddPR',
   ROSTER = 'Roster',
+  PLAYER_PROFILE = 'PlayerProfile',
   WORKOUTS = 'Workouts',
   PROFILE = 'Profile',
   PROFILE_EDIT = 'ProfileEdit',
