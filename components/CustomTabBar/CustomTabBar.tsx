@@ -23,6 +23,15 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         return isFocused ? 'barbell' : 'barbell-outline';
       case TabRoutes.PROFILE:
         return isFocused ? 'person' : 'person-outline';
+      // Coach Routes
+      case TabRoutes.COACH_DASHBOARD:
+        return isFocused ? 'grid' : 'grid-outline';
+      case TabRoutes.COACH_ROSTER:
+        return isFocused ? 'people' : 'people-outline';
+      case TabRoutes.COACH_STATS:
+        return isFocused ? 'stats-chart' : 'stats-chart-outline';
+      case TabRoutes.COACH_SCHEDULE:
+        return isFocused ? 'calendar' : 'calendar-outline';
       default:
         return 'help-circle-outline';
     }
@@ -46,8 +55,17 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         };
 
         const iconName = getIconName(route.name, isFocused);
+
+        // Map coach routes to generic keys for translation reuse
+        let translationKey = route.name.toLowerCase();
+        if (route.name === TabRoutes.COACH_DASHBOARD) translationKey = 'dashboardtab';
+        if (route.name === TabRoutes.COACH_ROSTER) translationKey = 'roster';
+        // For new ones, we might need new keys or reuse similar ones
+        if (route.name === TabRoutes.COACH_STATS) translationKey = 'stats';
+        if (route.name === TabRoutes.COACH_SCHEDULE) translationKey = 'schedule';
+
         // Translate the tab name for display
-        const translatedName = t(`tabs.${route.name.toLowerCase()}`);
+        const translatedName = t(`tabs.${translationKey}`) || route.name;
 
         return (
           <TouchableOpacity
