@@ -5,6 +5,7 @@ export enum AppRoutes {
 
   // Main Stack
   TABS = 'Tabs', // New route for TabNavigator
+  COACH_TABS = 'CoachTabs',
   NON_TAB_SCREEN = 'NonTabScreen',
   MODAL_SCREEN = 'ModalScreen',
 
@@ -15,6 +16,7 @@ export enum AppRoutes {
 
   // Tab Screens
   DASHBOARD = 'Dashboard',
+  COACH_DASHBOARD = 'CoachDashboard',
   PR_DETAIL = 'PRDetail',
   ADD_PR = 'AddPR',
   ROSTER = 'Roster',
@@ -35,4 +37,10 @@ export enum TabRoutes {
   ROSTER = 'Roster',
   WORKOUTS = 'WorkoutsTab',
   PROFILE = 'ProfileTab',
+
+  // Coach Tabs
+  COACH_DASHBOARD = 'CoachDashboardTab',
+  COACH_ROSTER = 'CoachRosterTab',
+  COACH_STATS = 'CoachStatsTab',
+  COACH_SCHEDULE = 'CoachScheduleTab',
 }

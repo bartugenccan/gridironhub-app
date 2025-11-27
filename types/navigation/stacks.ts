@@ -50,9 +50,21 @@ export type TabNavigatorParamList = {
   [TabRoutes.PROFILE]: NavigatorScreenParams<ProfileStackParamList>;
 };
 
+export type CoachDashboardStackParamList = {
+  [AppRoutes.COACH_DASHBOARD]: undefined;
+};
+
+export type CoachTabNavigatorParamList = {
+  [TabRoutes.COACH_DASHBOARD]: NavigatorScreenParams<CoachDashboardStackParamList>;
+  [TabRoutes.COACH_ROSTER]: NavigatorScreenParams<RosterStackParamList>; // Reusing Roster stack for now
+  [TabRoutes.COACH_STATS]: undefined; // Placeholder
+  [TabRoutes.COACH_SCHEDULE]: undefined; // Placeholder
+};
+
 // Main Stack - Contains both TabNavigator and non-tab screens
 export type MainStackParamList = {
   [AppRoutes.TABS]: NavigatorScreenParams<TabNavigatorParamList>;
+  [AppRoutes.COACH_TABS]: NavigatorScreenParams<CoachTabNavigatorParamList>;
   [AppRoutes.NON_TAB_SCREEN]: undefined;
   [AppRoutes.MODAL_SCREEN]: undefined;
   // Add other non-tab screens here
