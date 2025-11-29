@@ -2,7 +2,7 @@ export interface Workout {
   id: string;
   name: string;
   description: string | null;
-  duration: number; // in minutes
+  durationMinutes: number; // in minutes
   type: 'team' | 'position';
   targetPositions?: string[] | null;
   createdAt: string;
