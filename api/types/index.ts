@@ -4,3 +4,4 @@ export * from './requests';
 export * from './roster';
 export * from './player';
 export * from './workouts';
+export * from './workoutsDetail';

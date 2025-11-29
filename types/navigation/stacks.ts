@@ -1,6 +1,7 @@
 import { NavigatorScreenParams, RouteProp } from '@react-navigation/native';
 import { AppRoutes, TabRoutes } from './routes';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { WorkoutsDetail } from '@/api/types/workoutsDetail';
 
 // Auth Stack
 export type AuthStackParamList = {
@@ -24,6 +25,7 @@ export type RosterStackParamList = {
 
 export type WorkoutsStackParamList = {
   [AppRoutes.WORKOUTS]: undefined;
+  [AppRoutes.WORKOUTS_DETAIL]: { workout: WorkoutsDetail };
 };
 
 export type ProfileStackParamList = {

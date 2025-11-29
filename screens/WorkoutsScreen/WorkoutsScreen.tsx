@@ -16,17 +16,21 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { workoutsService } from '@/api/services/workouts.service';
 import { Workout } from '@/api/types/workouts';
 import { useTheme } from '@/contexts/ThemeContext';
+import { AppRoutes } from '@/types/navigation';
+import { useAppNavigation } from '@/hooks';
 
 const WorkoutRow = ({
   workout,
   colors,
+  onPress,
 }: {
   workout: Workout;
   colors: typeof import('@/constants/Colors').LightColors;
+  onPress?: () => void;
 }) => {
   const styles = getStyles(colors);
   return (
-    <TouchableOpacity style={styles.workoutRow} activeOpacity={0.7}>
+    <TouchableOpacity style={styles.workoutRow} activeOpacity={0.7} onPress={onPress}>
       <View style={styles.workoutContent}>
         <View style={styles.workoutIcon}>
           <MaterialCommunityIcons name="dumbbell" size={24} color={colors.recordIconColor} />
@@ -53,6 +57,7 @@ export const WorkoutsScreen = () => {
   const layout = useWindowDimensions();
   const { colors } = useTheme();
   const styles = getStyles(colors);
+  const navigation = useAppNavigation();
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -67,13 +72,14 @@ export const WorkoutsScreen = () => {
     fetchWorkouts();
   }, []);
 
+  const handleWorkoutPress = (workout: Workout) => {
+    navigation.navigate(AppRoutes.WORKOUTS_DETAIL, { workout: workout as any });
+    console.log('Workout:', workout);
+  };
   const fetchWorkouts = async () => {
     try {
       setLoading(true);
       const data = await workoutsService.getWorkouts();
-      console.log('Workouts data:', data);
-      console.log('Team workouts:', data.teamWorkouts);
-      console.log('Position workouts:', data.positionWorkouts);
       setTeamWorkouts(data.teamWorkouts);
       setPositionWorkouts(data.positionWorkouts);
     } catch (error) {
@@ -91,7 +97,9 @@ export const WorkoutsScreen = () => {
         <FlatList
           data={teamWorkouts}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <WorkoutRow workout={item} colors={colors} />}
+          renderItem={({ item }) => (
+            <WorkoutRow workout={item} colors={colors} onPress={() => handleWorkoutPress(item)} />
+          )}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
@@ -111,7 +119,9 @@ export const WorkoutsScreen = () => {
         <FlatList
           data={positionWorkouts}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <WorkoutRow workout={item} colors={colors} />}
+          renderItem={({ item }) => (
+            <WorkoutRow workout={item} colors={colors} onPress={() => handleWorkoutPress(item)} />
+          )}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
@@ -164,8 +174,8 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       backgroundColor: colors.playerDashboardBackground,
     },
     header: {
-      display: "flex",
-      justifyContent: "flex-end",
+      display: 'flex',
+      justifyContent: 'flex-end',
       height: verticalScale(80),
       paddingBottom: verticalScale(12),
       paddingHorizontal: scale(20),
