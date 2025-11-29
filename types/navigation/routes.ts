@@ -34,7 +34,7 @@ export enum AppRoutes {
 
 export enum TabRoutes {
   DASHBOARD = 'DashboardTab',
-  ROSTER = 'Roster',
+  ROSTER = 'RosterTab',
   WORKOUTS = 'WorkoutsTab',
   PROFILE = 'ProfileTab',
 
