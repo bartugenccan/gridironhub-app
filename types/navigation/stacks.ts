@@ -25,7 +25,7 @@ export type RosterStackParamList = {
 
 export type WorkoutsStackParamList = {
   [AppRoutes.WORKOUTS]: undefined;
-  [AppRoutes.WORKOUTS_DETAIL]: { workout: WorkoutsDetail };
+  [AppRoutes.WORKOUTS_DETAIL]: { workoutId: string };
 };
 
 export type ProfileStackParamList = {
