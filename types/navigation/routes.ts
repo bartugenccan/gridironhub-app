@@ -22,6 +22,7 @@ export enum AppRoutes {
   ROSTER = 'Roster',
   PLAYER_PROFILE = 'PlayerProfile',
   WORKOUTS = 'Workouts',
+  WORKOUTS_DETAIL = 'WorkoutsDetail',
   PROFILE = 'Profile',
   PROFILE_EDIT = 'ProfileEdit',
 
@@ -34,7 +35,7 @@ export enum AppRoutes {
 
 export enum TabRoutes {
   DASHBOARD = 'DashboardTab',
-  ROSTER = 'Roster',
+  ROSTER = 'RosterTab',
   WORKOUTS = 'WorkoutsTab',
   PROFILE = 'ProfileTab',
 

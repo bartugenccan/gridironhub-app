@@ -57,15 +57,15 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         const iconName = getIconName(route.name, isFocused);
 
         // Map coach routes to generic keys for translation reuse
-        let translationKey = route.name.toLowerCase();
-        if (route.name === TabRoutes.COACH_DASHBOARD) translationKey = 'dashboardtab';
-        if (route.name === TabRoutes.COACH_ROSTER) translationKey = 'roster';
+        let translationKey = route.name;
+        if (route.name === TabRoutes.COACH_DASHBOARD) translationKey = 'DashboardTab';
+        if (route.name === TabRoutes.COACH_ROSTER) translationKey = 'RosterTab';
         // For new ones, we might need new keys or reuse similar ones
-        if (route.name === TabRoutes.COACH_STATS) translationKey = 'stats';
-        if (route.name === TabRoutes.COACH_SCHEDULE) translationKey = 'schedule';
+        if (route.name === TabRoutes.COACH_STATS) translationKey = 'Stats';
+        if (route.name === TabRoutes.COACH_SCHEDULE) translationKey = 'Schedule';
 
         // Translate the tab name for display
-        const translatedName = t(`tabs.${translationKey}`) || route.name;
+        const translatedName = t(`tabs.${translationKey.toLowerCase()}`) || route.name;
 
         return (
           <TouchableOpacity

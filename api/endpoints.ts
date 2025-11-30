@@ -23,6 +23,10 @@ export const API_ENDPOINTS = {
     GET_PROFILE: '/api/profiles/players', // Appending /:id in service
     UPDATE_PROFILE: '/api/profiles/players', // Appending /:id in service
   },
+  WORKOUTS: {
+    GET_WORKOUTS: '/api/workouts',
+    GET_WORKOUTS_DETAIL: '/api/workouts/:id', // Appending /:id in service
+  },
 
   // Add other endpoint groups
 } as const;

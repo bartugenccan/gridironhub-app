@@ -18,6 +18,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import './i18n';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { preloadAssets } from './utils/preloadAssets';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -32,28 +33,35 @@ export default function App() {
     Montserrat_700Bold,
   });
 
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+
   useEffect(() => {
     if (fontError) {
       throw fontError;
     }
   }, [fontError]);
 
+  // Preload assets
+  useEffect(() => {
+    preloadAssets().then(() => setAssetsLoaded(true));
+  }, []);
+
   useEffect(() => {
     const hideSplash = async () => {
-      if (fontsLoaded || fontError) {
+      if ((fontsLoaded || fontError) && assetsLoaded) {
         await SplashScreen.hideAsync();
       }
     };
     hideSplash();
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, assetsLoaded]);
 
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && assetsLoaded) {
       await SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, assetsLoaded]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || !assetsLoaded) {
     return null;
   }
 

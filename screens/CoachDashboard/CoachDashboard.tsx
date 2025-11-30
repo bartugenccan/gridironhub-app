@@ -4,73 +4,103 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { scale, verticalScale } from 'react-native-size-matters';
+import { LogoutButton } from '@/components/LogoutButton/LogoutButton';
 
 export const CoachDashboard = () => {
-    const { user } = useAuth();
+  const { user } = useAuth();
 
-    const QuickActionButton = ({ icon, label, onPress }: { icon: any; label: string; onPress?: () => void }) => (
-        <TouchableOpacity style={styles.quickActionBtn} onPress={onPress}>
-            <View style={styles.quickActionIconContainer}>
-                <Ionicons name={icon} size={24} color="#4F46E5" />
-            </View>
-            <Text style={styles.quickActionLabel}>{label}</Text>
-        </TouchableOpacity>
-    );
+  const QuickActionButton = ({
+    icon,
+    label,
+    onPress,
+  }: {
+    icon: any;
+    label: string;
+    onPress?: () => void;
+  }) => (
+    <TouchableOpacity style={styles.quickActionBtn} onPress={onPress}>
+      <View style={styles.quickActionIconContainer}>
+        <Ionicons name={icon} size={24} color="#4F46E5" />
+      </View>
+      <Text style={styles.quickActionLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
 
-    const PlayerToWatchRow = ({ name, detail, status, icon }: { name: string; detail: string; status: 'up' | 'flag'; icon?: any }) => (
-        <View style={styles.playerRow}>
-            <View style={styles.playerInfo}>
-                <View style={styles.avatarPlaceholder}>
-                    {/* Placeholder for avatar */}
-                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>{name.charAt(0)}</Text>
-                </View>
-                <View>
-                    <Text style={styles.playerName}>{name}</Text>
-                    <Text style={styles.playerDetail}>{detail}</Text>
-                </View>
-            </View>
-            <Ionicons
-                name={status === 'up' ? 'trending-up' : 'flag'}
-                size={20}
-                color={status === 'up' ? '#10B981' : '#F59E0B'}
-            />
+  const PlayerToWatchRow = ({
+    name,
+    detail,
+    status,
+    icon,
+  }: {
+    name: string;
+    detail: string;
+    status: 'up' | 'flag';
+    icon?: any;
+  }) => (
+    <View style={styles.playerRow}>
+      <View style={styles.playerInfo}>
+        <View style={styles.avatarPlaceholder}>
+          {/* Placeholder for avatar */}
+          <Text style={{ color: '#fff', fontWeight: 'bold' }}>{name.charAt(0)}</Text>
         </View>
-    );
-
-    const EventRow = ({ date, month, title, subtitle }: { date: string; month: string; title: string; subtitle: string }) => (
-        <View style={styles.eventRow}>
-            <View style={styles.dateContainer}>
-                <Text style={styles.dateMonth}>{month}</Text>
-                <Text style={styles.dateDay}>{date}</Text>
-            </View>
-            <View>
-                <Text style={styles.eventTitle}>{title}</Text>
-                <Text style={styles.eventSubtitle}>{subtitle}</Text>
-            </View>
+        <View>
+          <Text style={styles.playerName}>{name}</Text>
+          <Text style={styles.playerDetail}>{detail}</Text>
         </View>
-    );
+      </View>
+      <Ionicons
+        name={status === 'up' ? 'trending-up' : 'flag'}
+        size={20}
+        color={status === 'up' ? '#10B981' : '#F59E0B'}
+      />
+    </View>
+  );
 
-    return (
-        <SafeAreaView style={styles.container} edges={['top']}>
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.teamHeader}>
-                        <View style={styles.logoContainer}>
-                            <Image
-                                source={require('@/assets/images/sakarya-logo.png')}
-                                style={styles.teamLogo}
-                                resizeMode="contain"
-                            />
-                        </View>
-                        <Text style={styles.teamName}>{user?.teamName || 'Varsity Lions'}</Text>
-                    </View>
-                    <TouchableOpacity>
-                        <Ionicons name="person-circle-outline" size={32} color="#000" />
-                    </TouchableOpacity>
-                </View>
+  const EventRow = ({
+    date,
+    month,
+    title,
+    subtitle,
+  }: {
+    date: string;
+    month: string;
+    title: string;
+    subtitle: string;
+  }) => (
+    <View style={styles.eventRow}>
+      <View style={styles.dateContainer}>
+        <Text style={styles.dateMonth}>{month}</Text>
+        <Text style={styles.dateDay}>{date}</Text>
+      </View>
+      <View>
+        <Text style={styles.eventTitle}>{title}</Text>
+        <Text style={styles.eventSubtitle}>{subtitle}</Text>
+      </View>
+    </View>
+  );
 
-                {/* Stats Cards Row - Hidden for now as per request
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.teamHeader}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('@/assets/images/sakarya-logo.png')}
+                style={styles.teamLogo}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.teamName}>{user?.teamName || 'Varsity Lions'}</Text>
+          </View>
+          <TouchableOpacity>
+            <Ionicons name="person-circle-outline" size={32} color="#000" />
+            <LogoutButton variant="full" onLogoutComplete={() => console.log('Logged out!')} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Stats Cards Row - Hidden for now as per request
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Record</Text>
@@ -83,311 +113,296 @@ export const CoachDashboard = () => {
         </View>
         */}
 
-                {/* Active Players Card */}
-                <View style={styles.card}>
-                    <Text style={styles.cardLabel}>Active Players</Text>
-                    <Text style={styles.cardValue}>45/50</Text>
-                </View>
+        {/* Active Players Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>Active Players</Text>
+          <Text style={styles.cardValue}>45/50</Text>
+        </View>
 
-                {/* Quick Actions */}
-                <View style={styles.quickActionsRow}>
-                    <QuickActionButton icon="people" label="Roster" />
-                    <QuickActionButton icon="person-add" label="Add Player" />
-                    <QuickActionButton icon="barbell" label="Log Workout" />
-                    <QuickActionButton icon="calendar" label="Schedule" />
-                </View>
+        {/* Quick Actions */}
+        <View style={styles.quickActionsRow}>
+          <QuickActionButton icon="people" label="Roster" />
+          <QuickActionButton icon="person-add" label="Add Player" />
+          <QuickActionButton icon="barbell" label="Log Workout" />
+          <QuickActionButton icon="calendar" label="Schedule" />
+        </View>
 
-                {/* Players to Watch */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Players to Watch</Text>
-                    <View style={styles.cardContainer}>
-                        <PlayerToWatchRow
-                            name="J. Smith"
-                            detail="New Bench PR: 225 lbs"
-                            status="up"
-                        />
-                        <View style={styles.divider} />
-                        <PlayerToWatchRow
-                            name="M. Davis"
-                            detail="Flagged (Missed Practice)"
-                            status="flag"
-                        />
-                        <View style={styles.divider} />
-                        <PlayerToWatchRow
-                            name="R. Chen"
-                            detail="Top Squat: 405 lbs"
-                            status="up"
-                        />
+        {/* Players to Watch */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Players to Watch</Text>
+          <View style={styles.cardContainer}>
+            <PlayerToWatchRow name="J. Smith" detail="New Bench PR: 225 lbs" status="up" />
+            <View style={styles.divider} />
+            <PlayerToWatchRow name="M. Davis" detail="Flagged (Missed Practice)" status="flag" />
+            <View style={styles.divider} />
+            <PlayerToWatchRow name="R. Chen" detail="Top Squat: 405 lbs" status="up" />
 
-                        <TouchableOpacity style={styles.viewAllButton}>
-                            <Text style={styles.viewAllText}>View All Players</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.viewAllText}>View All Players</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-                {/* Team Strength Progression */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Team Strength Progression</Text>
-                    <Text style={styles.sectionSubtitle}>Average Bench Press, Last 30 Days</Text>
-                    <View style={styles.cardContainer}>
-                        <View style={styles.chartPlaceholder}>
-                            <Ionicons name="stats-chart" size={64} color="#fff" />
-                        </View>
-                        <TouchableOpacity style={styles.viewAllButton}>
-                            <Text style={styles.viewAllText}>View Detailed Analytics</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+        {/* Team Strength Progression */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Team Strength Progression</Text>
+          <Text style={styles.sectionSubtitle}>Average Bench Press, Last 30 Days</Text>
+          <View style={styles.cardContainer}>
+            <View style={styles.chartPlaceholder}>
+              <Ionicons name="stats-chart" size={64} color="#fff" />
+            </View>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.viewAllText}>View Detailed Analytics</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-                {/* Upcoming Events */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Upcoming Events</Text>
-                    <View style={styles.cardContainer}>
-                        <EventRow
-                            month="OCT"
-                            date="28"
-                            title="Next Game: vs. Tigers"
-                            subtitle="Friday, 7:00 PM @ Home"
-                        />
-                        <View style={styles.divider} />
-                        <EventRow
-                            month="OCT"
-                            date="24"
-                            title="Next Practice: Full Pads"
-                            subtitle="Monday, 3:30 PM"
-                        />
-                    </View>
-                </View>
-
-            </ScrollView>
-        </SafeAreaView>
-    );
+        {/* Upcoming Events */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Upcoming Events</Text>
+          <View style={styles.cardContainer}>
+            <EventRow
+              month="OCT"
+              date="28"
+              title="Next Game: vs. Tigers"
+              subtitle="Friday, 7:00 PM @ Home"
+            />
+            <View style={styles.divider} />
+            <EventRow
+              month="OCT"
+              date="24"
+              title="Next Practice: Full Pads"
+              subtitle="Monday, 3:30 PM"
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
 };
 
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F6F8FC',
-    },
-    scrollContent: {
-        padding: scale(16),
-        paddingBottom: verticalScale(40),
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: verticalScale(24),
-    },
-    teamHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: scale(8),
-    },
-    teamName: {
-        fontSize: scale(20),
-        fontWeight: 'bold',
-        color: '#111827',
-    },
-    logoContainer: {
-        width: scale(40),
-        height: scale(40),
-        borderRadius: scale(20),
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    teamLogo: {
-        width: scale(36),
-        height: scale(36),
-    },
-    statsRow: {
-        flexDirection: 'row',
-        gap: scale(12),
-        marginBottom: verticalScale(16),
-    },
-    statCard: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: scale(16),
-        borderRadius: scale(12),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    statLabel: {
-        fontSize: scale(12),
-        color: '#6B7280',
-        marginBottom: verticalScale(4),
-    },
-    statValue: {
-        fontSize: scale(20),
-        fontWeight: 'bold',
-        color: '#111827',
-    },
-    card: {
-        backgroundColor: '#fff',
-        padding: scale(16),
-        borderRadius: scale(12),
-        marginBottom: verticalScale(24),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    cardLabel: {
-        fontSize: scale(14),
-        color: '#6B7280',
-        marginBottom: verticalScale(4),
-    },
-    cardValue: {
-        fontSize: scale(24),
-        fontWeight: 'bold',
-        color: '#111827',
-    },
-    quickActionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: verticalScale(32),
-    },
-    quickActionBtn: {
-        alignItems: 'center',
-        width: '22%',
-    },
-    quickActionIconContainer: {
-        width: scale(56),
-        height: scale(56),
-        backgroundColor: '#EEF2FF',
-        borderRadius: scale(16),
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: verticalScale(8),
-    },
-    quickActionLabel: {
-        fontSize: scale(12),
-        color: '#111827',
-        textAlign: 'center',
-        fontWeight: '500',
-    },
-    section: {
-        marginBottom: verticalScale(24),
-    },
-    sectionTitle: {
-        fontSize: scale(18),
-        fontWeight: 'bold',
-        color: '#111827',
-        marginBottom: verticalScale(12),
-    },
-    sectionSubtitle: {
-        fontSize: scale(14),
-        color: '#6B7280',
-        marginBottom: verticalScale(12),
-        marginTop: verticalScale(-8),
-    },
-    cardContainer: {
-        backgroundColor: '#fff',
-        borderRadius: scale(16),
-        padding: scale(16),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    playerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: verticalScale(8),
-    },
-    playerInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: scale(12),
-    },
-    avatarPlaceholder: {
-        width: scale(40),
-        height: scale(40),
-        borderRadius: scale(20),
-        backgroundColor: '#1F2937',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    playerName: {
-        fontSize: scale(16),
-        fontWeight: '600',
-        color: '#111827',
-    },
-    playerDetail: {
-        fontSize: scale(13),
-        color: '#6B7280',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#F3F4F6',
-        marginVertical: verticalScale(12),
-    },
-    viewAllButton: {
-        marginTop: verticalScale(12),
-        paddingVertical: verticalScale(12),
-        backgroundColor: '#F3F4F6',
-        borderRadius: scale(8),
-        alignItems: 'center',
-    },
-    viewAllText: {
-        fontSize: scale(14),
-        fontWeight: '600',
-        color: '#111827',
-    },
-    chartPlaceholder: {
-        height: verticalScale(160),
-        backgroundColor: '#2563EB', // Placeholder color
-        borderRadius: scale(8),
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: verticalScale(12),
-    },
-    eventRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: scale(16),
-        paddingVertical: verticalScale(4),
-    },
-    dateContainer: {
-        backgroundColor: '#EEF2FF',
-        padding: scale(8),
-        borderRadius: scale(8),
-        alignItems: 'center',
-        minWidth: scale(50),
-    },
-    dateMonth: {
-        fontSize: scale(10),
-        fontWeight: '700',
-        color: '#4F46E5',
-        textTransform: 'uppercase',
-    },
-    dateDay: {
-        fontSize: scale(18),
-        fontWeight: 'bold',
-        color: '#4F46E5',
-    },
-    eventTitle: {
-        fontSize: scale(16),
-        fontWeight: '600',
-        color: '#111827',
-    },
-    eventSubtitle: {
-        fontSize: scale(13),
-        color: '#6B7280',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#F6F8FC',
+  },
+  scrollContent: {
+    padding: scale(16),
+    paddingBottom: verticalScale(40),
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: verticalScale(24),
+  },
+  teamHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(8),
+  },
+  teamName: {
+    fontSize: scale(20),
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  logoContainer: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  teamLogo: {
+    width: scale(36),
+    height: scale(36),
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: scale(12),
+    marginBottom: verticalScale(16),
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: scale(16),
+    borderRadius: scale(12),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  statLabel: {
+    fontSize: scale(12),
+    color: '#6B7280',
+    marginBottom: verticalScale(4),
+  },
+  statValue: {
+    fontSize: scale(20),
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: scale(16),
+    borderRadius: scale(12),
+    marginBottom: verticalScale(24),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  cardLabel: {
+    fontSize: scale(14),
+    color: '#6B7280',
+    marginBottom: verticalScale(4),
+  },
+  cardValue: {
+    fontSize: scale(24),
+    fontWeight: 'bold',
+    color: '#111827',
+  },
+  quickActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: verticalScale(32),
+  },
+  quickActionBtn: {
+    alignItems: 'center',
+    width: '22%',
+  },
+  quickActionIconContainer: {
+    width: scale(56),
+    height: scale(56),
+    backgroundColor: '#EEF2FF',
+    borderRadius: scale(16),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: verticalScale(8),
+  },
+  quickActionLabel: {
+    fontSize: scale(12),
+    color: '#111827',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  section: {
+    marginBottom: verticalScale(24),
+  },
+  sectionTitle: {
+    fontSize: scale(18),
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: verticalScale(12),
+  },
+  sectionSubtitle: {
+    fontSize: scale(14),
+    color: '#6B7280',
+    marginBottom: verticalScale(12),
+    marginTop: verticalScale(-8),
+  },
+  cardContainer: {
+    backgroundColor: '#fff',
+    borderRadius: scale(16),
+    padding: scale(16),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  playerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: verticalScale(8),
+  },
+  playerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(12),
+  },
+  avatarPlaceholder: {
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
+    backgroundColor: '#1F2937',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playerName: {
+    fontSize: scale(16),
+    fontWeight: '600',
+    color: '#111827',
+  },
+  playerDetail: {
+    fontSize: scale(13),
+    color: '#6B7280',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginVertical: verticalScale(12),
+  },
+  viewAllButton: {
+    marginTop: verticalScale(12),
+    paddingVertical: verticalScale(12),
+    backgroundColor: '#F3F4F6',
+    borderRadius: scale(8),
+    alignItems: 'center',
+  },
+  viewAllText: {
+    fontSize: scale(14),
+    fontWeight: '600',
+    color: '#111827',
+  },
+  chartPlaceholder: {
+    height: verticalScale(160),
+    backgroundColor: '#2563EB', // Placeholder color
+    borderRadius: scale(8),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: verticalScale(12),
+  },
+  eventRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(16),
+    paddingVertical: verticalScale(4),
+  },
+  dateContainer: {
+    backgroundColor: '#EEF2FF',
+    padding: scale(8),
+    borderRadius: scale(8),
+    alignItems: 'center',
+    minWidth: scale(50),
+  },
+  dateMonth: {
+    fontSize: scale(10),
+    fontWeight: '700',
+    color: '#4F46E5',
+    textTransform: 'uppercase',
+  },
+  dateDay: {
+    fontSize: scale(18),
+    fontWeight: 'bold',
+    color: '#4F46E5',
+  },
+  eventTitle: {
+    fontSize: scale(16),
+    fontWeight: '600',
+    color: '#111827',
+  },
+  eventSubtitle: {
+    fontSize: scale(13),
+    color: '#6B7280',
+  },
 });
-

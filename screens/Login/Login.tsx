@@ -72,9 +72,7 @@ export const Login = () => {
 
   return (
     <ImageBackground
-      source={{
-        uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAhsAea0j4WA9_Bbo8gdM4Z15Qd98Fl2UZzb6oYYtkKcGxENXN5H227qk727xteeoBUjw_lGcNWK7B0wL4tV9wSp0TFu7ijsccPnpuaeojbRJ_zaGVQxz0x7YbS6QWssxEhlMzCQMc1tdPDhfgciffayjKJ65zGwzbzmB3A7gGpjYXV0-u4XBrY3cHOc4PdwxtjHY4UauNCwXHsQCgiFTeSeoXqxig58G9rjkP4GNDhyOF2PGjnteelMRcvWmk3vZY_y7aZWfbM1L3O',
-      }}
+      source={require('@/assets/images/login.png')}
       style={styles.backgroundImage}
       resizeMode="cover">
       <BlurView intensity={90} tint="dark" style={styles.blurContainer}>
