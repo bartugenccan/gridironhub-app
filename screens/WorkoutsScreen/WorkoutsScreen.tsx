@@ -74,7 +74,6 @@ export const WorkoutsScreen = () => {
 
   const handleWorkoutPress = (workout: Workout) => {
     navigation.navigate(AppRoutes.WORKOUTS_DETAIL, { workoutId: workout.id });
-    console.log('Workout:', workout);
   };
   const fetchWorkouts = async () => {
     try {
