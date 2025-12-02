@@ -11,6 +11,7 @@ import { PlayerDashboard } from './PlayerDashboard';
 import { Roster } from './Roster';
 import { WorkoutsScreen } from './WorkoutsScreen';
 import { PlayerProfile } from './PlayerProfile';
+import { CoachDashboard } from './CoachDashboard';
 
 export {
   NonTabScreen,
@@ -26,4 +27,5 @@ export {
   Roster,
   WorkoutsScreen,
   PlayerProfile,
+  CoachDashboard,
 };

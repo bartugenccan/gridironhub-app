@@ -23,11 +23,14 @@ axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig
       if (accessToken) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${accessToken}`;
+      } else {
+        console.warn('⚠️ No access token found for protected route:', config.url);
       }
     }
 
     return config;
   } catch (error) {
+    console.error('Error in request interceptor:', error);
     return Promise.reject(error);
   }
 });
@@ -35,9 +38,13 @@ axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized
+      console.error('❌ 401 Unauthorized:', error.config?.url);
+      const token = await AsyncStorage.getItem('accessToken');
+      console.log('Token exists:', !!token);
+      console.log('Token preview:', token ? `${token.substring(0, 20)}...` : 'null');
+      // Handle unauthorized - could clear tokens and redirect to login
     }
     return Promise.reject(error);
   }

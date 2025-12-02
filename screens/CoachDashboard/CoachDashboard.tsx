@@ -3,11 +3,18 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
+import { AppRoutes } from '@/types/navigation/routes';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { LogoutButton } from '@/components/LogoutButton/LogoutButton';
 
+type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
+
 export const CoachDashboard = () => {
   const { user } = useAuth();
+  const navigation = useNavigation<CoachDashboardNavigationProp>();
 
   const QuickActionButton = ({
     icon,
@@ -94,10 +101,6 @@ export const CoachDashboard = () => {
             </View>
             <Text style={styles.teamName}>{user?.teamName || 'Varsity Lions'}</Text>
           </View>
-          <TouchableOpacity>
-            <Ionicons name="person-circle-outline" size={32} color="#000" />
-            <LogoutButton variant="full" onLogoutComplete={() => console.log('Logged out!')} />
-          </TouchableOpacity>
         </View>
 
         {/* Stats Cards Row - Hidden for now as per request
@@ -123,7 +126,11 @@ export const CoachDashboard = () => {
         <View style={styles.quickActionsRow}>
           <QuickActionButton icon="people" label="Roster" />
           <QuickActionButton icon="person-add" label="Add Player" />
-          <QuickActionButton icon="barbell" label="Log Workout" />
+          <QuickActionButton
+            icon="barbell"
+            label="Log Workout"
+            onPress={() => navigation.navigate(AppRoutes.ADD_WORKOUT)}
+          />
           <QuickActionButton icon="calendar" label="Schedule" />
         </View>
 
