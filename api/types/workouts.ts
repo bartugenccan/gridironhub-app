@@ -3,8 +3,9 @@ export interface Workout {
   name: string;
   description: string | null;
   durationMinutes: number; // in minutes
-  type: 'team' | 'position';
-  targetPositions?: string[] | null;
+  assignedToPositions?: string[] | null;
+  difficultyLevel?: string | null;
+  equipmentNeeded?: string[] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export interface CreateWorkoutRequest {
   name: string;
   description?: string;
   durationMinutes: number;
-  type: 'team' | 'position';
-  targetPositions?: string[];
+  assignedToPositions?: string[];
+  difficultyLevel?: string;
+  equipmentNeeded?: string[];
 }

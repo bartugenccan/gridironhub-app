@@ -20,4 +20,8 @@ export const workoutsService = {
     const response = await axiosInstance.post<Workout>(API_ENDPOINTS.WORKOUTS.CREATE_WORKOUT, data);
     return response.data;
   },
+
+  deleteWorkout: async (id: string): Promise<void> => {
+    await axiosInstance.delete(API_ENDPOINTS.WORKOUTS.DELETE_WORKOUT.replace(':id', id));
+  },
 };

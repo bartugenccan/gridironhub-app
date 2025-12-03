@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, TextInput, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -46,10 +54,7 @@ export const Roster = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.text}>
-          <MaterialCommunityIcons name="football-helmet" size={24} color={colors.accent} />
-          Team Roster
-        </Text>
+        <Text style={styles.text}>Team Roster</Text>
       </View>
 
       <View style={styles.searchContainer}>
@@ -86,7 +91,11 @@ export const Roster = () => {
                           <Text style={styles.memberPosition}>{coach.primaryPosition}</Text>
                         )}
                       </View>
-                      <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
+                      <MaterialCommunityIcons
+                        name="chevron-right"
+                        size={24}
+                        color={colors.textSecondary}
+                      />
                     </View>
                   </View>
                 ))
@@ -103,9 +112,10 @@ export const Roster = () => {
                   <TouchableOpacity
                     key={player.id}
                     style={styles.memberCard}
-                    onPress={() => navigation.navigate(AppRoutes.PLAYER_PROFILE, { playerId: player.id })}
-                    activeOpacity={0.7}
-                  >
+                    onPress={() =>
+                      navigation.navigate(AppRoutes.PLAYER_PROFILE, { playerId: player.id })
+                    }
+                    activeOpacity={0.7}>
                     <View style={styles.cardContent}>
                       <View style={styles.memberInfo}>
                         <View style={styles.playerInfo}>
@@ -118,7 +128,11 @@ export const Roster = () => {
                           <Text style={styles.memberPosition}>{player.position}</Text>
                         )}
                       </View>
-                      <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
+                      <MaterialCommunityIcons
+                        name="chevron-right"
+                        size={24}
+                        color={colors.textSecondary}
+                      />
                     </View>
                   </TouchableOpacity>
                 ))

@@ -18,8 +18,17 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
-import { workoutsService } from '@/api/services/workouts.service';
 import { CreateWorkoutRequest } from '@/api/types/workouts';
+import { useCreateWorkout } from '@/hooks';
+
+interface AddWorkoutFormState {
+  name: string;
+  description: string;
+  durationMinutes: number;
+  assignedToPositions: string[];
+  difficultyLevel: string;
+  equipmentNeededInput: string;
+}
 
 type AddWorkoutNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
 
@@ -27,27 +36,29 @@ export const AddWorkout = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<AddWorkoutNavigationProp>();
   const styles = getStyles(colors);
+  const { mutateAsync: createWorkout, isPending } = useCreateWorkout();
 
-  const [formData, setFormData] = useState<CreateWorkoutRequest>({
+  const [formData, setFormData] = useState<AddWorkoutFormState>({
     name: '',
     description: '',
     durationMinutes: 0,
-    type: 'team',
-    targetPositions: [],
+    assignedToPositions: [],
+    difficultyLevel: '',
+    equipmentNeededInput: '',
   });
-  const [loading, setLoading] = useState(false);
   const [positionSpecific, setPositionSpecific] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const positions = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
 
   const togglePosition = (position: string) => {
     setFormData((prev) => {
-      const positions = prev.targetPositions || [];
+      const positions = prev.assignedToPositions || [];
       const isSelected = positions.includes(position);
 
       return {
         ...prev,
-        targetPositions: isSelected
+        assignedToPositions: isSelected
           ? positions.filter((p) => p !== position)
           : [...positions, position],
       };
@@ -63,7 +74,10 @@ export const AddWorkout = () => {
       Alert.alert('Validation Error', 'Please enter a valid duration');
       return false;
     }
-    if (positionSpecific && (!formData.targetPositions || formData.targetPositions.length === 0)) {
+    if (
+      positionSpecific &&
+      (!formData.assignedToPositions || formData.assignedToPositions.length === 0)
+    ) {
       Alert.alert('Validation Error', 'Please select at least one position');
       return false;
     }
@@ -74,17 +88,22 @@ export const AddWorkout = () => {
     if (!validateForm()) return;
 
     try {
-      setLoading(true);
-
       const workoutData: CreateWorkoutRequest = {
         name: formData.name.trim(),
         description: formData.description?.trim() || undefined,
         durationMinutes: formData.durationMinutes,
-        type: positionSpecific ? 'position' : 'team',
-        targetPositions: positionSpecific ? formData.targetPositions : undefined,
+        assignedToPositions: positionSpecific ? formData.assignedToPositions : undefined,
+        difficultyLevel: formData.difficultyLevel.trim().toLowerCase() || undefined,
+        equipmentNeeded:
+          formData.equipmentNeededInput.trim().length > 0
+            ? formData.equipmentNeededInput
+                .split(',')
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0)
+            : undefined,
       };
 
-      await workoutsService.createWorkout(workoutData);
+      await createWorkout(workoutData);
 
       Alert.alert('Success', 'Workout created successfully!', [
         {
@@ -98,8 +117,6 @@ export const AddWorkout = () => {
         'Error',
         error?.response?.data?.message || 'Failed to create workout. Please try again.'
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -184,6 +201,51 @@ export const AddWorkout = () => {
           />
         </View>
 
+        {/* Difficulty Level */}
+        <View style={styles.section}>
+          <CustomText style={[styles.label, { color: colors.text }]}>
+            Difficulty Level (optional)
+          </CustomText>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                borderColor: colors.border,
+                backgroundColor: colors.cardBackground,
+              },
+            ]}
+            value={formData.difficultyLevel}
+            onChangeText={(text) => setFormData({ ...formData, difficultyLevel: text })}
+            placeholder="e.g., Beginner, Intermediate, Advanced"
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
+
+        {/* Equipment Needed */}
+        <View style={styles.section}>
+          <CustomText style={[styles.label, { color: colors.text }]}>
+            Equipment Needed (comma separated, optional)
+          </CustomText>
+          <TextInput
+            style={[
+              styles.textArea,
+              {
+                color: colors.text,
+                borderColor: colors.border,
+                backgroundColor: colors.cardBackground,
+              },
+            ]}
+            value={formData.equipmentNeededInput}
+            onChangeText={(text) => setFormData({ ...formData, equipmentNeededInput: text })}
+            placeholder="e.g., Barbell, Plates, Bench"
+            placeholderTextColor={colors.textMuted}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+        </View>
+
         {/* Position Specific Toggle */}
         <View style={[styles.section, styles.toggleSection]}>
           <View style={styles.toggleInfo}>
@@ -199,7 +261,7 @@ export const AddWorkout = () => {
             onValueChange={(value) => {
               setPositionSpecific(value);
               if (!value) {
-                setFormData({ ...formData, targetPositions: [] });
+                setFormData({ ...formData, assignedToPositions: [] });
               }
             }}
             trackColor={{ false: colors.border, true: colors.primary }}
@@ -216,7 +278,7 @@ export const AddWorkout = () => {
             </CustomText>
             <View style={styles.positionsGrid}>
               {positions.map((position) => {
-                const isSelected = formData.targetPositions?.includes(position);
+                const isSelected = formData.assignedToPositions?.includes(position);
                 return (
                   <TouchableOpacity
                     key={position}

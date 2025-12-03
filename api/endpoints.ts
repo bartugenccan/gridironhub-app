@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
     GET_WORKOUTS: '/api/workouts',
     GET_WORKOUTS_DETAIL: '/api/workouts/:id', // Appending /:id in service
     CREATE_WORKOUT: '/api/workouts',
+    DELETE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
   },
 
   // Add other endpoint groups
