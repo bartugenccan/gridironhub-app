@@ -54,13 +54,15 @@ export type TabNavigatorParamList = {
 
 export type CoachDashboardStackParamList = {
   [AppRoutes.COACH_DASHBOARD]: undefined;
+  [AppRoutes.ADD_WORKOUT]: undefined;
+  [AppRoutes.COACH_ANALYTICS]: undefined;
 };
 
 export type CoachTabNavigatorParamList = {
   [TabRoutes.COACH_DASHBOARD]: NavigatorScreenParams<CoachDashboardStackParamList>;
   [TabRoutes.COACH_ROSTER]: NavigatorScreenParams<RosterStackParamList>; // Reusing Roster stack for now
-  [TabRoutes.COACH_STATS]: undefined; // Placeholder
-  [TabRoutes.COACH_SCHEDULE]: undefined; // Placeholder
+  [TabRoutes.COACH_WORKOUTS]: NavigatorScreenParams<WorkoutsStackParamList>; // Reusing Workouts stack
+  [TabRoutes.COACH_PROFILE]: undefined;
 };
 
 // Main Stack - Contains both TabNavigator and non-tab screens

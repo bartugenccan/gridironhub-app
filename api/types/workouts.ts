@@ -13,3 +13,11 @@ export interface WorkoutsResponse {
   teamWorkouts: Workout[];
   positionWorkouts: Workout[];
 }
+
+export interface CreateWorkoutRequest {
+  name: string;
+  description?: string;
+  durationMinutes: number;
+  type: 'team' | 'position';
+  targetPositions?: string[];
+}
