@@ -8,7 +8,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
 import { scale, verticalScale } from 'react-native-size-matters';
-import { LogoutButton } from '@/components/LogoutButton/LogoutButton';
 
 type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
 
@@ -124,11 +123,10 @@ export const CoachDashboard = () => {
 
         {/* Quick Actions */}
         <View style={styles.quickActionsRow}>
-          <QuickActionButton icon="people" label="Roster" />
           <QuickActionButton icon="person-add" label="Add Player" />
           <QuickActionButton
             icon="barbell"
-            label="Log Workout"
+            label="Add Workout"
             onPress={() => navigation.navigate(AppRoutes.ADD_WORKOUT)}
           />
           <QuickActionButton icon="calendar" label="Schedule" />
@@ -158,29 +156,11 @@ export const CoachDashboard = () => {
             <View style={styles.chartPlaceholder}>
               <Ionicons name="stats-chart" size={64} color="#fff" />
             </View>
-            <TouchableOpacity style={styles.viewAllButton}>
+            <TouchableOpacity
+              style={styles.viewAllButton}
+              onPress={() => navigation.navigate(AppRoutes.COACH_ANALYTICS)}>
               <Text style={styles.viewAllText}>View Detailed Analytics</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Upcoming Events */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Events</Text>
-          <View style={styles.cardContainer}>
-            <EventRow
-              month="OCT"
-              date="28"
-              title="Next Game: vs. Tigers"
-              subtitle="Friday, 7:00 PM @ Home"
-            />
-            <View style={styles.divider} />
-            <EventRow
-              month="OCT"
-              date="24"
-              title="Next Practice: Full Pads"
-              subtitle="Monday, 3:30 PM"
-            />
           </View>
         </View>
       </ScrollView>
@@ -279,10 +259,11 @@ const styles = StyleSheet.create({
   },
   quickActionsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     marginBottom: verticalScale(32),
   },
   quickActionBtn: {
+    flex: 1,
     alignItems: 'center',
     width: '22%',
   },

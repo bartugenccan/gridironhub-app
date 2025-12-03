@@ -55,6 +55,7 @@ export type TabNavigatorParamList = {
 export type CoachDashboardStackParamList = {
   [AppRoutes.COACH_DASHBOARD]: undefined;
   [AppRoutes.ADD_WORKOUT]: undefined;
+  [AppRoutes.COACH_ANALYTICS]: undefined;
 };
 
 export type CoachTabNavigatorParamList = {
