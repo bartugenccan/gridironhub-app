@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -65,9 +65,26 @@ const WorkoutRow = ({
               {workout.description}
             </CustomText>
           )}
-          <View style={styles.durationContainer}>
-            <MaterialCommunityIcons name="clock-outline" size={16} color={colors.textSecondary} />
-            <CustomText style={styles.workoutDuration}>{workout?.durationMinutes} min</CustomText>
+          <View style={styles.metaContainer}>
+            <View style={styles.durationContainer}>
+              <MaterialCommunityIcons name="clock-outline" size={16} color={colors.textSecondary} />
+              <CustomText style={styles.workoutDuration}>{workout?.durationMinutes} min</CustomText>
+            </View>
+            {workout.scheduledDate && (
+              <View style={styles.dateContainer}>
+                <MaterialCommunityIcons
+                  name="calendar-outline"
+                  size={16}
+                  color={colors.textSecondary}
+                />
+                <CustomText style={styles.workoutDate}>
+                  {new Date(workout.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </CustomText>
+              </View>
+            )}
           </View>
         </View>
         <MaterialCommunityIcons name="chevron-right" size={24} color={colors.textSecondary} />
@@ -112,6 +129,78 @@ export const WorkoutsScreen = () => {
     }
   }, [workouts]);
 
+  // Group workouts by date
+  const groupWorkoutsByDate = (workouts: Workout[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const grouped: {
+      date: string;
+      label: string;
+      workouts: Workout[];
+    }[] = [];
+
+    const unscheduled: Workout[] = [];
+    const byDate: Map<string, Workout[]> = new Map();
+
+    workouts.forEach((workout) => {
+      if (!workout.scheduledDate) {
+        unscheduled.push(workout);
+        return;
+      }
+
+      const workoutDate = new Date(workout.scheduledDate + 'T00:00:00');
+      workoutDate.setHours(0, 0, 0, 0);
+      const dateKey = workout.scheduledDate;
+
+      if (!byDate.has(dateKey)) {
+        byDate.set(dateKey, []);
+      }
+      byDate.get(dateKey)!.push(workout);
+    });
+
+    // Sort dates
+    const sortedDates = Array.from(byDate.keys()).sort((a, b) => {
+      return new Date(a).getTime() - new Date(b).getTime();
+    });
+
+    sortedDates.forEach((dateKey) => {
+      const date = new Date(dateKey + 'T00:00:00');
+      date.setHours(0, 0, 0, 0);
+      const workouts = byDate.get(dateKey)!;
+
+      let label: string;
+      if (date.getTime() === today.getTime()) {
+        label = 'Today';
+      } else if (date.getTime() === tomorrow.getTime()) {
+        label = 'Tomorrow';
+      } else {
+        label = date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+        });
+      }
+
+      grouped.push({ date: dateKey, label, workouts });
+    });
+
+    // Add unscheduled at the end
+    if (unscheduled.length > 0) {
+      grouped.push({ date: '', label: 'Unscheduled', workouts: unscheduled });
+    }
+
+    return grouped;
+  };
+
+  const groupedTeamWorkouts = useMemo(() => groupWorkoutsByDate(teamWorkouts), [teamWorkouts]);
+  const groupedPositionWorkouts = useMemo(
+    () => groupWorkoutsByDate(positionWorkouts),
+    [positionWorkouts]
+  );
+
   const handleWorkoutPress = (workout: Workout) => {
     navigation.navigate(AppRoutes.WORKOUTS_DETAIL, { workoutId: workout.id });
   };
@@ -151,18 +240,24 @@ export const WorkoutsScreen = () => {
     <View style={styles.tabContent}>
       {isLoadingWorkouts ? (
         <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : teamWorkouts.length > 0 ? (
+      ) : groupedTeamWorkouts.length > 0 ? (
         <FlatList
-          data={teamWorkouts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <WorkoutRow
-              workout={item}
-              colors={colors}
-              onPress={() => handleWorkoutPress(item)}
-              onDelete={isCoach ? () => handleDeleteWorkout(item, 'team') : undefined}
-              isCoach={isCoach}
-            />
+          data={groupedTeamWorkouts}
+          keyExtractor={(group) => group.date || 'unscheduled'}
+          renderItem={({ item: group }) => (
+            <View style={styles.dateGroup}>
+              <CustomText style={styles.dateGroupLabel}>{group.label}</CustomText>
+              {group.workouts.map((workout) => (
+                <WorkoutRow
+                  key={workout.id}
+                  workout={workout}
+                  colors={colors}
+                  onPress={() => handleWorkoutPress(workout)}
+                  onDelete={isCoach ? () => handleDeleteWorkout(workout, 'team') : undefined}
+                  isCoach={isCoach}
+                />
+              ))}
+            </View>
           )}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
@@ -179,18 +274,24 @@ export const WorkoutsScreen = () => {
     <View style={styles.tabContent}>
       {isLoadingWorkouts ? (
         <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : positionWorkouts.length > 0 ? (
+      ) : groupedPositionWorkouts.length > 0 ? (
         <FlatList
-          data={positionWorkouts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <WorkoutRow
-              workout={item}
-              colors={colors}
-              onPress={() => handleWorkoutPress(item)}
-              onDelete={isCoach ? () => handleDeleteWorkout(item, 'position') : undefined}
-              isCoach={isCoach}
-            />
+          data={groupedPositionWorkouts}
+          keyExtractor={(group) => group.date || 'unscheduled'}
+          renderItem={({ item: group }) => (
+            <View style={styles.dateGroup}>
+              <CustomText style={styles.dateGroupLabel}>{group.label}</CustomText>
+              {group.workouts.map((workout) => (
+                <WorkoutRow
+                  key={workout.id}
+                  workout={workout}
+                  colors={colors}
+                  onPress={() => handleWorkoutPress(workout)}
+                  onDelete={isCoach ? () => handleDeleteWorkout(workout, 'position') : undefined}
+                  isCoach={isCoach}
+                />
+              ))}
+            </View>
           )}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
@@ -362,5 +463,32 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       fontSize: scale(12),
       fontFamily: Typography.fontFamily.semiBold,
       marginTop: verticalScale(4),
+    },
+    metaContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scale(16),
+      marginTop: verticalScale(4),
+    },
+    dateContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scale(4),
+    },
+    workoutDate: {
+      fontSize: scale(14),
+      fontFamily: Typography.fontFamily.regular,
+      color: colors.textSecondary,
+    },
+    dateGroup: {
+      marginBottom: verticalScale(24),
+    },
+    dateGroupLabel: {
+      fontSize: scale(16),
+      fontFamily: Typography.fontFamily.bold,
+      color: colors.text,
+      marginBottom: verticalScale(12),
+      marginTop: verticalScale(8),
+      paddingHorizontal: scale(16),
     },
   });

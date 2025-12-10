@@ -6,6 +6,8 @@ import { CoachDashboard } from '@/screens/CoachDashboard/CoachDashboard';
 import { CoachProfile } from '@/screens/CoachProfile';
 import { AddWorkout } from '@/screens/AddWorkout';
 import { CoachAnalytics } from '@/screens/CoachAnalytics';
+import { ScheduleScreen } from '@/screens/Schedule';
+import { WorkoutsDetail } from '@/screens/WorkoutsDetail';
 import { TeamNavigator } from './TeamNavigator'; // Reusing TeamNavigator for Roster
 import { WorkoutsNavigator } from './WorkoutsNavigator';
 import { View, Text } from 'react-native';
@@ -26,6 +28,8 @@ const CoachDashboardStack = () => (
     <Stack.Screen name={AppRoutes.COACH_DASHBOARD} component={CoachDashboard} />
     <Stack.Screen name={AppRoutes.ADD_WORKOUT} component={AddWorkout} />
     <Stack.Screen name={AppRoutes.COACH_ANALYTICS} component={CoachAnalytics} />
+    <Stack.Screen name={AppRoutes.SCHEDULE} component={ScheduleScreen} />
+    <Stack.Screen name={AppRoutes.WORKOUTS_DETAIL} component={WorkoutsDetail} />
   </Stack.Navigator>
 );
 

@@ -118,28 +118,35 @@ export const PlayerDashboard = () => {
     ]);
   };
 
-  const renderActivityItem = ({ item }: { item: RecentActivity }) => (
-    <View style={styles.activityCard}>
-      <View style={styles.activityIconContainer}>
-        <MaterialCommunityIcons
-          name={item.icon}
-          size={scale(20)}
-          color={colors.activityIconColor}
-        />
-      </View>
-      <View style={styles.activityContent}>
-        <CustomText style={styles.activityTitle}>{item.title}</CustomText>
-        {item.description ? (
-          <CustomText style={styles.activityDescription}>
-            {item.description} - {item.date}
-          </CustomText>
-        ) : (
-          <CustomText style={styles.activityDescription}>{item.date}</CustomText>
-        )}
-      </View>
-      <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
-    </View>
-  );
+  const renderActivityItem = ({ item }: { item: RecentActivity }) => {
+    const isScheduleItem = item.id === 'schedule';
+    
+    return (
+      <TouchableOpacity
+        style={styles.activityCard}
+        onPress={isScheduleItem ? () => navigation.navigate(AppRoutes.SCHEDULE) : undefined}
+        activeOpacity={isScheduleItem ? 0.7 : 1}>
+        <View style={styles.activityIconContainer}>
+          <MaterialCommunityIcons
+            name={item.icon}
+            size={scale(20)}
+            color={colors.activityIconColor}
+          />
+        </View>
+        <View style={styles.activityContent}>
+          <CustomText style={styles.activityTitle}>{item.title}</CustomText>
+          {item.description ? (
+            <CustomText style={styles.activityDescription}>
+              {item.description} - {item.date}
+            </CustomText>
+          ) : (
+            <CustomText style={styles.activityDescription}>{item.date}</CustomText>
+          )}
+        </View>
+        <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+      </TouchableOpacity>
+    );
+  };
 
   const renderRecordItem = ({ item }: { item: PersonalRecord }) => {
     const renderRightActions = () => (
@@ -287,6 +294,23 @@ export const PlayerDashboard = () => {
         {/* Recent Activity Section */}
         <View style={styles.section}>
           <CustomText style={styles.sectionTitle}>Recent Activity</CustomText>
+          <TouchableOpacity
+            style={styles.activityCard}
+            onPress={() => navigation.navigate(AppRoutes.SCHEDULE)}
+            activeOpacity={0.7}>
+            <View style={styles.activityIconContainer}>
+              <MaterialCommunityIcons
+                name="calendar-month"
+                size={scale(20)}
+                color={colors.activityIconColor}
+              />
+            </View>
+            <View style={styles.activityContent}>
+              <CustomText style={styles.activityTitle}>View Schedule</CustomText>
+              <CustomText style={styles.activityDescription}>See all scheduled workouts</CustomText>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+          </TouchableOpacity>
           <FlatList
             data={recentActivities}
             renderItem={renderActivityItem}

@@ -129,7 +129,11 @@ export const CoachDashboard = () => {
             label="Add Workout"
             onPress={() => navigation.navigate(AppRoutes.ADD_WORKOUT)}
           />
-          <QuickActionButton icon="calendar" label="Schedule" />
+          <QuickActionButton
+            icon="calendar"
+            label="Schedule"
+            onPress={() => navigation.navigate(AppRoutes.SCHEDULE)}
+          />
         </View>
 
         {/* Players to Watch */}

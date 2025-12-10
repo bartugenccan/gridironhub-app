@@ -7,8 +7,10 @@ import {
   Alert,
   ActivityIndicator,
   Switch,
+  Platform,
 } from 'react-native';
 import React, { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -28,6 +30,7 @@ interface AddWorkoutFormState {
   assignedToPositions: string[];
   difficultyLevel: string;
   equipmentNeededInput: string;
+  scheduledDate: string; // YYYY-MM-DD format
 }
 
 type AddWorkoutNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
@@ -45,9 +48,11 @@ export const AddWorkout = () => {
     assignedToPositions: [],
     difficultyLevel: '',
     equipmentNeededInput: '',
+    scheduledDate: '',
   });
   const [positionSpecific, setPositionSpecific] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const positions = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
 
@@ -84,6 +89,24 @@ export const AddWorkout = () => {
     return true;
   };
 
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const onChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || new Date();
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      setSelectedDate(currentDate);
+      setFormData({ ...formData, scheduledDate: formatDate(currentDate) });
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -97,10 +120,11 @@ export const AddWorkout = () => {
         equipmentNeeded:
           formData.equipmentNeededInput.trim().length > 0
             ? formData.equipmentNeededInput
-                .split(',')
-                .map((item) => item.trim())
-                .filter((item) => item.length > 0)
+              .split(',')
+              .map((item) => item.trim())
+              .filter((item) => item.length > 0)
             : undefined,
+        scheduledDate: formData.scheduledDate || undefined,
       };
 
       await createWorkout(workoutData);
@@ -246,6 +270,68 @@ export const AddWorkout = () => {
           />
         </View>
 
+        {/* Scheduled Date */}
+        <View style={styles.section}>
+          <CustomText style={[styles.label, { color: colors.text }]}>
+            Scheduled Date (optional)
+          </CustomText>
+          <TouchableOpacity
+            style={[
+              styles.input,
+              {
+                borderColor: colors.border,
+                backgroundColor: colors.cardBackground,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              },
+            ]}
+            onPress={() => setShowDatePicker(true)}>
+            <CustomText
+              style={[
+                styles.dateText,
+                { color: formData.scheduledDate ? colors.text : colors.textMuted },
+              ]}>
+              {formData.scheduledDate
+                ? new Date(formData.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })
+                : 'Select date'}
+            </CustomText>
+            <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+          {showDatePicker && (
+            <View>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={selectedDate}
+                mode="date"
+                is24Hour={true}
+                minimumDate={new Date()}
+                onChange={onChange}
+                display={Platform.OS === 'ios' ? 'inline' : 'default'}
+              />
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity
+                  style={{
+                    alignSelf: 'flex-end',
+                    padding: 8,
+                    marginTop: 8,
+                    backgroundColor: colors.primary,
+                    borderRadius: 8,
+                  }}
+                  onPress={() => setShowDatePicker(false)}>
+                  <CustomText style={{ color: '#fff', fontFamily: Typography.fontFamily.semiBold }}>
+                    Done
+                  </CustomText>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </View>
+
         {/* Position Specific Toggle */}
         <View style={[styles.section, styles.toggleSection]}>
           <View style={styles.toggleInfo}>
@@ -311,11 +397,11 @@ export const AddWorkout = () => {
           style={[
             styles.submitButton,
             { backgroundColor: colors.primary },
-            loading && { opacity: 0.6 },
+            isPending && { opacity: 0.6 },
           ]}
           onPress={handleSubmit}
-          disabled={loading}>
-          {loading ? (
+          disabled={isPending}>
+          {isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
@@ -325,6 +411,8 @@ export const AddWorkout = () => {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Date Picker handled inline/dialog */}
     </SafeAreaView>
   );
 };
@@ -425,5 +513,9 @@ const getStyles = (colors: any) =>
       color: '#fff',
       fontSize: scale(16),
       fontFamily: Typography.fontFamily.semiBold,
+    },
+    dateText: {
+      fontSize: scale(16),
+      fontFamily: Typography.fontFamily.regular,
     },
   });

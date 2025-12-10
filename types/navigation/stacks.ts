@@ -16,6 +16,7 @@ export type DashboardStackParamList = {
   [AppRoutes.DASHBOARD]: undefined;
   [AppRoutes.PR_DETAIL]: { liftName: string };
   [AppRoutes.ADD_PR]: undefined;
+  [AppRoutes.SCHEDULE]: undefined;
 };
 
 export type RosterStackParamList = {
@@ -56,6 +57,7 @@ export type CoachDashboardStackParamList = {
   [AppRoutes.COACH_DASHBOARD]: undefined;
   [AppRoutes.ADD_WORKOUT]: undefined;
   [AppRoutes.COACH_ANALYTICS]: undefined;
+  [AppRoutes.SCHEDULE]: undefined;
 };
 
 export type CoachTabNavigatorParamList = {

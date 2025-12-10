@@ -25,6 +25,7 @@ export enum AppRoutes {
   WORKOUTS_DETAIL = 'WorkoutsDetail',
   ADD_WORKOUT = 'AddWorkout',
   COACH_ANALYTICS = 'CoachAnalytics',
+  SCHEDULE = 'Schedule',
   PROFILE = 'Profile',
   PROFILE_EDIT = 'ProfileEdit',
 

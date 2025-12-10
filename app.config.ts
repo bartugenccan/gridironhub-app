@@ -16,12 +16,14 @@ const config: ExpoConfig = {
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
+    bundleIdentifier: 'com.bartugenccan.gridironhubapp',
   },
   android: {
     adaptiveIcon: {
       foregroundImage: './assets/AppIcons/playstore.png',
       backgroundColor: '#ffffff',
     },
+    package: 'com.bartugenccan.gridironhubapp',
   },
   web: {
     bundler: 'metro',
