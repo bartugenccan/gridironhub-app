@@ -23,6 +23,7 @@ const CalendarDay = ({
   date,
   isSelected,
   hasWorkouts,
+  isPast,
   onPress,
   colors,
 }: {
@@ -30,16 +31,23 @@ const CalendarDay = ({
   date: Date;
   isSelected: boolean;
   hasWorkouts: boolean;
+  isPast: boolean;
   onPress: () => void;
   colors: typeof import('@/constants/Colors').LightColors;
 }) => {
   const styles = getStyles(colors);
-  const isToday = date.toDateString() === new Date().toDateString() && day !== null;
+  const today = new Date();
+  const isToday =
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear() &&
+    day !== null;
 
   return (
     <TouchableOpacity
       style={[
         styles.calendarDay,
+        isPast && !isToday && !isSelected && styles.calendarDayPast,
         isSelected && styles.calendarDaySelected,
         isToday && !isSelected && styles.calendarDayToday,
       ]}
@@ -56,7 +64,13 @@ const CalendarDay = ({
             {day}
           </CustomText>
           {hasWorkouts && (
-            <View style={[styles.calendarDot, isSelected && styles.calendarDotSelected]} />
+            <View
+              style={[
+                styles.calendarDot,
+                (isSelected || isPast) && styles.calendarDotSelected, // White dot if selected or past (dark bg)
+                hasWorkouts && !isSelected && !isPast && styles.calendarDotActive, // Primary color dot if active/future
+              ]}
+            />
           )}
         </>
       )}
@@ -119,9 +133,17 @@ export const ScheduleScreen = () => {
     return [...workouts.teamWorkouts, ...workouts.positionWorkouts];
   }, [workouts]);
 
+  // Helper to format date key as YYYY-MM-DD in LOCAL time
+  const formatDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Get workouts for selected date
   const selectedDateWorkouts = useMemo(() => {
-    const dateKey = selectedDate.toISOString().split('T')[0];
+    const dateKey = formatDateKey(selectedDate);
     return allWorkouts.filter((w) => w.scheduledDate === dateKey);
   }, [allWorkouts, selectedDate]);
 
@@ -150,7 +172,7 @@ export const ScheduleScreen = () => {
   // Check if a date has workouts
   const dateHasWorkouts = (day: number): boolean => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    const dateKey = date.toISOString().split('T')[0];
+    const dateKey = formatDateKey(date);
     return allWorkouts.some((w) => w.scheduledDate === dateKey);
   };
 
@@ -222,7 +244,13 @@ export const ScheduleScreen = () => {
                 }
 
                 const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-                const isSelected = date.toDateString() === selectedDate.toDateString();
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Reset time part for accurate comparison
+                const compareDate = new Date(date);
+                compareDate.setHours(0, 0, 0, 0);
+
+                const isSelected = compareDate.getTime() === new Date(selectedDate.setHours(0, 0, 0, 0)).getTime();
+                const isPast = compareDate.getTime() < today.getTime();
                 const hasWorkouts = dateHasWorkouts(day);
 
                 return (
@@ -232,6 +260,7 @@ export const ScheduleScreen = () => {
                     date={date}
                     isSelected={isSelected}
                     hasWorkouts={hasWorkouts}
+                    isPast={isPast}
                     onPress={() => handleDayPress(day)}
                     colors={colors}
                   />
@@ -299,7 +328,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       backgroundColor: colors.playerCardBackground,
       margin: scale(16),
       borderRadius: scale(16),
-      padding: scale(16),
+      padding: scale(8),
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
@@ -343,6 +372,10 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       justifyContent: 'center',
       alignItems: 'center',
       position: 'relative',
+      paddingBottom: verticalScale(6),
+    },
+    calendarDayPast: {
+      opacity: 0.5,
     },
     calendarDayToday: {
       backgroundColor: colors.primaryLight + '20',
@@ -363,14 +396,16 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
     },
     calendarDot: {
       position: 'absolute',
-      bottom: scale(4),
+      bottom: scale(-4),
       width: scale(4),
       height: scale(4),
       borderRadius: scale(2),
-      backgroundColor: colors.primary,
     },
     calendarDotSelected: {
       backgroundColor: '#fff',
+    },
+    calendarDotActive: {
+      backgroundColor: colors.primary,
     },
     workoutsSection: {
       padding: scale(16),
