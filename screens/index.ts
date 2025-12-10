@@ -13,6 +13,7 @@ import { WorkoutsScreen } from './WorkoutsScreen';
 import { PlayerProfile } from './PlayerProfile';
 import { CoachDashboard } from './CoachDashboard';
 import { CoachAnalytics } from './CoachAnalytics';
+import { ScheduleScreen } from './Schedule';
 
 export {
   NonTabScreen,
@@ -30,4 +31,5 @@ export {
   PlayerProfile,
   CoachDashboard,
   CoachAnalytics,
+  ScheduleScreen,
 };

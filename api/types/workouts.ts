@@ -6,6 +6,7 @@ export interface Workout {
   assignedToPositions?: string[] | null;
   difficultyLevel?: string | null;
   equipmentNeeded?: string[] | null;
+  scheduledDate?: string | null; // ISO date string (YYYY-MM-DD)
   createdAt: string;
   updatedAt: string;
 }
@@ -22,4 +23,5 @@ export interface CreateWorkoutRequest {
   assignedToPositions?: string[];
   difficultyLevel?: string;
   equipmentNeeded?: string[];
+  scheduledDate?: string; // ISO date string (YYYY-MM-DD)
 }
