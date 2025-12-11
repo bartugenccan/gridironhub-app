@@ -16,7 +16,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
 import { useNavigation } from '@react-navigation/native';
-import { useAddPersonalRecord } from '@/hooks/useStats';
+import { useCreatePrRequest } from '@/hooks/useStats';
 import { useVideoPicker } from '@/hooks/useVideoPicker';
 import { personalRecordSchema } from '@/validations/stats.schema';
 
@@ -37,7 +37,7 @@ export const AddPRScreen = () => {
   const [liftName, setLiftName] = useState('');
   const [oneRepMax, setOneRepMax] = useState('');
   const [notes, setNotes] = useState('');
-  const { mutate: addRecord, isPending: isLoading } = useAddPersonalRecord();
+  const { mutate: createRequest, isPending: isLoading } = useCreatePrRequest();
   const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
 
   const handleSave = () => {
@@ -49,8 +49,12 @@ export const AddPRScreen = () => {
       Alert.alert('Error', 'Please enter your One Rep Max');
       return;
     }
+    if (!video) {
+      Alert.alert('Error', 'Video proof is required for PR requests');
+      return;
+    }
 
-    // Validate video URL if video is selected
+    // Validate video URL
     if (video) {
       const validation = personalRecordSchema.safeParse({ videoUrl: video.uri });
       if (!validation.success) {
@@ -59,22 +63,20 @@ export const AddPRScreen = () => {
       }
     }
 
-    addRecord(
+    createRequest(
       {
         liftName,
-        oneRepMax: Number(oneRepMax),
-        notes,
-        // TODO: Add videoUrl support to useAddPersonalRecord hook type definition
-        ...(video?.uri && { videoUrl: video.uri }),
-      } as any,
+        value: Number(oneRepMax),
+        videoUrl: video.uri,
+      },
       {
         onSuccess: () => {
-          Alert.alert('Success', 'Personal Record added successfully', [
+          Alert.alert('Success', 'PR Request sent to coach for approval', [
             { text: 'OK', onPress: () => navigation.goBack() },
           ]);
         },
         onError: (error: any) => {
-          Alert.alert('Error', error.message || 'Failed to add Personal Record');
+          Alert.alert('Error', error.message || 'Failed to submit PR Request');
         },
       }
     );
@@ -137,7 +139,7 @@ export const AddPRScreen = () => {
 
         {/* Video Upload */}
         <View style={styles.formGroup}>
-          <CustomText style={styles.label}>Workout Video (Optional)</CustomText>
+          <CustomText style={styles.label}>Workout Video (Required)</CustomText>
           {video ? (
             <VideoPreview video={video} onRemove={clearVideo} />
           ) : (
@@ -154,7 +156,7 @@ export const AddPRScreen = () => {
                 <>
                   <Ionicons name="cloud-upload-outline" size={scale(48)} color={colors.primary} />
                   <CustomText style={[styles.uploadText, { color: colors.text }]}>
-                    Upload Video
+                    Upload Video Proof
                   </CustomText>
                   <CustomText style={[styles.uploadSubtext, { color: colors.textSecondary }]}>
                     Max 50MB, up to 2 minutes
@@ -174,7 +176,7 @@ export const AddPRScreen = () => {
           {isLoading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <CustomText style={styles.saveButtonText}>Save PR</CustomText>
+            <CustomText style={styles.saveButtonText}>Submit for Approval</CustomText>
           )}
         </TouchableOpacity>
       </View>
