@@ -22,9 +22,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { CreateWorkoutRequest } from '@/api/types/workouts';
 import { useCreateWorkout } from '@/hooks';
-import { useVideoPicker } from '@/hooks/useVideoPicker';
-import { VideoPreview } from '@/components/VideoPreview';
-import { videoService } from '@/api/services';
+import { workoutSchema } from '@/validations/workout.schema';
 
 interface AddWorkoutFormState {
   name: string;
@@ -34,6 +32,7 @@ interface AddWorkoutFormState {
   difficultyLevel: string;
   equipmentNeededInput: string;
   scheduledDate: string; // YYYY-MM-DD format
+  youtubeUrl: string;
 }
 
 type AddWorkoutNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
@@ -52,15 +51,13 @@ export const AddWorkout = () => {
     difficultyLevel: '',
     equipmentNeededInput: '',
     scheduledDate: '',
+    youtubeUrl: '',
   });
   const [positionSpecific, setPositionSpecific] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const positions = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
-
-  const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
-  const [isUploadingVideo, setIsUploadingVideo] = useState(false); // Video yükleme
 
   const togglePosition = (position: string) => {
     setFormData((prev) => {
@@ -163,6 +160,15 @@ export const AddWorkout = () => {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    // Validate YouTube URL if provided
+    if (formData.youtubeUrl.trim()) {
+      const validation = workoutSchema.safeParse({ youtubeUrl: formData.youtubeUrl });
+      if (!validation.success) {
+        Alert.alert('Validation Error', validation.error.errors[0].message);
+        return;
+      }
+    }
+
     try {
       const workoutData: CreateWorkoutRequest = {
         name: formData.name.trim(),
@@ -178,29 +184,10 @@ export const AddWorkout = () => {
                 .filter((item) => item.length > 0)
             : undefined,
         scheduledDate: formData.scheduledDate || undefined,
+        youtubeUrl: formData.youtubeUrl.trim() || undefined,
       };
 
-      const response = await createWorkout(workoutData);
-
-      // Video upload (optional)
-      if (video && response.id) {
-        setIsUploadingVideo(true);
-
-        try {
-          await videoService.uploadWorkoutVideo({
-            workoutId: response.id,
-            video,
-          });
-        } catch (videoError) {
-          console.error('Video upload failed:', videoError);
-          Alert.alert(
-            'Warning',
-            'Workout created but video upload failed. You can add video later.'
-          );
-        } finally {
-          setIsUploadingVideo(false);
-        }
-      }
+      await createWorkout(workoutData);
 
       Alert.alert('Success', 'Workout created successfully!', [
         {
@@ -342,40 +329,29 @@ export const AddWorkout = () => {
             textAlignVertical="top"
           />
         </View>
-        {/* Video Upload - Equipment Needed'den sonra ekle */}
+
+        {/* YouTube URL */}
         <View style={styles.section}>
           <CustomText style={[styles.label, { color: colors.text }]}>
-            Workout Video (optional)
+            YouTube Video URL (optional)
           </CustomText>
-
-          {video ? (
-            <VideoPreview video={video} onRemove={clearVideo} />
-          ) : (
-            <TouchableOpacity
-              style={[
-                styles.uploadButton,
-                {
-                  backgroundColor: colors.cardBackground,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={pickVideo}
-              disabled={isVideoLoading}>
-              {isVideoLoading ? (
-                <ActivityIndicator size="small" color={colors.primary} />
-              ) : (
-                <>
-                  <Ionicons name="cloud-upload-outline" size={scale(48)} color={colors.primary} />
-                  <CustomText style={[styles.uploadText, { color: colors.text }]}>
-                    Upload Video
-                  </CustomText>
-                  <CustomText style={[styles.uploadSubtext, { color: colors.textMuted }]}>
-                    Max 50MB, up to 2 minutes
-                  </CustomText>
-                </>
-              )}
-            </TouchableOpacity>
-          )}
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                borderColor: colors.border,
+                backgroundColor: colors.cardBackground,
+              },
+            ]}
+            value={formData.youtubeUrl}
+            onChangeText={(text) => setFormData({ ...formData, youtubeUrl: text })}
+            placeholder="https://www.youtube.com/watch?v=..."
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
         </View>
 
         {/* Scheduled Date */}
@@ -505,18 +481,16 @@ export const AddWorkout = () => {
           style={[
             styles.submitButton,
             { backgroundColor: colors.primary },
-            (isPending || isUploadingVideo) && { opacity: 0.6 },
+            isPending && { opacity: 0.6 },
           ]}
           onPress={handleSubmit}
-          disabled={isPending || isUploadingVideo}>
-          {isPending || isUploadingVideo ? (
+          disabled={isPending}>
+          {isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
               <Ionicons name="checkmark-circle" size={24} color="#fff" />
-              <CustomText style={styles.submitButtonText}>
-                {isUploadingVideo ? 'Uploading Video...' : 'Create Workout'}
-              </CustomText>
+              <CustomText style={styles.submitButtonText}>Create Workout</CustomText>
             </>
           )}
         </TouchableOpacity>
@@ -627,24 +601,5 @@ const getStyles = (colors: any) =>
     dateText: {
       fontSize: scale(16),
       fontFamily: Typography.fontFamily.regular,
-    },
-    uploadButton: {
-      borderWidth: 2,
-      borderStyle: 'dashed',
-      borderRadius: scale(12),
-      padding: scale(32),
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: verticalScale(160),
-    },
-    uploadText: {
-      fontSize: scale(16),
-      fontFamily: Typography.fontFamily.semiBold,
-      marginTop: verticalScale(12),
-    },
-    uploadSubtext: {
-      fontSize: scale(13),
-      fontFamily: Typography.fontFamily.regular,
-      marginTop: verticalScale(4),
     },
   });
