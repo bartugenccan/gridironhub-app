@@ -73,24 +73,7 @@ export const AddWorkout = () => {
     });
   };
 
-  const validateForm = (): boolean => {
-    if (!formData.name.trim()) {
-      Alert.alert('Validation Error', 'Please enter workout name');
-      return false;
-    }
-    if (formData.durationMinutes <= 0) {
-      Alert.alert('Validation Error', 'Please enter a valid duration');
-      return false;
-    }
-    if (
-      positionSpecific &&
-      (!formData.assignedToPositions || formData.assignedToPositions.length === 0)
-    ) {
-      Alert.alert('Validation Error', 'Please select at least one position');
-      return false;
-    }
-    return true;
-  };
+
 
   const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -110,81 +93,41 @@ export const AddWorkout = () => {
     }
   };
 
-  // const handleSubmit = async () => {
-  //   if (!validateForm()) return;
 
-  //   try {
-  //     const workoutData: CreateWorkoutRequest = {
-  //       name: formData.name.trim(),
-  //       description: formData.description?.trim() || undefined,
-  //       durationMinutes: formData.durationMinutes,
-  //       assignedToPositions: positionSpecific ? formData.assignedToPositions : undefined,
-  //       difficultyLevel: formData.difficultyLevel.trim().toLowerCase() || undefined,
-  //       equipmentNeeded:
-  //         formData.equipmentNeededInput.trim().length > 0
-  //           ? formData.equipmentNeededInput
-  //               .split(',')
-  //               .map((item) => item.trim())
-  //               .filter((item) => item.length > 0)
-  //           : undefined,
-  //       scheduledDate: formData.scheduledDate || undefined,
-  //     };
-
-  //    const response = await createWorkout(workoutData);
-  //         if (video&& response.id) {
-  //       setIsUploadingVideo(true);
-  //       await videoService.uploadWorkoutVideo({
-  //         workoutId: response.id,
-  //         video,
-  //       });
-  //       setIsUploadingVideo(false);
-  //         }
-
-  //     Alert.alert('Success', 'Workout created successfully!', [
-  //       {
-  //         text: 'OK',
-  //         onPress: () => navigation.goBack(),
-  //       },
-  //     ]);
-  //   } catch (error: any) {
-  //     console.error('Failed to create workout:', error);
-  //     Alert.alert(
-  //       'Error',
-  //       error?.response?.data?.message || 'Failed to create workout. Please try again.'
-  //     );
-  //   } finally {
-
-  //     setIsUploadingVideo(false);
-  //   }
-  // };
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    // Validate form data using Zod schema
+    const dataToValidate = {
+      ...formData,
+      positionSpecific,
+    };
 
-    // Validate YouTube URL if provided
-    if (formData.youtubeUrl.trim()) {
-      const validation = workoutSchema.safeParse({ youtubeUrl: formData.youtubeUrl });
-      if (!validation.success) {
-        Alert.alert('Validation Error', validation.error.errors[0].message);
-        return;
-      }
+    const validation = workoutSchema.safeParse(dataToValidate);
+
+    if (!validation.success) {
+      Alert.alert('Validation Error', validation.error.issues[0].message);
+      return;
     }
+
+    // Use validated data for submission
+    const validatedData = validation.data;
+
 
     try {
       const workoutData: CreateWorkoutRequest = {
-        name: formData.name.trim(),
-        description: formData.description?.trim() || undefined,
-        durationMinutes: formData.durationMinutes,
-        assignedToPositions: positionSpecific ? formData.assignedToPositions : undefined,
-        difficultyLevel: formData.difficultyLevel.trim().toLowerCase() || undefined,
+        name: validatedData.name.trim(),
+        description: validatedData.description?.trim() || undefined,
+        durationMinutes: validatedData.durationMinutes,
+        assignedToPositions: positionSpecific ? validatedData.assignedToPositions : undefined,
+        difficultyLevel: validatedData.difficultyLevel?.trim().toLowerCase() || undefined,
         equipmentNeeded:
           formData.equipmentNeededInput.trim().length > 0
             ? formData.equipmentNeededInput
-                .split(',')
-                .map((item) => item.trim())
-                .filter((item) => item.length > 0)
+              .split(',')
+              .map((item) => item.trim())
+              .filter((item) => item.length > 0)
             : undefined,
         scheduledDate: formData.scheduledDate || undefined,
-        youtubeUrl: formData.youtubeUrl.trim() || undefined,
+        youtubeUrl: validatedData.youtubeUrl?.trim() || undefined,
       };
 
       await createWorkout(workoutData);
@@ -378,10 +321,10 @@ export const AddWorkout = () => {
               ]}>
               {formData.scheduledDate
                 ? new Date(formData.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })
                 : 'Select date'}
             </CustomText>
             <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
