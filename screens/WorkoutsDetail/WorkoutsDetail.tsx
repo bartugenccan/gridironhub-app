@@ -10,6 +10,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { WorkoutsDetail as WorkoutDetailType } from '@/api/types/workoutsDetail';
 import { workoutsService } from '@/api/services/workouts.service';
+import { extractYoutubeVideoId } from '@/utils/youtubeFormatter';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 type WorkoutsDetailRouteProp = RouteProp<
   { WorkoutsDetail: { workoutId: string } },
@@ -200,6 +202,17 @@ export const WorkoutsDetail = () => {
             </CustomText>
           </View>
         </View>
+
+        {/*Youtube Video Section*/}
+        {workout.youtubeUrl && (
+          <View style={{ marginTop: 24, marginHorizontal: 16, overflow: 'hidden', borderRadius: 12 }}>
+            <YoutubePlayer
+              height={220}
+              play={false}
+              videoId={extractYoutubeVideoId(workout.youtubeUrl) || undefined}
+            />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

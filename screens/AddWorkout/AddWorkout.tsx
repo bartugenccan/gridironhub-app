@@ -22,6 +22,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { CreateWorkoutRequest } from '@/api/types/workouts';
 import { useCreateWorkout } from '@/hooks';
+import { workoutSchema } from '@/validations/workout.schema';
 
 interface AddWorkoutFormState {
   name: string;
@@ -31,6 +32,7 @@ interface AddWorkoutFormState {
   difficultyLevel: string;
   equipmentNeededInput: string;
   scheduledDate: string; // YYYY-MM-DD format
+  youtubeUrl: string;
 }
 
 type AddWorkoutNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
@@ -49,6 +51,7 @@ export const AddWorkout = () => {
     difficultyLevel: '',
     equipmentNeededInput: '',
     scheduledDate: '',
+    youtubeUrl: '',
   });
   const [positionSpecific, setPositionSpecific] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -70,24 +73,7 @@ export const AddWorkout = () => {
     });
   };
 
-  const validateForm = (): boolean => {
-    if (!formData.name.trim()) {
-      Alert.alert('Validation Error', 'Please enter workout name');
-      return false;
-    }
-    if (formData.durationMinutes <= 0) {
-      Alert.alert('Validation Error', 'Please enter a valid duration');
-      return false;
-    }
-    if (
-      positionSpecific &&
-      (!formData.assignedToPositions || formData.assignedToPositions.length === 0)
-    ) {
-      Alert.alert('Validation Error', 'Please select at least one position');
-      return false;
-    }
-    return true;
-  };
+
 
   const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -107,16 +93,32 @@ export const AddWorkout = () => {
     }
   };
 
+
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    // Validate form data using Zod schema
+    const dataToValidate = {
+      ...formData,
+      positionSpecific,
+    };
+
+    const validation = workoutSchema.safeParse(dataToValidate);
+
+    if (!validation.success) {
+      Alert.alert('Validation Error', validation.error.issues[0].message);
+      return;
+    }
+
+    // Use validated data for submission
+    const validatedData = validation.data;
+
 
     try {
       const workoutData: CreateWorkoutRequest = {
-        name: formData.name.trim(),
-        description: formData.description?.trim() || undefined,
-        durationMinutes: formData.durationMinutes,
-        assignedToPositions: positionSpecific ? formData.assignedToPositions : undefined,
-        difficultyLevel: formData.difficultyLevel.trim().toLowerCase() || undefined,
+        name: validatedData.name.trim(),
+        description: validatedData.description?.trim() || undefined,
+        durationMinutes: validatedData.durationMinutes,
+        assignedToPositions: positionSpecific ? validatedData.assignedToPositions : undefined,
+        difficultyLevel: validatedData.difficultyLevel?.trim().toLowerCase() || undefined,
         equipmentNeeded:
           formData.equipmentNeededInput.trim().length > 0
             ? formData.equipmentNeededInput
@@ -125,6 +127,7 @@ export const AddWorkout = () => {
               .filter((item) => item.length > 0)
             : undefined,
         scheduledDate: formData.scheduledDate || undefined,
+        youtubeUrl: validatedData.youtubeUrl?.trim() || undefined,
       };
 
       await createWorkout(workoutData);
@@ -267,6 +270,30 @@ export const AddWorkout = () => {
             multiline
             numberOfLines={3}
             textAlignVertical="top"
+          />
+        </View>
+
+        {/* YouTube URL */}
+        <View style={styles.section}>
+          <CustomText style={[styles.label, { color: colors.text }]}>
+            YouTube Video URL (optional)
+          </CustomText>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                color: colors.text,
+                borderColor: colors.border,
+                backgroundColor: colors.cardBackground,
+              },
+            ]}
+            value={formData.youtubeUrl}
+            onChangeText={(text) => setFormData({ ...formData, youtubeUrl: text })}
+            placeholder="https://www.youtube.com/watch?v=..."
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
           />
         </View>
 

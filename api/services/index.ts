@@ -4,3 +4,4 @@ export * from './roster.service';
 export * from './player.service';
 export * from './workouts.service';
 export * from './workoutsDetail.service';
+export * from './video.service';

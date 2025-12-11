@@ -8,6 +8,7 @@ export interface WorkoutsDetail {
   equipmentNeeded: string[] | null;
   createdAt: string;
   updatedAt: string;
+  youtubeUrl: string | null;
 }
 
 export interface WorkoutsDetailResponse {

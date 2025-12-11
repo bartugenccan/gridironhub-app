@@ -24,4 +24,5 @@ export interface CreateWorkoutRequest {
   difficultyLevel?: string;
   equipmentNeeded?: string[];
   scheduledDate?: string; // ISO date string (YYYY-MM-DD)
+  youtubeUrl?: string; // YouTube video URL
 }
