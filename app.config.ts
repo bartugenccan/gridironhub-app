@@ -32,7 +32,16 @@ const config: ExpoConfig = {
   experiments: {
     tsconfigPaths: true,
   },
-  plugins: ['expo-secure-store'],
+  plugins: [
+    'expo-secure-store',
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'The app accesses your photos to let you upload workout videos.',
+        cameraPermission: 'The app accesses your camera to let you record workout videos.',
+      },
+    ],
+  ],
 };
 
 export default config;

@@ -5,3 +5,4 @@ export * from './roster';
 export * from './player';
 export * from './workouts';
 export * from './workoutsDetail';
+export * from './video';

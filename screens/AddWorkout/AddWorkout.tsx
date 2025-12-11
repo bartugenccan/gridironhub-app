@@ -22,6 +22,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { CreateWorkoutRequest } from '@/api/types/workouts';
 import { useCreateWorkout } from '@/hooks';
+import { useVideoPicker } from '@/hooks/useVideoPicker';
+import { VideoPreview } from '@/components/VideoPreview';
+import { videoService } from '@/api/services';
 
 interface AddWorkoutFormState {
   name: string;
@@ -55,6 +58,9 @@ export const AddWorkout = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const positions = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
+
+  const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false); // Video yükleme
 
   const togglePosition = (position: string) => {
     setFormData((prev) => {
@@ -107,6 +113,53 @@ export const AddWorkout = () => {
     }
   };
 
+  // const handleSubmit = async () => {
+  //   if (!validateForm()) return;
+
+  //   try {
+  //     const workoutData: CreateWorkoutRequest = {
+  //       name: formData.name.trim(),
+  //       description: formData.description?.trim() || undefined,
+  //       durationMinutes: formData.durationMinutes,
+  //       assignedToPositions: positionSpecific ? formData.assignedToPositions : undefined,
+  //       difficultyLevel: formData.difficultyLevel.trim().toLowerCase() || undefined,
+  //       equipmentNeeded:
+  //         formData.equipmentNeededInput.trim().length > 0
+  //           ? formData.equipmentNeededInput
+  //               .split(',')
+  //               .map((item) => item.trim())
+  //               .filter((item) => item.length > 0)
+  //           : undefined,
+  //       scheduledDate: formData.scheduledDate || undefined,
+  //     };
+
+  //    const response = await createWorkout(workoutData);
+  //         if (video&& response.id) {
+  //       setIsUploadingVideo(true);
+  //       await videoService.uploadWorkoutVideo({
+  //         workoutId: response.id,
+  //         video,
+  //       });
+  //       setIsUploadingVideo(false);
+  //         }
+
+  //     Alert.alert('Success', 'Workout created successfully!', [
+  //       {
+  //         text: 'OK',
+  //         onPress: () => navigation.goBack(),
+  //       },
+  //     ]);
+  //   } catch (error: any) {
+  //     console.error('Failed to create workout:', error);
+  //     Alert.alert(
+  //       'Error',
+  //       error?.response?.data?.message || 'Failed to create workout. Please try again.'
+  //     );
+  //   } finally {
+
+  //     setIsUploadingVideo(false);
+  //   }
+  // };
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -120,14 +173,34 @@ export const AddWorkout = () => {
         equipmentNeeded:
           formData.equipmentNeededInput.trim().length > 0
             ? formData.equipmentNeededInput
-              .split(',')
-              .map((item) => item.trim())
-              .filter((item) => item.length > 0)
+                .split(',')
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0)
             : undefined,
         scheduledDate: formData.scheduledDate || undefined,
       };
 
-      await createWorkout(workoutData);
+      const response = await createWorkout(workoutData);
+
+      // Video upload (optional)
+      if (video && response.id) {
+        setIsUploadingVideo(true);
+
+        try {
+          await videoService.uploadWorkoutVideo({
+            workoutId: response.id,
+            video,
+          });
+        } catch (videoError) {
+          console.error('Video upload failed:', videoError);
+          Alert.alert(
+            'Warning',
+            'Workout created but video upload failed. You can add video later.'
+          );
+        } finally {
+          setIsUploadingVideo(false);
+        }
+      }
 
       Alert.alert('Success', 'Workout created successfully!', [
         {
@@ -269,6 +342,41 @@ export const AddWorkout = () => {
             textAlignVertical="top"
           />
         </View>
+        {/* Video Upload - Equipment Needed'den sonra ekle */}
+        <View style={styles.section}>
+          <CustomText style={[styles.label, { color: colors.text }]}>
+            Workout Video (optional)
+          </CustomText>
+
+          {video ? (
+            <VideoPreview video={video} onRemove={clearVideo} />
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.uploadButton,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border,
+                },
+              ]}
+              onPress={pickVideo}
+              disabled={isVideoLoading}>
+              {isVideoLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <>
+                  <Ionicons name="cloud-upload-outline" size={scale(48)} color={colors.primary} />
+                  <CustomText style={[styles.uploadText, { color: colors.text }]}>
+                    Upload Video
+                  </CustomText>
+                  <CustomText style={[styles.uploadSubtext, { color: colors.textMuted }]}>
+                    Max 50MB, up to 2 minutes
+                  </CustomText>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Scheduled Date */}
         <View style={styles.section}>
@@ -294,10 +402,10 @@ export const AddWorkout = () => {
               ]}>
               {formData.scheduledDate
                 ? new Date(formData.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
                 : 'Select date'}
             </CustomText>
             <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
@@ -397,16 +505,18 @@ export const AddWorkout = () => {
           style={[
             styles.submitButton,
             { backgroundColor: colors.primary },
-            isPending && { opacity: 0.6 },
+            (isPending || isUploadingVideo) && { opacity: 0.6 },
           ]}
           onPress={handleSubmit}
-          disabled={isPending}>
-          {isPending ? (
+          disabled={isPending || isUploadingVideo}>
+          {isPending || isUploadingVideo ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
               <Ionicons name="checkmark-circle" size={24} color="#fff" />
-              <CustomText style={styles.submitButtonText}>Create Workout</CustomText>
+              <CustomText style={styles.submitButtonText}>
+                {isUploadingVideo ? 'Uploading Video...' : 'Create Workout'}
+              </CustomText>
             </>
           )}
         </TouchableOpacity>
@@ -517,5 +627,24 @@ const getStyles = (colors: any) =>
     dateText: {
       fontSize: scale(16),
       fontFamily: Typography.fontFamily.regular,
+    },
+    uploadButton: {
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderRadius: scale(12),
+      padding: scale(32),
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: verticalScale(160),
+    },
+    uploadText: {
+      fontSize: scale(16),
+      fontFamily: Typography.fontFamily.semiBold,
+      marginTop: verticalScale(12),
+    },
+    uploadSubtext: {
+      fontSize: scale(13),
+      fontFamily: Typography.fontFamily.regular,
+      marginTop: verticalScale(4),
     },
   });
