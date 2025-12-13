@@ -41,6 +41,7 @@ const config: ExpoConfig = {
         cameraPermission: 'The app accesses your camera to let you record workout videos.',
       },
     ],
+    'expo-video',
   ],
 };
 

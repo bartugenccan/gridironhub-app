@@ -9,6 +9,7 @@ import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { usePendingPrRequests, useUpdatePrRequestStatus } from '@/hooks/useStats';
+import { VideoPlayerModal } from '@/components';
 import { Linking, Alert } from 'react-native';
 
 type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
@@ -67,8 +68,16 @@ export const CoachDashboard = () => {
   console.log("Pr requests: ", pendingRequests);
 
 
+  const [selectedVideoUrl, setSelectedVideoUrl] = React.useState<string | null>(null);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <VideoPlayerModal
+        visible={!!selectedVideoUrl}
+        videoUrl={selectedVideoUrl}
+        onClose={() => setSelectedVideoUrl(null)}
+      />
+
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -104,7 +113,7 @@ export const CoachDashboard = () => {
                         <Text style={styles.playerDetail}>
                           {request.liftName} - {request.value}
                         </Text>
-                        <TouchableOpacity onPress={() => Linking.openURL(request.videoUrl)}>
+                        <TouchableOpacity onPress={() => setSelectedVideoUrl(request.videoUrl)}>
                           <Text style={{ color: '#4F46E5', fontSize: scale(12), marginTop: 2 }}>
                             Watch Video
                           </Text>
