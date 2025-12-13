@@ -58,6 +58,7 @@ export type CoachDashboardStackParamList = {
   [AppRoutes.ADD_WORKOUT]: undefined;
   [AppRoutes.COACH_ANALYTICS]: undefined;
   [AppRoutes.SCHEDULE]: undefined;
+  [AppRoutes.PR_REQUESTS]: undefined;
 };
 
 export type CoachTabNavigatorParamList = {

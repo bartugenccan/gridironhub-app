@@ -93,61 +93,6 @@ export const CoachDashboard = () => {
           </View>
         </View>
 
-
-        {/* Pending PR Requests */}
-        {pendingRequests && pendingRequests.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Pending PR Requests</Text>
-            <View style={styles.cardContainer}>
-              {pendingRequests.map((request) => (
-                <View key={request.id}>
-                  <View style={styles.prRequestRow}>
-                    <View style={styles.playerInfo}>
-                      <View style={styles.avatarPlaceholder}>
-                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>
-                          {(request.playerName || 'U').charAt(0)}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.playerName}>{request.playerName || 'Unknown Player'}</Text>
-                        <Text style={styles.playerDetail}>
-                          {request.liftName} - {request.value}
-                        </Text>
-                        <TouchableOpacity onPress={() => setSelectedVideoUrl(request.videoUrl)}>
-                          <Text style={{ color: '#4F46E5', fontSize: scale(12), marginTop: 2 }}>
-                            Watch Video
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', gap: scale(12) }}>
-                      <TouchableOpacity
-                        onPress={() =>
-                          updateRequestStatus(
-                            { id: request.id, data: { status: 'rejected' } },
-                            { onSuccess: () => Alert.alert('Rejected', 'PR Request rejected') }
-                          )
-                        }>
-                        <Ionicons name="close-circle" size={scale(32)} color="#EF4444" />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() =>
-                          updateRequestStatus(
-                            { id: request.id, data: { status: 'approved' } },
-                            { onSuccess: () => Alert.alert('Approved', 'PR Request approved') }
-                          )
-                        }>
-                        <Ionicons name="checkmark-circle" size={scale(32)} color="#10B981" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <View style={styles.divider} />
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
         {/* Active Players Card */}
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Active Players</Text>
@@ -167,6 +112,76 @@ export const CoachDashboard = () => {
             label="Schedule"
             onPress={() => navigation.navigate(AppRoutes.SCHEDULE)}
           />
+        </View>
+
+        {/* Pending PR Requests */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pending PR Requests</Text>
+          <View style={styles.cardContainer}>
+            {(!pendingRequests || pendingRequests.length === 0) ? (
+              <View style={{ padding: scale(16), alignItems: 'center' }}>
+                <Text style={{ color: '#6B7280', marginBottom: verticalScale(12) }}>
+                  No pending requests
+                </Text>
+              </View>
+            ) : (
+              <>
+                {pendingRequests.slice(0, 3).map((request, index) => (
+                  <View key={request.id}>
+                    <View style={styles.prRequestRow}>
+                      <View style={styles.playerInfo}>
+                        <View style={styles.avatarPlaceholder}>
+                          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                            {(request.playerName || 'U').charAt(0)}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text style={styles.playerName}>{request.playerName || 'Unknown Player'}</Text>
+                          <Text style={styles.playerDetail}>
+                            {request.liftName} - {request.value}
+                          </Text>
+                          <TouchableOpacity onPress={() => setSelectedVideoUrl(request.videoUrl)}>
+                            <Text style={{ color: '#4F46E5', fontSize: scale(12), marginTop: 2 }}>
+                              Watch Video
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                      <View style={{ flexDirection: 'row', gap: scale(12) }}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            updateRequestStatus(
+                              { id: request.id, data: { status: 'rejected' } },
+                              { onSuccess: () => Alert.alert('Rejected', 'PR Request rejected') }
+                            )
+                          }>
+                          <Ionicons name="close-circle" size={scale(32)} color="#EF4444" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() =>
+                            updateRequestStatus(
+                              { id: request.id, data: { status: 'approved' } },
+                              { onSuccess: () => Alert.alert('Approved', 'PR Request approved') }
+                            )
+                          }>
+                          <Ionicons name="checkmark-circle" size={scale(32)} color="#10B981" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    {index < Math.min(pendingRequests.length, 3) - 1 && <View style={styles.divider} />}
+                  </View>
+                ))}
+
+                {pendingRequests.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.viewAllButton}
+                    onPress={() => navigation.navigate(AppRoutes.PR_REQUESTS)}>
+                    <Text style={styles.viewAllText}>View All PR Requests</Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+          </View>
         </View>
 
         {/* Players to Watch */}

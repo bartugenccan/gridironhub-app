@@ -8,24 +8,20 @@ import { AddWorkout } from '@/screens/AddWorkout';
 import { CoachAnalytics } from '@/screens/CoachAnalytics';
 import { ScheduleScreen } from '@/screens/Schedule';
 import { WorkoutsDetail } from '@/screens/WorkoutsDetail';
-import { TeamNavigator } from './TeamNavigator'; // Reusing TeamNavigator for Roster
+import { PRRequestsScreen } from '@/screens/CoachDashboard/PRRequestsScreen';
+
+import { TeamNavigator } from './TeamNavigator';
 import { WorkoutsNavigator } from './WorkoutsNavigator';
-import { View, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 const Tab = createBottomTabNavigator<CoachTabNavigatorParamList>();
 const Stack = createStackNavigator();
 
-// Temporary placeholder screens
-const PlaceholderScreen = ({ title }: { title: string }) => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>{title}</Text>
-  </View>
-);
 
 const CoachDashboardStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name={AppRoutes.COACH_DASHBOARD} component={CoachDashboard} />
+    <Stack.Screen name={AppRoutes.PR_REQUESTS} component={PRRequestsScreen} />
     <Stack.Screen name={AppRoutes.ADD_WORKOUT} component={AddWorkout} />
     <Stack.Screen name={AppRoutes.COACH_ANALYTICS} component={CoachAnalytics} />
     <Stack.Screen name={AppRoutes.SCHEDULE} component={ScheduleScreen} />
