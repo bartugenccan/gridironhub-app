@@ -128,9 +128,16 @@ export const statsService = {
     }
   },
 
-  createPrRequest: async (data: CreatePrRequestDTO): Promise<PrRequest> => {
+  createPrRequest: async (data: FormData): Promise<PrRequest> => {
     try {
-      const response = await axiosInstance.post<any>(API_ENDPOINTS.STATS.CREATE_PR_REQUEST, data);
+      const response = await axiosInstance.post<any>(API_ENDPOINTS.STATS.CREATE_PR_REQUEST, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        transformRequest: (data, headers) => {
+          return data;
+        },
+      });
       return mapPrRequest(response.data);
     } catch (error: any) {
       console.error('Error in createPrRequest:', error);

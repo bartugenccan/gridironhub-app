@@ -63,12 +63,22 @@ export const AddPRScreen = () => {
       }
     }
 
+    // Create FormData
+    const formData = new FormData();
+    formData.append('liftName', liftName);
+    formData.append('value', oneRepMax);
+
+    // Add video file
+    const videoFile = {
+      uri: video.uri,
+      type: video.type || 'video/mp4',
+      name: video.name || 'video.mp4',
+    } as any;
+
+    formData.append('video', videoFile);
+
     createRequest(
-      {
-        liftName,
-        value: Number(oneRepMax),
-        videoUrl: video.uri,
-      },
+      formData as any, // Cast to any to avoid type issues with FormData in React Native
       {
         onSuccess: () => {
           Alert.alert('Success', 'PR Request sent to coach for approval', [
