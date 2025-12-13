@@ -83,7 +83,13 @@ export const Roster = () => {
               <Text style={styles.sectionTitle}>Coaches ({filteredCoaches?.length || 0})</Text>
               {filteredCoaches && filteredCoaches.length > 0 ? (
                 filteredCoaches.map((coach) => (
-                  <View key={coach.id} style={styles.memberCard}>
+                  <TouchableOpacity
+                    key={coach.id}
+                    style={styles.memberCard}
+                    onPress={() =>
+                      navigation.navigate(AppRoutes.COACH_DETAIL, { coachId: coach.id })
+                    }
+                    activeOpacity={0.7}>
                     <View style={styles.cardContent}>
                       <View style={styles.memberInfo}>
                         <Text style={styles.memberName}>{coach.fullName}</Text>
@@ -97,7 +103,7 @@ export const Roster = () => {
                         color={colors.textSecondary}
                       />
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))
               ) : (
                 <Text style={styles.emptyText}>No coaches found</Text>

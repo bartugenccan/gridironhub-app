@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,7 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { usePendingPrRequests, useUpdatePrRequestStatus } from '@/hooks/useStats';
 import { Linking, Alert } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { rosterService } from '@/api';
 
 type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
 
@@ -21,6 +22,22 @@ export const CoachDashboard = () => {
   const navigation = useNavigation<CoachDashboardNavigationProp>();
   const { data: pendingRequests } = usePendingPrRequests();
   const { mutate: updateRequestStatus } = useUpdatePrRequestStatus();
+  const [playerCount, setPlayerCount] = React.useState<{ current: number; max: number }>({
+    current: 0,
+    max: 50,
+  });
+
+  useEffect(() => {
+    const fetchRoster = async () => {
+      try {
+        const roster = await rosterService.getRoster();
+        setPlayerCount({ current: roster.players.length, max: 50 });
+      } catch (error) {
+        console.error('Error fetching roster:', error);
+      }
+    };
+    fetchRoster();
+  }, []);
 
   const QuickActionButton = ({
     icon,
@@ -145,7 +162,9 @@ export const CoachDashboard = () => {
         {/* Active Players Card */}
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Active Players</Text>
-          <Text style={styles.cardValue}>45/50</Text>
+          <Text style={styles.cardValue}>
+            {playerCount.current}/{playerCount.max}
+          </Text>
         </View>
 
         {/* Quick Actions */}
