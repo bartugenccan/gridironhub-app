@@ -8,12 +8,16 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
 import { scale, verticalScale } from 'react-native-size-matters';
+import { usePendingPrRequests, useUpdatePrRequestStatus } from '@/hooks/useStats';
+import { Linking, Alert } from 'react-native';
 
 type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
 
 export const CoachDashboard = () => {
   const { user } = useAuth();
   const navigation = useNavigation<CoachDashboardNavigationProp>();
+  const { data: pendingRequests } = usePendingPrRequests();
+  const { mutate: updateRequestStatus } = useUpdatePrRequestStatus();
 
   const QuickActionButton = ({
     icon,
@@ -36,12 +40,10 @@ export const CoachDashboard = () => {
     name,
     detail,
     status,
-    icon,
   }: {
     name: string;
     detail: string;
     status: 'up' | 'flag';
-    icon?: any;
   }) => (
     <View style={styles.playerRow}>
       <View style={styles.playerInfo}>
@@ -62,28 +64,8 @@ export const CoachDashboard = () => {
     </View>
   );
 
-  const EventRow = ({
-    date,
-    month,
-    title,
-    subtitle,
-  }: {
-    date: string;
-    month: string;
-    title: string;
-    subtitle: string;
-  }) => (
-    <View style={styles.eventRow}>
-      <View style={styles.dateContainer}>
-        <Text style={styles.dateMonth}>{month}</Text>
-        <Text style={styles.dateDay}>{date}</Text>
-      </View>
-      <View>
-        <Text style={styles.eventTitle}>{title}</Text>
-        <Text style={styles.eventSubtitle}>{subtitle}</Text>
-      </View>
-    </View>
-  );
+  console.log("Pr requests: ", pendingRequests);
+
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -102,18 +84,60 @@ export const CoachDashboard = () => {
           </View>
         </View>
 
-        {/* Stats Cards Row - Hidden for now as per request
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Record</Text>
-            <Text style={styles.statValue}>5-2</Text>
+
+        {/* Pending PR Requests */}
+        {pendingRequests && pendingRequests.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Pending PR Requests</Text>
+            <View style={styles.cardContainer}>
+              {pendingRequests.map((request) => (
+                <View key={request.id}>
+                  <View style={styles.prRequestRow}>
+                    <View style={styles.playerInfo}>
+                      <View style={styles.avatarPlaceholder}>
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                          {(request.playerName || 'U').charAt(0)}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text style={styles.playerName}>{request.playerName || 'Unknown Player'}</Text>
+                        <Text style={styles.playerDetail}>
+                          {request.liftName} - {request.value}
+                        </Text>
+                        <TouchableOpacity onPress={() => Linking.openURL(request.videoUrl)}>
+                          <Text style={{ color: '#4F46E5', fontSize: scale(12), marginTop: 2 }}>
+                            Watch Video
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: scale(12) }}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          updateRequestStatus(
+                            { id: request.id, data: { status: 'rejected' } },
+                            { onSuccess: () => Alert.alert('Rejected', 'PR Request rejected') }
+                          )
+                        }>
+                        <Ionicons name="close-circle" size={scale(32)} color="#EF4444" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() =>
+                          updateRequestStatus(
+                            { id: request.id, data: { status: 'approved' } },
+                            { onSuccess: () => Alert.alert('Approved', 'PR Request approved') }
+                          )
+                        }>
+                        <Ionicons name="checkmark-circle" size={scale(32)} color="#10B981" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <View style={styles.divider} />
+                </View>
+              ))}
+            </View>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Avg. Squat</Text>
-            <Text style={styles.statValue}>315 lbs</Text>
-          </View>
-        </View>
-        */}
+        )}
 
         {/* Active Players Card */}
         <View style={styles.card}>
@@ -312,6 +336,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   playerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: verticalScale(8),
+  },
+  prRequestRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

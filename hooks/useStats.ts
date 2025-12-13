@@ -4,6 +4,7 @@ import { statsService, PersonalRecord } from '@/api/services/stats.service';
 export const STATS_KEYS = {
   all: ['personalRecords'] as const,
   history: (liftName: string) => ['personalRecordHistory', liftName] as const,
+  pendingRequests: ['pendingPrRequests'] as const,
 };
 
 export const usePersonalRecords = () => {
@@ -44,6 +45,37 @@ export const useDeletePersonalRecord = () => {
       // Invalidate all queries to refresh data
       queryClient.invalidateQueries({ queryKey: STATS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ['personalRecordHistory'] });
+    },
+  });
+};
+
+export const useCreatePrRequest = () => {
+  return useMutation({
+    mutationFn: statsService.createPrRequest,
+  });
+};
+
+export const usePendingPrRequests = () => {
+  return useQuery({
+    queryKey: STATS_KEYS.pendingRequests,
+    queryFn: statsService.getPendingPrRequests,
+  });
+};
+
+export const useUpdatePrRequestStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: import('@/api/services/stats.service').UpdatePrRequestStatusDTO;
+    }) => statsService.updatePrRequestStatus(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: STATS_KEYS.pendingRequests });
+      queryClient.invalidateQueries({ queryKey: STATS_KEYS.all });
     },
   });
 };

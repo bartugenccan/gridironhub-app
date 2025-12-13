@@ -8,6 +8,32 @@ export interface PersonalRecord {
   recordedAt: string;
 }
 
+export type PrRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export interface PrRequest {
+  id: string;
+  userId: string;
+  liftName: string;
+  value: number;
+  videoUrl: string;
+  status: PrRequestStatus;
+  coachNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  playerName?: string;
+}
+
+export interface CreatePrRequestDTO {
+  liftName: string;
+  value: number;
+  videoUrl: string;
+}
+
+export interface UpdatePrRequestStatusDTO {
+  status: PrRequestStatus;
+  coachNotes?: string;
+}
+
 export const statsService = {
   getPersonalRecords: async (): Promise<PersonalRecord[]> => {
     try {
@@ -101,4 +127,50 @@ export const statsService = {
       throw error;
     }
   },
+
+  createPrRequest: async (data: CreatePrRequestDTO): Promise<PrRequest> => {
+    try {
+      const response = await axiosInstance.post<any>(API_ENDPOINTS.STATS.CREATE_PR_REQUEST, data);
+      return mapPrRequest(response.data);
+    } catch (error: any) {
+      console.error('Error in createPrRequest:', error);
+      throw error;
+    }
+  },
+
+  getPendingPrRequests: async (): Promise<PrRequest[]> => {
+    try {
+      const response = await axiosInstance.get<any[]>(API_ENDPOINTS.STATS.GET_PR_REQUESTS);
+      return response.data.map(mapPrRequest);
+    } catch (error: any) {
+      console.error('Error in getPendingPrRequests:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  updatePrRequestStatus: async (id: string, data: UpdatePrRequestStatusDTO): Promise<PrRequest> => {
+    try {
+      const response = await axiosInstance.patch<any>(
+        `${API_ENDPOINTS.STATS.UPDATE_PR_REQUEST_STATUS}/${id}`,
+        data
+      );
+      return mapPrRequest(response.data);
+    } catch (error: any) {
+      console.error('Error in updatePrRequestStatus:', error);
+      throw error;
+    }
+  },
 };
+
+const mapPrRequest = (data: any): PrRequest => ({
+  id: data.id,
+  userId: data.user_id,
+  liftName: data.lift_name,
+  value: data.value,
+  videoUrl: data.video_url,
+  status: data.status,
+  coachNotes: data.coach_notes,
+  createdAt: data.created_at,
+  updatedAt: data.updated_at,
+  playerName: data.player_name,
+});
