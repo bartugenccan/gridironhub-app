@@ -10,11 +10,14 @@ import { AppRoutes } from '@/types/navigation/routes';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { usePendingPrRequests, useUpdatePrRequestStatus } from '@/hooks/useStats';
 import { Linking, Alert } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
 
 export const CoachDashboard = () => {
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const styles = getStyles(colors);
   const navigation = useNavigation<CoachDashboardNavigationProp>();
   const { data: pendingRequests } = usePendingPrRequests();
   const { mutate: updateRequestStatus } = useUpdatePrRequestStatus();
@@ -30,7 +33,7 @@ export const CoachDashboard = () => {
   }) => (
     <TouchableOpacity style={styles.quickActionBtn} onPress={onPress}>
       <View style={styles.quickActionIconContainer}>
-        <Ionicons name={icon} size={24} color="#4F46E5" />
+        <Ionicons name={icon} size={24} color={colors.primary} />
       </View>
       <Text style={styles.quickActionLabel}>{label}</Text>
     </TouchableOpacity>
@@ -64,8 +67,7 @@ export const CoachDashboard = () => {
     </View>
   );
 
-  console.log("Pr requests: ", pendingRequests);
-
+  console.log('Pr requests: ', pendingRequests);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -84,7 +86,6 @@ export const CoachDashboard = () => {
           </View>
         </View>
 
-
         {/* Pending PR Requests */}
         {pendingRequests && pendingRequests.length > 0 && (
           <View style={styles.section}>
@@ -100,7 +101,9 @@ export const CoachDashboard = () => {
                         </Text>
                       </View>
                       <View>
-                        <Text style={styles.playerName}>{request.playerName || 'Unknown Player'}</Text>
+                        <Text style={styles.playerName}>
+                          {request.playerName || 'Unknown Player'}
+                        </Text>
                         <Text style={styles.playerDetail}>
                           {request.liftName} - {request.value}
                         </Text>
@@ -182,7 +185,7 @@ export const CoachDashboard = () => {
           <Text style={styles.sectionSubtitle}>Average Bench Press, Last 30 Days</Text>
           <View style={styles.cardContainer}>
             <View style={styles.chartPlaceholder}>
-              <Ionicons name="stats-chart" size={64} color="#fff" />
+              <Ionicons name="stats-chart" size={64} color={colors.text} />
             </View>
             <TouchableOpacity
               style={styles.viewAllButton}
@@ -196,235 +199,238 @@ export const CoachDashboard = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F6F8FC',
-  },
-  scrollContent: {
-    padding: scale(16),
-    paddingBottom: verticalScale(40),
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: verticalScale(24),
-  },
-  teamHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: scale(8),
-  },
-  teamName: {
-    fontSize: scale(20),
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  logoContainer: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  teamLogo: {
-    width: scale(36),
-    height: scale(36),
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: scale(12),
-    marginBottom: verticalScale(16),
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: scale(16),
-    borderRadius: scale(12),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  statLabel: {
-    fontSize: scale(12),
-    color: '#6B7280',
-    marginBottom: verticalScale(4),
-  },
-  statValue: {
-    fontSize: scale(20),
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: scale(16),
-    borderRadius: scale(12),
-    marginBottom: verticalScale(24),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  cardLabel: {
-    fontSize: scale(14),
-    color: '#6B7280',
-    marginBottom: verticalScale(4),
-  },
-  cardValue: {
-    fontSize: scale(24),
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginBottom: verticalScale(32),
-  },
-  quickActionBtn: {
-    flex: 1,
-    alignItems: 'center',
-    width: '22%',
-  },
-  quickActionIconContainer: {
-    width: scale(56),
-    height: scale(56),
-    backgroundColor: '#EEF2FF',
-    borderRadius: scale(16),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: verticalScale(8),
-  },
-  quickActionLabel: {
-    fontSize: scale(12),
-    color: '#111827',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  section: {
-    marginBottom: verticalScale(24),
-  },
-  sectionTitle: {
-    fontSize: scale(18),
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: verticalScale(12),
-  },
-  sectionSubtitle: {
-    fontSize: scale(14),
-    color: '#6B7280',
-    marginBottom: verticalScale(12),
-    marginTop: verticalScale(-8),
-  },
-  cardContainer: {
-    backgroundColor: '#fff',
-    borderRadius: scale(16),
-    padding: scale(16),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  playerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: verticalScale(8),
-  },
-  prRequestRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: verticalScale(8),
-  },
-  playerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: scale(12),
-  },
-  avatarPlaceholder: {
-    width: scale(40),
-    height: scale(40),
-    borderRadius: scale(20),
-    backgroundColor: '#1F2937',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playerName: {
-    fontSize: scale(16),
-    fontWeight: '600',
-    color: '#111827',
-  },
-  playerDetail: {
-    fontSize: scale(13),
-    color: '#6B7280',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#F3F4F6',
-    marginVertical: verticalScale(12),
-  },
-  viewAllButton: {
-    marginTop: verticalScale(12),
-    paddingVertical: verticalScale(12),
-    backgroundColor: '#F3F4F6',
-    borderRadius: scale(8),
-    alignItems: 'center',
-  },
-  viewAllText: {
-    fontSize: scale(14),
-    fontWeight: '600',
-    color: '#111827',
-  },
-  chartPlaceholder: {
-    height: verticalScale(160),
-    backgroundColor: '#2563EB', // Placeholder color
-    borderRadius: scale(8),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: verticalScale(12),
-  },
-  eventRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: scale(16),
-    paddingVertical: verticalScale(4),
-  },
-  dateContainer: {
-    backgroundColor: '#EEF2FF',
-    padding: scale(8),
-    borderRadius: scale(8),
-    alignItems: 'center',
-    minWidth: scale(50),
-  },
-  dateMonth: {
-    fontSize: scale(10),
-    fontWeight: '700',
-    color: '#4F46E5',
-    textTransform: 'uppercase',
-  },
-  dateDay: {
-    fontSize: scale(18),
-    fontWeight: 'bold',
-    color: '#4F46E5',
-  },
-  eventTitle: {
-    fontSize: scale(16),
-    fontWeight: '600',
-    color: '#111827',
-  },
-  eventSubtitle: {
-    fontSize: scale(13),
-    color: '#6B7280',
-  },
-});
+const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.playerDashboardBackground,
+    },
+    scrollContent: {
+      padding: scale(16),
+      paddingBottom: verticalScale(40),
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: verticalScale(24),
+    },
+    teamHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scale(8),
+    },
+    teamName: {
+      fontSize: scale(20),
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    logoContainer: {
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(20),
+      backgroundColor: '#fff',
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    teamLogo: {
+      width: scale(36),
+      height: scale(36),
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: scale(12),
+      marginBottom: verticalScale(16),
+    },
+    statCard: {
+      flex: 1,
+      backgroundColor: '#fff',
+      padding: scale(16),
+      borderRadius: scale(12),
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    statLabel: {
+      fontSize: scale(12),
+      color: '#6B7280',
+      marginBottom: verticalScale(4),
+    },
+
+    card: {
+      backgroundColor: colors.playerCardBackground,
+      padding: scale(16),
+      borderWidth: scale(1),
+      borderColor: colors.border,
+      borderRadius: scale(12),
+      marginBottom: verticalScale(24),
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    cardLabel: {
+      fontSize: scale(14),
+      color: colors.text,
+      marginBottom: verticalScale(4),
+    },
+    cardValue: {
+      fontSize: scale(24),
+      fontWeight: 'bold',
+      color: colors.text,
+    },
+    quickActionsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
+      marginBottom: verticalScale(32),
+    },
+    quickActionBtn: {
+      flex: 1,
+      alignItems: 'center',
+      width: '22%',
+    },
+    quickActionIconContainer: {
+      width: scale(56),
+      height: scale(56),
+      backgroundColor: colors.backgroundLight,
+      borderRadius: scale(16),
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: verticalScale(8),
+    },
+    quickActionLabel: {
+      fontSize: scale(12),
+      color: colors.text,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    section: {
+      marginBottom: verticalScale(24),
+    },
+    sectionTitle: {
+      fontSize: scale(18),
+      fontWeight: 'bold',
+      color: colors.text,
+      marginBottom: verticalScale(12),
+    },
+    sectionSubtitle: {
+      fontSize: scale(14),
+      color: '#6B7280',
+      marginBottom: verticalScale(12),
+      marginTop: verticalScale(-8),
+    },
+    cardContainer: {
+      backgroundColor: colors.cardBackground,
+      borderWidth: scale(1),
+      borderColor: colors.border,
+      borderRadius: scale(16),
+      padding: scale(16),
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    playerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: verticalScale(8),
+    },
+    prRequestRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: verticalScale(8),
+    },
+    playerInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scale(12),
+    },
+    avatarPlaceholder: {
+      width: scale(40),
+      height: scale(40),
+      borderRadius: scale(20),
+      backgroundColor: '#1F2937',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    playerName: {
+      fontSize: scale(16),
+      fontWeight: '600',
+      color: '#111827',
+    },
+    playerDetail: {
+      fontSize: scale(13),
+      color: '#6B7280',
+    },
+    divider: {
+      height: 1,
+      backgroundColor: '#F3F4F6',
+      marginVertical: verticalScale(12),
+    },
+    viewAllButton: {
+      marginTop: verticalScale(12),
+      borderWidth: scale(1),
+      borderColor: colors.border,
+      paddingVertical: verticalScale(12),
+      backgroundColor: colors.playerCardBackground,
+      borderRadius: scale(8),
+      alignItems: 'center',
+    },
+    viewAllText: {
+      fontSize: scale(14),
+      fontWeight: '600',
+      color: colors.text,
+    },
+    chartPlaceholder: {
+      height: verticalScale(160),
+      backgroundColor: colors.primary,
+      borderRadius: scale(8),
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: verticalScale(12),
+    },
+    eventRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scale(16),
+      paddingVertical: verticalScale(4),
+    },
+    dateContainer: {
+      backgroundColor: '#EEF2FF',
+      padding: scale(8),
+      borderRadius: scale(8),
+      alignItems: 'center',
+      minWidth: scale(50),
+    },
+    dateMonth: {
+      fontSize: scale(10),
+      fontWeight: '700',
+      color: '#4F46E5',
+      textTransform: 'uppercase',
+    },
+    dateDay: {
+      fontSize: scale(18),
+      fontWeight: 'bold',
+      color: '#4F46E5',
+    },
+    eventTitle: {
+      fontSize: scale(16),
+      fontWeight: '600',
+      color: '#111827',
+    },
+    eventSubtitle: {
+      fontSize: scale(13),
+      color: '#6B7280',
+    },
+  });
