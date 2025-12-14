@@ -29,7 +29,6 @@ interface AddWorkoutFormState {
   description: string;
   durationMinutes: number;
   assignedToPositions: string[];
-  difficultyLevel: string;
   equipmentNeededInput: string;
   scheduledDate: string; // YYYY-MM-DD format
   youtubeUrl: string;
@@ -48,7 +47,6 @@ export const AddWorkout = () => {
     description: '',
     durationMinutes: 0,
     assignedToPositions: [],
-    difficultyLevel: '',
     equipmentNeededInput: '',
     scheduledDate: '',
     youtubeUrl: '',
@@ -73,8 +71,6 @@ export const AddWorkout = () => {
     });
   };
 
-
-
   const formatDate = (date: Date): string => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -93,7 +89,6 @@ export const AddWorkout = () => {
     }
   };
 
-
   const handleSubmit = async () => {
     // Validate form data using Zod schema
     const dataToValidate = {
@@ -111,20 +106,18 @@ export const AddWorkout = () => {
     // Use validated data for submission
     const validatedData = validation.data;
 
-
     try {
       const workoutData: CreateWorkoutRequest = {
         name: validatedData.name.trim(),
         description: validatedData.description?.trim() || undefined,
         durationMinutes: validatedData.durationMinutes,
         assignedToPositions: positionSpecific ? validatedData.assignedToPositions : undefined,
-        difficultyLevel: validatedData.difficultyLevel?.trim().toLowerCase() || undefined,
         equipmentNeeded:
           formData.equipmentNeededInput.trim().length > 0
             ? formData.equipmentNeededInput
-              .split(',')
-              .map((item) => item.trim())
-              .filter((item) => item.length > 0)
+                .split(',')
+                .map((item) => item.trim())
+                .filter((item) => item.length > 0)
             : undefined,
         scheduledDate: formData.scheduledDate || undefined,
         youtubeUrl: validatedData.youtubeUrl?.trim() || undefined,
@@ -228,27 +221,6 @@ export const AddWorkout = () => {
           />
         </View>
 
-        {/* Difficulty Level */}
-        <View style={styles.section}>
-          <CustomText style={[styles.label, { color: colors.text }]}>
-            Difficulty Level (optional)
-          </CustomText>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                color: colors.text,
-                borderColor: colors.border,
-                backgroundColor: colors.cardBackground,
-              },
-            ]}
-            value={formData.difficultyLevel}
-            onChangeText={(text) => setFormData({ ...formData, difficultyLevel: text })}
-            placeholder="e.g., Beginner, Intermediate, Advanced"
-            placeholderTextColor={colors.textMuted}
-          />
-        </View>
-
         {/* Equipment Needed */}
         <View style={styles.section}>
           <CustomText style={[styles.label, { color: colors.text }]}>
@@ -321,10 +293,10 @@ export const AddWorkout = () => {
               ]}>
               {formData.scheduledDate
                 ? new Date(formData.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
                 : 'Select date'}
             </CustomText>
             <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />

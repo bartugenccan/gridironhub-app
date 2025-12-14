@@ -29,6 +29,7 @@ export enum AppRoutes {
   SCHEDULE = 'Schedule',
   PROFILE = 'Profile',
   PROFILE_EDIT = 'ProfileEdit',
+  COACH_DETAIL = 'CoachDetail',
 
   // Old routes (kept for compatibility)
   HOME = 'Home',

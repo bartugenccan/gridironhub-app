@@ -14,6 +14,7 @@ import { PlayerProfile } from './PlayerProfile';
 import { CoachDashboard } from './CoachDashboard';
 import { CoachAnalytics } from './CoachAnalytics';
 import { ScheduleScreen } from './Schedule';
+import { CoachDetail } from './CoachDetail';
 
 export {
   NonTabScreen,
@@ -32,4 +33,5 @@ export {
   CoachDashboard,
   CoachAnalytics,
   ScheduleScreen,
+  CoachDetail,
 };

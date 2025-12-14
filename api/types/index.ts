@@ -6,3 +6,4 @@ export * from './player';
 export * from './workouts';
 export * from './workoutsDetail';
 export * from './video';
+export * from './coach';

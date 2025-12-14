@@ -120,7 +120,7 @@ export const PlayerDashboard = () => {
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => {
     const isScheduleItem = item.id === 'schedule';
-    
+
     return (
       <TouchableOpacity
         style={styles.activityCard}
@@ -143,7 +143,11 @@ export const PlayerDashboard = () => {
             <CustomText style={styles.activityDescription}>{item.date}</CustomText>
           )}
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={scale(20)}
+          color={colors.textSecondary}
+        />
       </TouchableOpacity>
     );
   };
@@ -250,11 +254,7 @@ export const PlayerDashboard = () => {
           </View>
           <View style={styles.headerTextContainer}>
             <CustomText style={styles.teamName}>{user?.teamName || 'Team Name'}</CustomText>
-            <CustomText style={styles.pageTitle}>Player Dashboard</CustomText>
           </View>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Ionicons name="settings-outline" size={scale(24)} color={colors.text} />
-          </TouchableOpacity>
         </View>
 
         {/* Player Info Section */}
@@ -279,13 +279,21 @@ export const PlayerDashboard = () => {
             <View style={styles.statBox}>
               <CustomText style={styles.statLabel}>Height</CustomText>
               <CustomText style={styles.statValue}>
-                {isLoadingProfile ? '...' : playerProfile?.heightCm ? `${playerProfile.heightCm}cm` : 'Not set'}
+                {isLoadingProfile
+                  ? '...'
+                  : playerProfile?.heightCm
+                    ? `${playerProfile.heightCm}cm`
+                    : 'Not set'}
               </CustomText>
             </View>
             <View style={styles.statBox}>
               <CustomText style={styles.statLabel}>Weight</CustomText>
               <CustomText style={styles.statValue}>
-                {isLoadingProfile ? '...' : playerProfile?.weightKg ? `${playerProfile.weightKg}kg` : 'Not set'}
+                {isLoadingProfile
+                  ? '...'
+                  : playerProfile?.weightKg
+                    ? `${playerProfile.weightKg}kg`
+                    : 'Not set'}
               </CustomText>
             </View>
           </View>
@@ -309,7 +317,11 @@ export const PlayerDashboard = () => {
               <CustomText style={styles.activityTitle}>View Schedule</CustomText>
               <CustomText style={styles.activityDescription}>See all scheduled workouts</CustomText>
             </View>
-            <MaterialCommunityIcons name="chevron-right" size={scale(20)} color={colors.textSecondary} />
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={scale(20)}
+              color={colors.textSecondary}
+            />
           </TouchableOpacity>
           <FlatList
             data={recentActivities}
@@ -399,12 +411,11 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       paddingHorizontal: scale(20),
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
     },
     logoContainer: {
-      width: scale(40),
-      height: scale(40),
-      borderRadius: scale(20),
+      width: scale(50),
+      height: scale(50),
+      borderRadius: scale(25),
       backgroundColor: colors.white,
       justifyContent: 'center',
       alignItems: 'center',
@@ -415,8 +426,8 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       elevation: 3,
     },
     teamLogo: {
-      width: scale(36),
-      height: scale(36),
+      width: scale(42),
+      height: scale(42),
     },
     headerTextContainer: {
       alignItems: 'center',
@@ -425,6 +436,8 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       fontSize: scale(16),
       fontFamily: Typography.fontFamily.bold,
       color: colors.text,
+      marginTop: verticalScale(4),
+      marginLeft: scale(10),
     },
     pageTitle: {
       fontSize: scale(12),

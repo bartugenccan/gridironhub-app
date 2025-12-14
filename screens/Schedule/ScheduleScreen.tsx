@@ -185,6 +185,21 @@ export const ScheduleScreen = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
   };
 
+  const handleTodayPress = () => {
+    const today = new Date();
+    setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDate(today);
+  };
+  // Check if selected date is today
+  const isToday = useMemo(() => {
+    const today = new Date();
+    return (
+      selectedDate.getDate() === today.getDate() &&
+      selectedDate.getMonth() === today.getMonth() &&
+      selectedDate.getFullYear() === today.getFullYear()
+    );
+  }, [selectedDate]);
+
   const handleNextMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
   };
@@ -249,7 +264,8 @@ export const ScheduleScreen = () => {
                 const compareDate = new Date(date);
                 compareDate.setHours(0, 0, 0, 0);
 
-                const isSelected = compareDate.getTime() === new Date(selectedDate.setHours(0, 0, 0, 0)).getTime();
+                const isSelected =
+                  compareDate.getTime() === new Date(selectedDate.setHours(0, 0, 0, 0)).getTime();
                 const isPast = compareDate.getTime() < today.getTime();
                 const hasWorkouts = dateHasWorkouts(day);
 
@@ -268,6 +284,15 @@ export const ScheduleScreen = () => {
               })}
             </View>
           </View>
+          {/* Today Button - Only show if not viewing today */}
+          {!isToday && (
+            <View style={styles.todayButtonContainer}>
+              <TouchableOpacity style={styles.todayButton} onPress={handleTodayPress}>
+                <Ionicons name="today-outline" size={20} color={colors.primary} />
+                <CustomText style={styles.todayButtonText}>Back to Today</CustomText>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Selected Date Workouts */}
           <View style={styles.workoutsSection}>
@@ -477,5 +502,27 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       color: colors.textSecondary,
       marginTop: verticalScale(12),
       textAlign: 'center',
+    },
+
+    todayButtonContainer: {
+      paddingHorizontal: scale(16),
+      marginTop: verticalScale(8),
+    },
+    todayButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.playerCardBackground,
+      borderRadius: scale(12),
+      paddingVertical: verticalScale(12),
+      paddingHorizontal: scale(16),
+      borderWidth: 1,
+      borderColor: colors.primary,
+      gap: scale(8),
+    },
+    todayButtonText: {
+      fontSize: scale(14),
+      fontFamily: Typography.fontFamily.semiBold,
+      color: colors.primary,
     },
   });

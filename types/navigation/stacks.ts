@@ -22,6 +22,7 @@ export type DashboardStackParamList = {
 export type RosterStackParamList = {
   [AppRoutes.ROSTER]: undefined;
   [AppRoutes.PLAYER_PROFILE]: { playerId: string };
+  [AppRoutes.COACH_DETAIL]: { coachId: string };
 };
 
 export type WorkoutsStackParamList = {

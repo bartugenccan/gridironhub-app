@@ -10,7 +10,6 @@ export const workoutSchema = z
     description: z.string().optional(),
     durationMinutes: z.number().min(1, 'Please enter a valid duration'),
     assignedToPositions: z.array(z.string()).optional(),
-    difficultyLevel: z.string().optional(),
     equipmentNeededInput: z.string().optional(),
     scheduledDate: z.string().optional(),
     youtubeUrl: z

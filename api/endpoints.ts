@@ -22,6 +22,10 @@ export const API_ENDPOINTS = {
   ROSTER: {
     GET_ROSTER: '/api/roster',
   },
+  COACH: {
+    GET_PROFILE: '/api/profiles/coaches', // Appending /:id in service
+    UPDATE_PROFILE: '/api/profiles/coaches', // Appending /:id in service
+  },
   PLAYER: {
     GET_PROFILE: '/api/profiles/players', // Appending /:id in service
     UPDATE_PROFILE: '/api/profiles/players', // Appending /:id in service
