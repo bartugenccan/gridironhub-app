@@ -16,7 +16,7 @@ export interface PlayerProfile {
   id: string;
   fullName: string;
   jerseyNumber: number | null;
-  position: string | null;
+  position: string[] | null;
   dominantHand: 'left' | 'right' | 'ambidextrous' | null;
   heightCm: number | null;
   weightKg: number | null;
@@ -27,7 +27,7 @@ export interface PlayerProfile {
 export interface UpdatePlayerProfileRequest {
   fullName?: string;
   jerseyNumber?: number;
-  position?: string;
+  position?: string[];
   dominantHand?: 'left' | 'right' | 'ambidextrous';
   heightCm?: number;
   weightKg?: number;
