@@ -14,7 +14,7 @@ import { playerPositions } from '@/constants/PlayerPositions';
 // Validation schema matching backend
 const playerProfileUpdateSchema = z.object({
   jerseyNumber: z.number().int().positive().optional(),
-  position: z.string().min(1).optional(),
+  positions: z.array(z.string()).min(1).optional(),
   dominantHand: z.enum(['left', 'right', 'ambidextrous']).optional(),
   heightCm: z.number().int().positive().optional(),
   weightKg: z.number().int().positive().optional(),
@@ -31,7 +31,7 @@ export const ProfileScreen = () => {
   const [showPositionModal, setShowPositionModal] = useState(false);
   const [formData, setFormData] = useState({
     jerseyNumber: '',
-    position: '',
+    positions: [""],
     heightCm: '',
     weightKg: '',
     dominantHand: '' as 'left' | 'right' | 'ambidextrous' | '',
@@ -43,7 +43,7 @@ export const ProfileScreen = () => {
     if (playerProfile) {
       setFormData({
         jerseyNumber: playerProfile.jerseyNumber?.toString() || '',
-        position: playerProfile.position || '',
+        positions: playerProfile.positions || [""],
         heightCm: playerProfile.heightCm?.toString() || '',
         weightKg: playerProfile.weightKg?.toString() || '',
         dominantHand: playerProfile.dominantHand || '',
@@ -66,8 +66,12 @@ export const ProfileScreen = () => {
       }
       updates.jerseyNumber = jerseyNum;
     }
-    if (formData.position && formData.position !== playerProfile.position) {
-      updates.position = formData.position;
+    if (
+      formData.positions &&
+      JSON.stringify(formData.positions.sort()) !==
+      JSON.stringify((playerProfile.positions || []).sort())
+    ) {
+      updates.positions = formData.positions;
     }
     if (formData.heightCm && formData.heightCm !== playerProfile.heightCm?.toString()) {
       const height = parseInt(formData.heightCm);
@@ -126,12 +130,14 @@ export const ProfileScreen = () => {
     );
   };
 
+
+
   const handleCancel = () => {
     // Reset form to current profile data
     if (playerProfile) {
       setFormData({
         jerseyNumber: playerProfile.jerseyNumber?.toString() || '',
-        position: playerProfile.position || '',
+        positions: playerProfile.positions || [''],
         heightCm: playerProfile.heightCm?.toString() || '',
         weightKg: playerProfile.weightKg?.toString() || '',
         dominantHand: playerProfile.dominantHand || '',
@@ -140,6 +146,8 @@ export const ProfileScreen = () => {
     }
     setIsEditing(false);
   };
+
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
@@ -212,14 +220,16 @@ export const ProfileScreen = () => {
                 style={[styles.positionSelector, { borderColor: colors.border }]}
                 onPress={() => setShowPositionModal(true)}
               >
-                <CustomText style={[styles.positionText, { color: formData.position ? colors.text : colors.textMuted }]}>
-                  {formData.position || 'Select position'}
+                <CustomText style={[styles.positionText, { color: formData.positions ? colors.text : colors.textMuted }]}>
+                  {formData.positions && formData.positions.length > 0 && formData.positions[0] !== ""
+                    ? formData.positions.join(', ')
+                    : 'Select position'}
                 </CustomText>
                 <Ionicons name="chevron-down" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             ) : (
               <CustomText style={[styles.infoValue, { color: colors.text }]}>
-                {isLoading ? '...' : playerProfile?.position || 'Not set'}
+                {isLoading ? '...' : playerProfile?.positions?.join(', ') || 'Not set'}
               </CustomText>
             )}
           </View>
@@ -311,7 +321,7 @@ export const ProfileScreen = () => {
           )}
 
           {/* Bio */}
-          {isEditing && (
+          {isEditing ? (
             <View style={[styles.bioContainer, { borderTopColor: colors.border }]}>
               <CustomText style={[styles.infoLabel, { color: colors.textSecondary, marginBottom: verticalScale(8) }]}>
                 Bio
@@ -326,6 +336,13 @@ export const ProfileScreen = () => {
                 numberOfLines={4}
                 textAlignVertical="top"
               />
+            </View>
+          ) : (
+            <View style={styles.infoRow}>
+              <CustomText style={[styles.infoLabel, { color: colors.textSecondary }]}>Bio</CustomText>
+              <CustomText style={[styles.infoValue, { color: colors.text }]}>
+                {isLoading ? '...' : playerProfile?.bio || 'Not set'}
+              </CustomText>
             </View>
           )}
         </View>
@@ -427,17 +444,24 @@ export const ProfileScreen = () => {
                   style={[
                     styles.positionItem,
                     { borderBottomColor: colors.border },
-                    formData.position === item && { backgroundColor: colors.primaryLight + '20' },
+                    formData.positions.includes(item) && { backgroundColor: colors.primaryLight + '20' },
                   ]}
                   onPress={() => {
-                    setFormData({ ...formData, position: item });
-                    setShowPositionModal(false);
+                    const currentPositions = formData.positions.filter((p) => p !== ""); // Clean empty strings
+                    let newPositions;
+                    if (currentPositions.includes(item)) {
+                      newPositions = currentPositions.filter((p) => p !== item);
+                    } else {
+                      newPositions = [...currentPositions, item];
+                    }
+                    setFormData({ ...formData, positions: newPositions });
+                    // Don't close modal immediately for multi-select
                   }}
                 >
                   <CustomText style={[styles.positionItemText, { color: colors.text }]}>
                     {item}
                   </CustomText>
-                  {formData.position === item && (
+                  {formData.positions.includes(item) && (
                     <Ionicons name="checkmark" size={20} color={colors.primary} />
                   )}
                 </TouchableOpacity>

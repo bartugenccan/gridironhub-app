@@ -40,6 +40,7 @@ interface PersonalRecord {
   date: string;
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   isNewPr?: boolean;
+  rawValue: number;
 }
 
 const recentActivities: RecentActivity[] = [
@@ -102,6 +103,7 @@ export const PlayerDashboard = () => {
       date: formatDate(record.recordedAt),
       icon: getExerciseIcon(record.liftName),
       isNewPr: false,
+      rawValue: record.oneRepMax,
     }));
   }, [records]);
 
@@ -154,10 +156,27 @@ export const PlayerDashboard = () => {
 
   const renderRecordItem = ({ item }: { item: PersonalRecord }) => {
     const renderRightActions = () => (
-      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
-        <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
-        <CustomText style={styles.deleteText}>Delete</CustomText>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          style={[styles.deleteButton, { backgroundColor: '#3B82F6', marginRight: scale(8) }]} // Blue for Edit
+          onPress={() =>
+            navigation.navigate(AppRoutes.ADD_PR, {
+              isEdit: true,
+              record: {
+                id: item.id,
+                liftName: item.exercise,
+                oneRepMax: item.rawValue,
+              },
+            })
+          }>
+          <MaterialCommunityIcons name="pencil" size={scale(24)} color="#fff" />
+          <CustomText style={styles.deleteText}>Edit</CustomText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
+          <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
+          <CustomText style={styles.deleteText}>Delete</CustomText>
+        </TouchableOpacity>
+      </View>
     );
 
     return (
@@ -270,8 +289,8 @@ export const PlayerDashboard = () => {
               <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
               <CustomText style={styles.playerPosition}>
                 {playerProfile?.jerseyNumber ? `#${playerProfile.jerseyNumber}` : ''}
-                {playerProfile?.jerseyNumber && playerProfile?.position ? ' - ' : ''}
-                {playerProfile?.position || 'Position not set'}
+                {playerProfile?.jerseyNumber && playerProfile?.positions ? ' - ' : ''}
+                {playerProfile?.positions?.join(', ') || 'Position not set'}
               </CustomText>
             </View>
           </View>
@@ -341,7 +360,7 @@ export const PlayerDashboard = () => {
       </ScrollView>
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate(AppRoutes.ADD_PR)}>
+      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate(AppRoutes.ADD_PR, {})}>
         <MaterialCommunityIcons name="plus" size={scale(30)} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -654,6 +673,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       width: scale(80),
       height: '85%',
       borderRadius: scale(12),
+      marginBottom: verticalScale(10),
     },
     deleteText: {
       color: '#fff',

@@ -27,6 +27,10 @@ export const CoachDashboard = () => {
     current: 0,
     max: 50,
   });
+  const [selectedVideoUrl, setSelectedVideoUrl] = React.useState<string | null>(null);
+
+  console.log("Pending Requests", pendingRequests);
+
 
   useEffect(() => {
     const fetchRoster = async () => {
@@ -57,37 +61,8 @@ export const CoachDashboard = () => {
     </TouchableOpacity>
   );
 
-  const PlayerToWatchRow = ({
-    name,
-    detail,
-    status,
-  }: {
-    name: string;
-    detail: string;
-    status: 'up' | 'flag';
-  }) => (
-    <View style={styles.playerRow}>
-      <View style={styles.playerInfo}>
-        <View style={styles.avatarPlaceholder}>
-          {/* Placeholder for avatar */}
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>{name.charAt(0)}</Text>
-        </View>
-        <View>
-          <Text style={styles.playerName}>{name}</Text>
-          <Text style={styles.playerDetail}>{detail}</Text>
-        </View>
-      </View>
-      <Ionicons
-        name={status === 'up' ? 'trending-up' : 'flag'}
-        size={20}
-        color={status === 'up' ? '#10B981' : '#F59E0B'}
-      />
-    </View>
-  );
 
-  console.log('Pr requests: ', pendingRequests);
 
-  const [selectedVideoUrl, setSelectedVideoUrl] = React.useState<string | null>(null);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -137,90 +112,77 @@ export const CoachDashboard = () => {
         </View>
 
         {/* Pending PR Requests */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Pending PR Requests</Text>
-          <View style={styles.cardContainer}>
-            {(!pendingRequests || pendingRequests.length === 0) ? (
-              <View style={{ padding: scale(16), alignItems: 'center' }}>
-                <Text style={{ color: '#6B7280', marginBottom: verticalScale(12) }}>
-                  No pending requests
-                </Text>
-              </View>
-            ) : (
-              <>
-                {pendingRequests.slice(0, 3).map((request, index) => (
-                  <View key={request.id}>
-                    <View style={styles.prRequestRow}>
-                      <View style={styles.playerInfo}>
-                        <View style={styles.avatarPlaceholder}>
-                          <Text style={{ color: '#fff', fontWeight: 'bold' }}>
-                            {(request.playerName || 'U').charAt(0)}
-                          </Text>
-                        </View>
-                        <View>
-                          <Text style={styles.playerName}>{request.playerName || 'Unknown Player'}</Text>
-                          <Text style={styles.playerDetail}>
-                            {request.liftName} - {request.value}
-                          </Text>
-                          <TouchableOpacity onPress={() => setSelectedVideoUrl(request.videoUrl)}>
-                            <Text style={{ color: '#4F46E5', fontSize: scale(12), marginTop: 2 }}>
-                              Watch Video
+        {!!pendingRequests && pendingRequests.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Pending PR Requests</Text>
+            <View style={styles.cardContainer}>
+              {(!pendingRequests || pendingRequests.length === 0) ? (
+                <View style={{ padding: scale(16), alignItems: 'center' }}>
+                  <Text style={{ color: '#6B7280', marginBottom: verticalScale(12) }}>
+                    No pending requests
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  {pendingRequests.slice(0, 3).map((request, index) => (
+                    <View key={request.id}>
+                      <View style={styles.prRequestRow}>
+                        <View style={styles.playerInfo}>
+                          <View style={styles.avatarPlaceholder}>
+                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+                              {(request.playerName || 'U').charAt(0)}
                             </Text>
+                          </View>
+                          <View>
+                            <Text style={styles.playerName}>{request.playerName || 'Unknown Player'}</Text>
+                            <Text style={styles.playerDetail}>
+                              {request.liftName} - {request.value}
+                            </Text>
+                            <TouchableOpacity onPress={() => setSelectedVideoUrl(request.videoUrl)}>
+                              <Text style={{ color: '#4F46E5', fontSize: scale(12), marginTop: 2 }}>
+                                Watch Video
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                        <View style={{ flexDirection: 'row', gap: scale(12) }}>
+                          <TouchableOpacity
+                            onPress={() =>
+                              updateRequestStatus(
+                                { id: request.id, data: { status: 'rejected' } },
+                                { onSuccess: () => Alert.alert('Rejected', 'PR Request rejected') }
+                              )
+                            }>
+                            <Ionicons name="close-circle" size={scale(32)} color="#EF4444" />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={() =>
+                              updateRequestStatus(
+                                { id: request.id, data: { status: 'approved' } },
+                                { onSuccess: () => Alert.alert('Approved', 'PR Request approved') }
+                              )
+                            }>
+                            <Ionicons name="checkmark-circle" size={scale(32)} color="#10B981" />
                           </TouchableOpacity>
                         </View>
                       </View>
-                      <View style={{ flexDirection: 'row', gap: scale(12) }}>
-                        <TouchableOpacity
-                          onPress={() =>
-                            updateRequestStatus(
-                              { id: request.id, data: { status: 'rejected' } },
-                              { onSuccess: () => Alert.alert('Rejected', 'PR Request rejected') }
-                            )
-                          }>
-                          <Ionicons name="close-circle" size={scale(32)} color="#EF4444" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() =>
-                            updateRequestStatus(
-                              { id: request.id, data: { status: 'approved' } },
-                              { onSuccess: () => Alert.alert('Approved', 'PR Request approved') }
-                            )
-                          }>
-                          <Ionicons name="checkmark-circle" size={scale(32)} color="#10B981" />
-                        </TouchableOpacity>
-                      </View>
+                      {index < Math.min(pendingRequests.length, 3) - 1 && <View style={styles.divider} />}
                     </View>
-                    {index < Math.min(pendingRequests.length, 3) - 1 && <View style={styles.divider} />}
-                  </View>
-                ))}
+                  ))}
 
-                {pendingRequests.length > 0 && (
-                  <TouchableOpacity
-                    style={styles.viewAllButton}
-                    onPress={() => navigation.navigate(AppRoutes.PR_REQUESTS)}>
-                    <Text style={styles.viewAllText}>View All PR Requests</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
+                  {pendingRequests.length > 0 && (
+                    <TouchableOpacity
+                      style={styles.viewAllButton}
+                      onPress={() => navigation.navigate(AppRoutes.PR_REQUESTS)}>
+                      <Text style={styles.viewAllText}>View All PR Requests</Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              )}
+            </View>
           </View>
-        </View>
+        )}
 
-        {/* Players to Watch */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Players to Watch</Text>
-          <View style={styles.cardContainer}>
-            <PlayerToWatchRow name="J. Smith" detail="New Bench PR: 225 lbs" status="up" />
-            <View style={styles.divider} />
-            <PlayerToWatchRow name="M. Davis" detail="Flagged (Missed Practice)" status="flag" />
-            <View style={styles.divider} />
-            <PlayerToWatchRow name="R. Chen" detail="Top Squat: 405 lbs" status="up" />
-
-            <TouchableOpacity style={styles.viewAllButton}>
-              <Text style={styles.viewAllText}>View All Players</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
         {/* Team Strength Progression */}
         <View style={styles.section}>

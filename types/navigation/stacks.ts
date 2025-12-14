@@ -15,7 +15,14 @@ export type AuthStackParamList = {
 export type DashboardStackParamList = {
   [AppRoutes.DASHBOARD]: undefined;
   [AppRoutes.PR_DETAIL]: { liftName: string };
-  [AppRoutes.ADD_PR]: undefined;
+  [AppRoutes.ADD_PR]: {
+    record?: {
+      id: string;
+      liftName: string;
+      oneRepMax: number;
+    };
+    isEdit?: boolean;
+  };
   [AppRoutes.SCHEDULE]: undefined;
 };
 

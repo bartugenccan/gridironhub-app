@@ -15,6 +15,7 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { Typography } from '@/constants/Typography';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { AppRoutes } from '@/types/navigation/routes';
 import { DashboardStackParamList } from '@/types/navigation/stacks';
 import { usePersonalRecordHistory, useAddPersonalRecord, useDeletePersonalRecord } from '@/hooks/useStats';
@@ -29,7 +30,7 @@ type PRDetailScreenRouteProp = RouteProp<DashboardStackParamList, typeof AppRout
 export const PRDetailScreen = () => {
     const { colors } = useTheme();
     const styles = getStyles(colors);
-    const navigation = useNavigation();
+    const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
     const route = useRoute<PRDetailScreenRouteProp>();
     const { liftName } = route.params;
 
@@ -215,13 +216,31 @@ export const PRDetailScreen = () => {
                             <CustomText style={styles.sectionTitle}>History</CustomText>
                             {history.slice().reverse().map((record, index) => {
                                 const renderRightActions = () => (
-                                    <TouchableOpacity
-                                        style={styles.deleteButton}
-                                        onPress={() => handleDeleteHistory(record)}
-                                    >
-                                        <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
-                                        <CustomText style={styles.deleteText}>Delete</CustomText>
-                                    </TouchableOpacity>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <TouchableOpacity
+                                            style={[styles.deleteButton, { backgroundColor: '#3B82F6', marginRight: scale(8), marginBottom: verticalScale(8) }]} // Blue for Edit
+                                            onPress={() =>
+                                                navigation.navigate(AppRoutes.ADD_PR, {
+                                                    isEdit: true,
+                                                    record: {
+                                                        id: record.id,
+                                                        liftName: liftName,
+                                                        oneRepMax: record.oneRepMax,
+                                                    },
+                                                })
+                                            }
+                                        >
+                                            <MaterialCommunityIcons name="pencil" size={scale(24)} color="#fff" />
+                                            <CustomText style={styles.deleteText}>Edit</CustomText>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.deleteButton}
+                                            onPress={() => handleDeleteHistory(record)}
+                                        >
+                                            <MaterialCommunityIcons name="delete" size={scale(24)} color="#fff" />
+                                            <CustomText style={styles.deleteText}>Delete</CustomText>
+                                        </TouchableOpacity>
+                                    </View>
                                 );
 
                                 return (
@@ -393,6 +412,7 @@ const getStyles = (colors: any) => StyleSheet.create({
         width: scale(80),
         height: '85%',
         borderRadius: scale(12),
+        marginBottom: verticalScale(8),
     },
     deleteText: {
         color: '#fff',

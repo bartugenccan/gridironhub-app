@@ -27,6 +27,7 @@ export interface CreatePrRequestDTO {
   liftName: string;
   value: number;
   videoUrl: string;
+  strengthLogId?: string;
 }
 
 export interface UpdatePrRequestStatusDTO {

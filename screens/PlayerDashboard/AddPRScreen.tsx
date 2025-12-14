@@ -15,7 +15,9 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { DashboardStackParamList } from '@/types/navigation/stacks';
+import { AppRoutes } from '@/types/navigation/routes';
 import { useCreatePrRequest } from '@/hooks/useStats';
 import { useVideoPicker } from '@/hooks/useVideoPicker';
 import { personalRecordSchema } from '@/validations/stats.schema';
@@ -29,13 +31,17 @@ const LIFT_OPTIONS = [
   '40 Yard Dash',
 ];
 
+type AddPRScreenRouteProp = RouteProp<DashboardStackParamList, typeof AppRoutes.ADD_PR>;
+
 export const AddPRScreen = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation = useNavigation();
+  const route = useRoute<AddPRScreenRouteProp>();
+  const { isEdit, record } = route.params || {};
 
-  const [liftName, setLiftName] = useState('');
-  const [oneRepMax, setOneRepMax] = useState('');
+  const [liftName, setLiftName] = useState(record?.liftName || '');
+  const [oneRepMax, setOneRepMax] = useState(record?.oneRepMax?.toString() || '');
   const [notes, setNotes] = useState('');
   const { mutate: createRequest, isPending: isLoading } = useCreatePrRequest();
   const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
@@ -67,6 +73,9 @@ export const AddPRScreen = () => {
     const formData = new FormData();
     formData.append('liftName', liftName);
     formData.append('value', oneRepMax);
+    if (isEdit && record?.id) {
+      formData.append('strengthLogId', record.id);
+    }
 
     // Add video file
     const videoFile = {
@@ -100,7 +109,7 @@ export const AddPRScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={scale(24)} color={colors.text} />
         </TouchableOpacity>
-        <CustomText style={styles.headerTitle}>Add New PR</CustomText>
+        <CustomText style={styles.headerTitle}>{isEdit ? 'Update PR' : 'Add New PR'}</CustomText>
         <View style={{ width: scale(24) }} />
       </View>
 

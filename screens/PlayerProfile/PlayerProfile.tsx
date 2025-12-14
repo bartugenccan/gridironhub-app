@@ -26,6 +26,7 @@ export const PlayerProfile = () => {
 
     const { data: player, isLoading, error } = usePlayerProfile(playerId);
 
+
     if (isLoading) {
         return (
             <SafeAreaView style={styles.container}>
@@ -59,6 +60,8 @@ export const PlayerProfile = () => {
         { key: 'fortyYardDash', label: '40 Yard Dash', icon: 'run-fast', unit: 's' },
     ] as const;
 
+
+
     return (
         <SafeAreaView style={styles.container} edges={["top"]}>
             <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -69,7 +72,7 @@ export const PlayerProfile = () => {
                             <Text style={styles.jerseyNumber}>#{player.jerseyNumber}</Text>
                         )}
                         <Text style={styles.playerName}>{player.fullName}</Text>
-                        {player.position && <Text style={styles.position}>{player.position}</Text>}
+                        {player.positions && <Text style={styles.position}>{player.positions.join(', ')}</Text>}
                     </View>
                 </View>
 

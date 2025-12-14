@@ -26,18 +26,18 @@ const PR_METRICS: Array<{
   unit: string;
   icon: keyof typeof Ionicons.glyphMap;
 }> = [
-  { key: 'benchPress', label: 'Bench Press', unit: 'kg', icon: 'barbell' },
-  { key: 'squat', label: 'Squat', unit: 'kg', icon: 'fitness' },
-  { key: 'deadlift', label: 'Deadlift', unit: 'kg', icon: 'body' },
-  { key: 'overheadPress', label: 'Overhead Press', unit: 'kg', icon: 'move' },
-  { key: 'clean', label: 'Clean', unit: 'kg', icon: 'repeat' },
-  { key: 'fortyYardDash', label: '40 Yard Dash', unit: 's', icon: 'stopwatch' },
-];
+    { key: 'benchPress', label: 'Bench Press', unit: 'kg', icon: 'barbell' },
+    { key: 'squat', label: 'Squat', unit: 'kg', icon: 'fitness' },
+    { key: 'deadlift', label: 'Deadlift', unit: 'kg', icon: 'body' },
+    { key: 'overheadPress', label: 'Overhead Press', unit: 'kg', icon: 'move' },
+    { key: 'clean', label: 'Clean', unit: 'kg', icon: 'repeat' },
+    { key: 'fortyYardDash', label: '40 Yard Dash', unit: 's', icon: 'stopwatch' },
+  ];
 
 interface AnalyticsPlayer {
   id: string;
   fullName: string;
-  position: string | null;
+  positions: string[] | null;
   prs: PlayerProfile['prs'];
 }
 
@@ -87,7 +87,7 @@ export const CoachAnalytics = () => {
             .map((profile) => ({
               id: profile.id,
               fullName: profile.fullName,
-              position: profile.position,
+              positions: profile.positions,
               prs: profile.prs,
             }))
         );
@@ -222,9 +222,8 @@ export const CoachAnalytics = () => {
             const stat = metricStats[metric.key];
             const value =
               stat && stat.average !== null
-                ? `${Number.isInteger(stat.average) ? stat.average : stat.average.toFixed(1)} ${
-                    metric.unit
-                  }`
+                ? `${Number.isInteger(stat.average) ? stat.average : stat.average.toFixed(1)} ${metric.unit
+                }`
                 : '—';
 
             return (
@@ -294,7 +293,7 @@ export const CoachAnalytics = () => {
                   <View>
                     <CustomText style={styles.playerName}>{player.fullName}</CustomText>
                     <CustomText style={styles.playerMeta}>
-                      {player.position || 'Position N/A'}
+                      {player.positions?.join(', ') || 'Position N/A'}
                     </CustomText>
                   </View>
                 </View>
