@@ -1,4 +1,3 @@
-
 import { StyleSheet, View, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,43 +16,6 @@ type WorkoutsDetailRouteProp = RouteProp<
   { WorkoutsDetail: { workoutId: string } },
   'WorkoutsDetail'
 >;
-
-const DifficultyBadge = ({ level, colors }: { level: string; colors: any }) => {
-  const getDifficultyColor = () => {
-    switch (level.toLowerCase()) {
-      case 'easy':
-        return { bg: '#E8F5E9', text: '#2E7D32' };
-      case 'medium':
-        return { bg: '#FFF3E0', text: '#E65100' };
-      case 'hard':
-        return { bg: '#FFEBEE', text: '#C62828' };
-      default:
-        return { bg: colors.recordIconBackground, text: colors.recordIconColor };
-    }
-  };
-
-  const difficultyColors = getDifficultyColor();
-
-  return (
-    <View
-      style={{
-        paddingHorizontal: scale(12),
-        paddingVertical: verticalScale(6),
-        borderRadius: 20,
-        backgroundColor: difficultyColors.bg,
-      }}>
-      <CustomText
-        style={{
-          fontSize: 13,
-          fontFamily: Typography.fontFamily.bold,
-          letterSpacing: 0.5,
-          color: difficultyColors.text,
-        }}>
-        {level.toUpperCase()}
-      </CustomText>
-    </View>
-  );
-};
 
 export const WorkoutsDetail = () => {
   const { colors } = useTheme();
@@ -85,7 +47,7 @@ export const WorkoutsDetail = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} >
+      <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <CustomText style={styles.loadingText}>Loading workout details...</CustomText>
@@ -120,10 +82,6 @@ export const WorkoutsDetail = () => {
               <MaterialCommunityIcons name="clock-outline" size={20} color={colors.textSecondary} />
               <CustomText style={styles.duration}>{workout.durationMinutes} minutes</CustomText>
             </View>
-
-            {workout.difficultyLevel && (
-              <DifficultyBadge level={workout.difficultyLevel} colors={colors} />
-            )}
           </View>
         </View>
 
@@ -205,7 +163,8 @@ export const WorkoutsDetail = () => {
 
         {/*Youtube Video Section*/}
         {workout.youtubeUrl && (
-          <View style={{ marginTop: 24, marginHorizontal: 16, overflow: 'hidden', borderRadius: 12 }}>
+          <View
+            style={{ marginTop: 24, marginHorizontal: 16, overflow: 'hidden', borderRadius: 12 }}>
             <YoutubePlayer
               height={220}
               play={false}

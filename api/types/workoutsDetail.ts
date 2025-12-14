@@ -4,7 +4,6 @@ export interface WorkoutsDetail {
   description: string;
   durationMinutes: number;
   assignedToPositions: string[] | null;
-  difficultyLevel: string | null;
   equipmentNeeded: string[] | null;
   createdAt: string;
   updatedAt: string;

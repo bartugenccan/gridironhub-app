@@ -216,7 +216,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       color: colors.text,
     },
     memberCard: {
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.playerCardBackground,
       padding: 16,
       borderRadius: 12,
       marginBottom: 12,
