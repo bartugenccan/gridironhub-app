@@ -38,3 +38,16 @@ export const useDeleteWorkout = () => {
     },
   });
 };
+
+// Mutation hook for updating a workout
+export const useUpdateWorkout = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Workout, Error, { id: string; data: Partial<CreateWorkoutRequest> }>({
+    mutationFn: ({ id, data }) => workoutsService.updateWorkout(id, data),
+    onSuccess: (_, { id }) => {
+      // Invalidate specific workout detail and list
+      queryClient.invalidateQueries({ queryKey: WORKOUTS_KEYS.all });
+    },
+  });
+};

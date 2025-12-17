@@ -24,3 +24,5 @@ export interface CreateWorkoutRequest {
   scheduledDate?: string; // ISO date string (YYYY-MM-DD)
   youtubeUrl?: string; // YouTube video URL
 }
+
+export interface UpdateWorkoutRequest extends Partial<CreateWorkoutRequest> {}

@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
     GET_WORKOUTS: '/api/workouts',
     GET_WORKOUTS_DETAIL: '/api/workouts/:id', // Appending /:id in service
     CREATE_WORKOUT: '/api/workouts',
+    UPDATE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
     DELETE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
   },
 
