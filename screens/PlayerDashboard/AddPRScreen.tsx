@@ -178,7 +178,7 @@ export const AddPRScreen = () => {
                     Upload Video Proof
                   </CustomText>
                   <CustomText style={[styles.uploadSubtext, { color: colors.textSecondary }]}>
-                    Max 50MB, up to 2 minutes
+                    Max 50MB, up to 30 seconds.
                   </CustomText>
                 </>
               )}

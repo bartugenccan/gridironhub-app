@@ -18,12 +18,15 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AppRoutes } from '@/types/navigation/routes';
 import { DashboardStackParamList } from '@/types/navigation/stacks';
-import { usePersonalRecordHistory, useAddPersonalRecord, useDeletePersonalRecord } from '@/hooks/useStats';
+import { usePersonalRecordHistory, useDeletePersonalRecord, useCreatePrRequest } from '@/hooks/useStats';
 import { PersonalRecord } from '@/api/services/stats.service';
 import { LineChart } from 'react-native-chart-kit';
 import { formatDate } from '@/utils/formatDate';
 import { Swipeable } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { VideoPreview } from '@/components';
+import { useVideoPicker } from '@/hooks/useVideoPicker';
+import { personalRecordSchema } from '@/validations/stats.schema';
 
 type PRDetailScreenRouteProp = RouteProp<DashboardStackParamList, typeof AppRoutes.PR_DETAIL>;
 
@@ -34,12 +37,14 @@ export const PRDetailScreen = () => {
     const route = useRoute<PRDetailScreenRouteProp>();
     const { liftName } = route.params;
 
+
     const { data: historyData, isLoading } = usePersonalRecordHistory(liftName);
-    const { mutate: addRecord, isPending: isSubmitting } = useAddPersonalRecord();
+    const { mutate: createRequest, isPending: isSubmitting } = useCreatePrRequest();
     const { mutate: deleteRecord } = useDeletePersonalRecord();
 
     const [newMax, setNewMax] = useState('');
     const [notes, setNotes] = useState('');
+    const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
 
     const history = React.useMemo(() => {
         if (!historyData) return [];
@@ -72,27 +77,49 @@ export const PRDetailScreen = () => {
             return;
         }
 
-        addRecord(
-            {
-                liftName,
-                oneRepMax: parseFloat(newMax),
-                notes: notes || undefined,
-            },
+        if (!video) {
+            Alert.alert('Error', 'Video proof is required for PR requests');
+            return;
+        }
+
+        // Validate video URL
+        const validation = personalRecordSchema.safeParse({ videoUrl: video.uri });
+        if (!validation.success) {
+            Alert.alert('Validation Error', validation.error.issues[0].message);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('liftName', liftName);
+        formData.append('value', newMax);
+
+        // Add video file
+        const videoFile = {
+            uri: video.uri,
+            type: video.type || 'video/mp4',
+            name: video.name || 'video.mp4',
+        } as any;
+
+        formData.append('video', videoFile);
+
+        createRequest(
+            formData as any,
             {
                 onSuccess: () => {
-                    Alert.alert('Success', 'Personal record updated!', [
+                    Alert.alert('Success', 'PR Request sent to coach for approval', [
                         {
                             text: 'OK',
                             onPress: () => {
                                 setNewMax('');
                                 setNotes('');
+                                clearVideo();
                             },
                         },
                     ]);
                 },
                 onError: (error: any) => {
-                    console.error('Error updating PR:', error);
-                    Alert.alert('Error', error.message || 'Failed to update personal record');
+                    console.error('Error creating PR request:', error);
+                    Alert.alert('Error', error.message || 'Failed to submit PR request');
                 },
             }
         );
@@ -198,15 +225,46 @@ export const PRDetailScreen = () => {
                                 />
                             </View>
 
+                            {/* Video Upload Section */}
+                            <View style={styles.inputGroup}>
+                                <CustomText style={styles.label}>Workout Video (Required)</CustomText>
+                                {video ? (
+                                    <VideoPreview video={video} onRemove={clearVideo} />
+                                ) : (
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.uploadButton,
+                                            { borderColor: colors.borderLight, backgroundColor: colors.playerDashboardBackground },
+                                        ]}
+                                        onPress={pickVideo}
+                                        disabled={isVideoLoading}
+                                    >
+                                        {isVideoLoading ? (
+                                            <ActivityIndicator size="small" color={colors.primary} />
+                                        ) : (
+                                            <>
+                                                <Ionicons name="cloud-upload-outline" size={scale(32)} color={colors.primary} />
+                                                <CustomText style={[styles.uploadText, { color: colors.text }]}>
+                                                    Upload Video Proof
+                                                </CustomText>
+                                                <CustomText style={[styles.uploadSubtext, { color: colors.textSecondary }]}>
+                                                    Max 50MB
+                                                </CustomText>
+                                            </>
+                                        )}
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+
                             <TouchableOpacity
-                                style={[styles.updateButton, isSubmitting && styles.disabledButton]}
+                                style={[styles.updateButton, (isSubmitting || isVideoLoading) && styles.disabledButton]}
                                 onPress={handleUpdate}
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || isVideoLoading}
                             >
                                 {isSubmitting ? (
                                     <ActivityIndicator color="#fff" />
                                 ) : (
-                                    <CustomText style={styles.updateButtonText}>Update PR</CustomText>
+                                    <CustomText style={styles.updateButtonText}>Submit for Approval</CustomText>
                                 )}
                             </TouchableOpacity>
                         </View>
@@ -418,6 +476,25 @@ const getStyles = (colors: any) => StyleSheet.create({
         color: '#fff',
         fontSize: scale(12),
         fontFamily: Typography.fontFamily.semiBold,
+        marginTop: verticalScale(4),
+    },
+    uploadButton: {
+        borderWidth: 2,
+        borderStyle: 'dashed',
+        borderRadius: scale(12),
+        padding: scale(20),
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: verticalScale(100),
+    },
+    uploadText: {
+        fontSize: scale(14),
+        fontFamily: Typography.fontFamily.semiBold,
+        marginTop: verticalScale(8),
+    },
+    uploadSubtext: {
+        fontSize: scale(12),
+        fontFamily: Typography.fontFamily.regular,
         marginTop: verticalScale(4),
     },
 });

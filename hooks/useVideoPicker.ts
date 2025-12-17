@@ -5,7 +5,7 @@ import { VideoAsset } from '@/api/types/video';
 import { Alert } from 'react-native';
 import { set } from 'zod';
 
-const MAX_VIDEO_DURATION = 120; // 120 SANIYE
+const MAX_VIDEO_DURATION = 30; // 30 SANIYE
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
 
 interface UseVideoPickerResult {
@@ -53,9 +53,8 @@ export const useVideoPicker = (): UseVideoPickerResult => {
         return;
       }
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        mediaTypes: ['videos'],
         allowsEditing: true,
-        quality: 0.7,
         videoMaxDuration: MAX_VIDEO_DURATION,
       });
       if (result.canceled || !result.assets || result.assets.length === 0) {
@@ -78,7 +77,7 @@ export const useVideoPicker = (): UseVideoPickerResult => {
 
       const videoAsset: VideoAsset = {
         uri: selectedVideo.uri,
-        type: selectedVideo.type || 'video/mp4',
+        type: 'video/mp4', // selectedVideo.type returns 'video', we need MIME type
         name: selectedVideo.fileName || `video_${Date.now()}.mp4`,
         size: selectedVideo.fileSize || 0,
         duration: selectedVideo.duration ?? undefined,

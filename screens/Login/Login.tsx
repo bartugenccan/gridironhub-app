@@ -202,11 +202,10 @@ const styles = StyleSheet.create({
   },
   appHeader: {
     width: '100%',
-    paddingTop: 20,
     paddingBottom: 10,
     alignItems: 'center',
     position: 'absolute',
-    top: 0,
+    top: 80,
   },
   appTitle: {
     fontSize: 28,
