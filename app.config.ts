@@ -42,6 +42,7 @@ const config: ExpoConfig = {
       },
     ],
     'expo-video',
+    'expo-asset',
   ],
 };
 

@@ -15,7 +15,7 @@ export const Welcome = () => {
       source={require('assets/images/welcome.png')}
       style={styles.backgroundContainer}
       resizeMode="cover">
-      <BlurView intensity={90} tint="dark" style={{ flex: 1 }}>
+      <BlurView intensity={30} tint="dark" style={{ flex: 1 }}>
         <SafeAreaView style={styles.container}>
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>Gridiron Hub</Text>
@@ -28,14 +28,14 @@ export const Welcome = () => {
             <View style={styles.buttonContainer}>
               <CustomButton
                 title="I am a Player"
-                onPress={() => {}}
+                onPress={() => { }}
                 size="medium"
                 variant="primary"
                 style={{ width: 300 }}
               />
               <CustomButton
                 title="I am a Coach"
-                onPress={() => {}}
+                onPress={() => { }}
                 size="medium"
                 variant="lightGray"
                 style={{ marginTop: 10, width: 300 }}
@@ -43,7 +43,7 @@ export const Welcome = () => {
             </View>
           </View>
           <TouchableOpacity
-            style={{ alignItems: 'center', marginBottom: 20 }}
+            style={{ alignItems: 'center' }}
             onPress={() => navigation.navigate(AppRoutes.LOGIN)}>
             <Text style={{ color: '#fff' }}>
               Already have an account?{' '}
@@ -59,41 +59,40 @@ export const Welcome = () => {
 const styles = StyleSheet.create({
   backgroundContainer: {
     flex: 1,
-    width: '100%',
-    height: '100%',
   },
   container: {
     flex: 1,
-  },
-  headerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
+  headerContainer: {
+    alignItems: 'center',
+    flex: 2
+  },
   headerText: {
     color: '#fff',
-    fontSize: 32,
+    fontSize: scale(32),
     fontWeight: 'bold',
   },
   subHeaderContainer: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: scale(400),
-    paddingVertical: 30,
-    paddingHorizontal: 20,
+    paddingVertical: scale(30),
+    paddingHorizontal: scale(20),
   },
   subHeaderText: {
     color: '#fff',
-    fontSize: 34,
+    fontSize: scale(34),
     fontWeight: 'bold',
   },
   subText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: scale(16),
   },
   buttonContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
+    marginVertical: scale(20),
   },
 });

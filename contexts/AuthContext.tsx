@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '@/api/services/auth.service';
+import { notificationsService } from '@/api/services/notifications.service';
+import { useNotifications } from '@/hooks/useNotifications';
 import type { LoginRequest, RegisterRequest, UserRole } from '@/api/types/auth';
 
 // User type that matches the API response
@@ -42,6 +44,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const { registerForPushNotificationsAsync } = useNotifications();
+
+  const registerToken = async () => {
+    try {
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        await notificationsService.registerPushToken(token);
+      }
+    } catch (error) {
+      console.error('Failed to register push token:', error);
+    }
+  };
 
   // Check for stored auth data on mount
   useEffect(() => {
@@ -74,6 +88,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             // Update user in storage
             await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
+
+            // Register for notifications
+            registerToken();
           }
         } catch (validationError) {
           console.error('Token validation failed:', validationError);
@@ -108,6 +125,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setToken(response.session.accessToken);
       setUser(response.user);
+
+      // Register for notifications
+      registerToken();
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -127,6 +147,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setToken(response.data.token);
         setUser(response.data.user);
+
+        // Register for notifications
+        registerToken();
       }
     } catch (error) {
       console.error('Registration error:', error);

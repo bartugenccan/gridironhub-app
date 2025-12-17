@@ -1,3 +1,4 @@
+import { Asset } from 'expo-asset';
 import { Image } from 'react-native';
 
 /**
@@ -11,10 +12,12 @@ export const preloadAssets = async (): Promise<void> => {
       require('@/assets/images/sakarya-logo.png'),
       require('@/assets/images/icon.png'),
       require('@/assets/images/splash.png'),
+      require('@/assets/images/welcome.png'),
     ];
 
     const cacheImages = imageAssets.map((image) => {
-      return Image.prefetch(Image.resolveAssetSource(image).uri);
+      // Use expo-asset to download/cache local assets
+      return Asset.fromModule(image).downloadAsync();
     });
 
     await Promise.all(cacheImages);

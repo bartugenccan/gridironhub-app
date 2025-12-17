@@ -37,6 +37,9 @@ export const API_ENDPOINTS = {
     UPDATE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
     DELETE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
   },
+  NOTIFICATIONS: {
+    REGISTER_TOKEN: '/api/notifications/register-token',
+  },
 
   // Add other endpoint groups
 } as const;
