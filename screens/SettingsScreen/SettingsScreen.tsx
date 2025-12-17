@@ -75,7 +75,7 @@ export const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.darkGray,
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,

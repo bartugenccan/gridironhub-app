@@ -32,10 +32,6 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         return isFocused ? 'barbell' : 'barbell-outline';
       case TabRoutes.COACH_PROFILE:
         return isFocused ? 'person' : 'person-outline';
-      case TabRoutes.COACH_STATS:
-        return isFocused ? 'stats-chart' : 'stats-chart-outline';
-      case TabRoutes.COACH_SCHEDULE:
-        return isFocused ? 'calendar' : 'calendar-outline';
       default:
         return 'help-circle-outline';
     }
@@ -66,9 +62,6 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
         if (route.name === TabRoutes.COACH_ROSTER) translationKey = 'RosterTab';
         if (route.name === TabRoutes.COACH_WORKOUTS) translationKey = 'WorkoutsTab';
         if (route.name === TabRoutes.COACH_PROFILE) translationKey = 'ProfileTab';
-        // For new ones, we might need new keys or reuse similar ones
-        if (route.name === TabRoutes.COACH_STATS) translationKey = 'Stats';
-        if (route.name === TabRoutes.COACH_SCHEDULE) translationKey = 'Schedule';
 
         // Translate the tab name for display
         const translatedName = t(`tabs.${translationKey.toLowerCase()}`) || route.name;

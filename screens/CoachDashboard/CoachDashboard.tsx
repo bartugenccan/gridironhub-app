@@ -29,9 +29,6 @@ export const CoachDashboard = () => {
   });
   const [selectedVideoUrl, setSelectedVideoUrl] = React.useState<string | null>(null);
 
-  console.log("Pending Requests", pendingRequests);
-
-
   useEffect(() => {
     const fetchRoster = async () => {
       try {
@@ -190,7 +187,7 @@ export const CoachDashboard = () => {
           <Text style={styles.sectionSubtitle}>Average Bench Press, Last 30 Days</Text>
           <View style={styles.cardContainer}>
             <View style={styles.chartPlaceholder}>
-              <Ionicons name="stats-chart" size={64} color={colors.text} />
+              <Ionicons name="stats-chart" size={64} color={colors.playerCardBackground} />
             </View>
             <TouchableOpacity
               style={styles.viewAllButton}
