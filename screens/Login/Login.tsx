@@ -75,7 +75,7 @@ export const Login = () => {
       source={require('@/assets/images/login.png')}
       style={styles.backgroundImage}
       resizeMode="cover">
-      <BlurView intensity={90} tint="dark" style={styles.blurContainer}>
+      <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
         <SafeAreaView style={styles.container}>
           <View style={styles.appHeader}>
             <Text style={styles.appTitle}>Gridiron Hub</Text>
