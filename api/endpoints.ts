@@ -40,6 +40,11 @@ export const API_ENDPOINTS = {
   NOTIFICATIONS: {
     REGISTER_TOKEN: '/api/notifications/register-token',
   },
+  GYM: {
+    CHECKIN: '/api/gym/checkin',
+    HISTORY: '/api/gym/history',
+    ALL_CHECKINS: '/api/gym/team-history',
+  },
 
   // Add other endpoint groups
 } as const;

@@ -106,6 +106,11 @@ export const CoachDashboard = () => {
             label="Schedule"
             onPress={() => navigation.navigate(AppRoutes.SCHEDULE)}
           />
+          <QuickActionButton
+            icon="checkmark-done-circle"
+            label="Check-ins"
+            onPress={() => navigation.navigate(AppRoutes.GYM_CHECKINS)}
+          />
         </View>
 
         {/* Pending PR Requests */}

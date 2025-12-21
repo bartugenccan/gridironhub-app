@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { CustomText } from '@/components';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -19,6 +19,7 @@ import { Typography } from '@/constants/Typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePersonalRecords, useDeletePersonalRecord } from '@/hooks/useStats';
 import { useCurrentPlayerProfile } from '@/hooks/usePlayer';
+import { useCheckIn, useCheckInHistory } from '@/hooks/useGym';
 import { formatDate } from '@/utils/formatDate';
 import { useNavigation } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
@@ -43,29 +44,7 @@ interface PersonalRecord {
   rawValue: number;
 }
 
-const recentActivities: RecentActivity[] = [
-  {
-    id: '1',
-    title: 'Team meeting tomorrow at 8 AM in the main gym. Be on time.',
-    date: '1h ago',
-    description: 'Coach Miller',
-    icon: 'bullhorn-outline',
-  },
-  {
-    id: '2',
-    title: 'You set a new Personal Record in Bench Press: 315 kg',
-    date: 'Nov 15, 2023',
-    description: '',
-    icon: 'chart-line-variant',
-  },
-  {
-    id: '3',
-    title: 'You updated your Back Squat: 405 kg',
-    date: 'Oct 28, 2023',
-    description: '',
-    icon: 'dumbbell',
-  },
-];
+
 
 // Icon mapping for different exercises
 const getExerciseIcon = (liftName: string): keyof typeof MaterialCommunityIcons.glyphMap => {
@@ -88,6 +67,19 @@ export const PlayerDashboard = () => {
 
   const { data: records, isLoading, error, refetch } = usePersonalRecords();
   const { mutate: deleteRecord } = useDeletePersonalRecord();
+  const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn();
+  const { data: checkInHistory } = useCheckInHistory();
+
+  const hasCheckedInToday = useMemo(() => {
+    if (!checkInHistory?.checkins) return false;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
+    // Use startsWith for robust matching
+    return checkInHistory.checkins.some(c => c.checkinDate.startsWith(today));
+  }, [checkInHistory]);
   const { data: playerProfile, isLoading: isLoadingProfile } = useCurrentPlayerProfile();
 
   const personalRecords = React.useMemo(() => {
@@ -118,6 +110,29 @@ export const PlayerDashboard = () => {
         },
       },
     ]);
+  };
+
+  const handleCheckIn = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
+
+    checkIn({ checkinDate: today }, {
+      onSuccess: () => {
+        Alert.alert('Success', 'You have successfully checked in to the gym!');
+      },
+      onError: (err) => {
+        const errorMessage = err.message?.toLowerCase() || '';
+        if (errorMessage.includes('already checked in') || (err as any).response?.status === 409) {
+          Alert.alert('Information', 'You have already checked in for today.');
+        } else {
+          Alert.alert('Error', err.message || 'Failed to check in. Please try again.');
+        }
+      },
+    }
+    );
   };
 
   const renderActivityItem = ({ item }: { item: RecentActivity }) => {
@@ -342,13 +357,34 @@ export const PlayerDashboard = () => {
               color={colors.textSecondary}
             />
           </TouchableOpacity>
-          <FlatList
-            data={recentActivities}
-            renderItem={renderActivityItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-          />
+
+          <TouchableOpacity
+            style={styles.activityCard}
+            onPress={handleCheckIn}
+            disabled={isCheckingIn}
+            activeOpacity={0.7}>
+            <View style={[styles.activityIconContainer, { backgroundColor: colors.success + '20' }]}>
+              {isCheckingIn ? (
+                <ActivityIndicator size="small" color={colors.success} />
+              ) : (
+                <MaterialCommunityIcons
+                  name={hasCheckedInToday ? "check-circle" : "map-marker-check"}
+                  size={scale(20)}
+                  color={colors.success}
+                />
+              )}
+            </View>
+            <View style={styles.activityContent}>
+              <CustomText style={styles.activityTitle}>Gym Check-in</CustomText>
+              <CustomText style={styles.activityDescription}>Tap to check in for today</CustomText>
+            </View>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={scale(20)}
+              color={colors.textSecondary}
+            />
+          </TouchableOpacity>
+
         </View>
 
         {/* Personal Records Section */}

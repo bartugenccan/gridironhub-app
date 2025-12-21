@@ -9,6 +9,7 @@ import { CoachAnalytics } from '@/screens/CoachAnalytics';
 import { ScheduleScreen } from '@/screens/Schedule';
 import { WorkoutsDetail } from '@/screens/WorkoutsDetail';
 import { PRRequestsScreen } from '@/screens/CoachDashboard/PRRequestsScreen';
+import { CoachGymCheckinsScreen } from '@/screens/CoachGymCheckins/CoachGymCheckinsScreen';
 
 import { TeamNavigator } from './TeamNavigator';
 import { WorkoutsNavigator } from './WorkoutsNavigator';
@@ -26,6 +27,7 @@ const CoachDashboardStack = () => (
     <Stack.Screen name={AppRoutes.COACH_ANALYTICS} component={CoachAnalytics} />
     <Stack.Screen name={AppRoutes.SCHEDULE} component={ScheduleScreen} />
     <Stack.Screen name={AppRoutes.WORKOUTS_DETAIL} component={WorkoutsDetail} />
+    <Stack.Screen name={AppRoutes.GYM_CHECKINS} component={CoachGymCheckinsScreen} />
   </Stack.Navigator>
 );
 

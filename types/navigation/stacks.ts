@@ -67,6 +67,7 @@ export type CoachDashboardStackParamList = {
   [AppRoutes.COACH_ANALYTICS]: undefined;
   [AppRoutes.SCHEDULE]: undefined;
   [AppRoutes.PR_REQUESTS]: undefined;
+  [AppRoutes.GYM_CHECKINS]: undefined;
 };
 
 export type CoachTabNavigatorParamList = {

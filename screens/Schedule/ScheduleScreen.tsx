@@ -17,12 +17,14 @@ import { useGetWorkouts } from '@/hooks';
 import { Workout } from '@/api/types/workouts';
 import { AppRoutes } from '@/types/navigation';
 import { useAppNavigation } from '@/hooks';
+import { useCheckInHistory } from '@/hooks/useGym';
 
 const CalendarDay = ({
   day,
   date,
   isSelected,
   hasWorkouts,
+  hasCheckIn,
   isPast,
   onPress,
   colors,
@@ -31,6 +33,7 @@ const CalendarDay = ({
   date: Date;
   isSelected: boolean;
   hasWorkouts: boolean;
+  hasCheckIn: boolean;
   isPast: boolean;
   onPress: () => void;
   colors: typeof import('@/constants/Colors').LightColors;
@@ -63,15 +66,25 @@ const CalendarDay = ({
             ]}>
             {day}
           </CustomText>
-          {hasWorkouts && (
-            <View
-              style={[
-                styles.calendarDot,
-                (isSelected || isPast) && styles.calendarDotSelected, // White dot if selected or past (dark bg)
-                hasWorkouts && !isSelected && !isPast && styles.calendarDotActive, // Primary color dot if active/future
-              ]}
-            />
-          )}
+          <View style={styles.dotsContainer}>
+            {hasWorkouts && (
+              <View
+                style={[
+                  styles.calendarDot,
+                  (isSelected || isPast) && styles.calendarDotSelected, // White dot if selected or past (dark bg)
+                  hasWorkouts && !isSelected && !isPast && styles.calendarDotActive, // Primary color dot if active/future
+                ]}
+              />
+            )}
+            {hasCheckIn && (
+              <View
+                style={[
+                  styles.calendarDot,
+                  styles.calendarDotCheckIn,
+                ]}
+              />
+            )}
+          </View>
         </>
       )}
     </TouchableOpacity>
@@ -122,10 +135,20 @@ export const ScheduleScreen = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation = useAppNavigation();
-  const { data: workouts, isLoading } = useGetWorkouts();
+  const { data: workouts, isLoading: isLoadingWorkouts } = useGetWorkouts();
+  const { data: checkInHistory, isLoading: isLoadingCheckIns, error: checkInError } = useCheckInHistory();
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+
+  // ... (existing code)
+
+  const isLoading = isLoadingWorkouts || isLoadingCheckIns;
+
+  console.log("Gym Checkins: ", checkInHistory);
+  if (checkInError) {
+    console.error("Gym Checkin Error: ", checkInError);
+  }
 
   // Get all workouts
   const allWorkouts = useMemo(() => {
@@ -172,8 +195,25 @@ export const ScheduleScreen = () => {
   // Check if a date has workouts
   const dateHasWorkouts = (day: number): boolean => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    // Use local time for date key to match workout date string
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60 * 1000);
+    const dateKey = localDate.toISOString().split('T')[0];
+
+    // Fallback to simple formatting if timezone offset logic is tricky
+    // Consistent with formatDateKey above which uses local time components
+    const simpleKey = formatDateKey(date);
+
+    return allWorkouts.some((w) => w.scheduledDate === simpleKey);
+  };
+
+  // Check if a date has check-in
+  const dateHasCheckIn = (day: number): boolean => {
+    if (!checkInHistory?.checkins) return false;
+    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
     const dateKey = formatDateKey(date);
-    return allWorkouts.some((w) => w.scheduledDate === dateKey);
+    // Use startsWith to handle both "YYYY-MM-DD" and "YYYY-MM-DDT..." formats
+    return checkInHistory.checkins.some((c) => c.checkinDate.startsWith(dateKey));
   };
 
   const handleDayPress = (day: number) => {
@@ -268,6 +308,7 @@ export const ScheduleScreen = () => {
                   compareDate.getTime() === new Date(selectedDate.setHours(0, 0, 0, 0)).getTime();
                 const isPast = compareDate.getTime() < today.getTime();
                 const hasWorkouts = dateHasWorkouts(day);
+                const hasCheckIn = dateHasCheckIn(day);
 
                 return (
                   <CalendarDay
@@ -276,6 +317,7 @@ export const ScheduleScreen = () => {
                     date={date}
                     isSelected={isSelected}
                     hasWorkouts={hasWorkouts}
+                    hasCheckIn={hasCheckIn}
                     isPast={isPast}
                     onPress={() => handleDayPress(day)}
                     colors={colors}
@@ -419,9 +461,13 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       color: '#fff',
       fontFamily: Typography.fontFamily.bold,
     },
-    calendarDot: {
+    dotsContainer: {
       position: 'absolute',
-      bottom: scale(-4),
+      bottom: scale(4),
+      flexDirection: 'row',
+      gap: scale(2),
+    },
+    calendarDot: {
       width: scale(4),
       height: scale(4),
       borderRadius: scale(2),
@@ -431,6 +477,9 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
     },
     calendarDotActive: {
       backgroundColor: colors.primary,
+    },
+    calendarDotCheckIn: {
+      backgroundColor: colors.success,
     },
     workoutsSection: {
       padding: scale(16),
@@ -503,7 +552,6 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       marginTop: verticalScale(12),
       textAlign: 'center',
     },
-
     todayButtonContainer: {
       paddingHorizontal: scale(16),
       marginTop: verticalScale(8),
