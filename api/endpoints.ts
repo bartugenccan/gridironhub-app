@@ -1,14 +1,14 @@
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/api/auth/login',
-    REGISTER: '/auth/register',
-    FORGOT_PASSWORD: '/auth/forgot-password',
+    REGISTER: '/api/auth/register',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
     ME: '/api/auth/me',
   },
   USER: {
-    UPDATE_PROFILE: '/user/profile/update',
-    GET_PROFILE: '/user/profile',
-    GET_TEAM: '/user/team',
+    UPDATE_PROFILE: '/api/user/profile/update',
+    GET_PROFILE: '/api/user/profile',
+    GET_TEAM: '/api/user/team',
   },
   STATS: {
     GET_PERSONAL_RECORDS: '/api/stats/personal-records',
