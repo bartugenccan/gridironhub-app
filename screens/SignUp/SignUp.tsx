@@ -8,6 +8,9 @@ import {
   ImageBackground,
   TextInput,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,6 +35,7 @@ export const SignUp = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [teamId, setTeamId] = useState('');
   const [role, setRole] = useState<UserRole>('player');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -72,6 +76,7 @@ export const SignUp = () => {
       lastName,
       email,
       password,
+      confirmPassword,
       teamId,
       role,
     });
@@ -88,7 +93,8 @@ export const SignUp = () => {
     }
 
     try {
-      await register(result.data);
+      const { confirmPassword: _, ...registerData } = result.data;
+      await register(registerData as any);
       // Navigation to PendingApprovalScreen on success
       navigation.navigate(AppRoutes.PENDING_APPROVAL);
     } catch (error: any) {
@@ -112,149 +118,175 @@ export const SignUp = () => {
       resizeMode="cover">
       <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
         <SafeAreaView style={styles.container}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
+          <KeyboardAvoidingView
+            style={{ flex: 1, width: '100%' }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
-            <Ionicons name="arrow-back" size={28} color="white" />
-          </TouchableOpacity>
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}
+              >
+                <Ionicons name="arrow-back" size={28} color="white" />
+              </TouchableOpacity>
 
-          <View style={styles.header}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join Gridiron Hub</Text>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <View style={styles.roleContainer}>
-              <Text style={styles.inputLabel}>I am a...</Text>
-              <View style={styles.roleButtons}>
-                <TouchableOpacity
-                  style={[styles.roleButton, role === 'player' && styles.roleButtonActive]}
-                  onPress={() => setRole('player')}
-                >
-                  <Ionicons name="person" size={20} color={role === 'player' ? 'white' : 'rgba(255,255,255,0.6)'} />
-                  <Text style={[styles.roleButtonText, role === 'player' && styles.roleButtonTextActive]}>Player</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.roleButton, role === 'coach' && styles.roleButtonActive]}
-                  onPress={() => setRole('coach')}
-                >
-                  <Ionicons name="american-football" size={20} color={role === 'coach' ? 'white' : 'rgba(255,255,255,0.6)'} />
-                  <Text style={[styles.roleButtonText, role === 'coach' && styles.roleButtonTextActive]}>Coach</Text>
-                </TouchableOpacity>
+              <View style={styles.header}>
+                <Text style={styles.title}>Create Account</Text>
+                <Text style={styles.subtitle}>Join Gridiron Hub</Text>
               </View>
-            </View>
 
-            <View style={styles.row}>
-              <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
-                <Text style={styles.inputLabel}>First Name</Text>
-                <TextInput
-                  placeholder="First Name"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={firstName}
-                  onChangeText={setFirstName}
-                  style={[styles.input, errors.firstName && styles.inputError]}
-                />
-              </View>
-              <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={styles.inputLabel}>Last Name</Text>
-                <TextInput
-                  placeholder="Last Name"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={lastName}
-                  onChangeText={setLastName}
-                  style={[styles.input, errors.lastName && styles.inputError]}
-                />
-              </View>
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Select Team</Text>
-              {loadingTeams ? (
-                <ActivityIndicator color={DarkColors.primary} />
-              ) : (
-                <View style={styles.teamContainer}>
-                  {teams.map((team) => (
+              <View style={styles.inputContainer}>
+                <View style={styles.roleContainer}>
+                  <Text style={styles.inputLabel}>I am a...</Text>
+                  <View style={styles.roleButtons}>
                     <TouchableOpacity
-                      key={team.id}
-                      style={[
-                        styles.teamCard,
-                        teamId === team.id && styles.teamCardActive,
-                        errors.teamId && styles.inputError
-                      ]}
-                      onPress={() => setTeamId(team.id)}
+                      style={[styles.roleButton, role === 'player' && styles.roleButtonActive]}
+                      onPress={() => setRole('player')}
                     >
-                      {/* Fallback to asset if ID matches, else try URI or placeholder */}
-                      <Image
-                        source={
-                          // Check for ID or Name to assign the local asset
-                          (team.id === 'eb118c2c-77bf-419f-9c81-42f6dc6b6e81' || team.name === 'Sakarya Tatankaları')
-                            ? require('@/assets/images/sakarya-logo.png')
-                            : (team.logoUrl ? { uri: team.logoUrl } : require('@/assets/images/icon.png'))
-                        }
-                        style={styles.teamLogo}
-                        resizeMode="contain"
-                      />
-                      <Text style={[styles.teamName, teamId === team.id && styles.teamNameActive]}>
-                        {team.name}
-                      </Text>
-                      {teamId === team.id && (
-                        <Ionicons name="checkmark-circle" size={24} color={DarkColors.primary} />
-                      )}
+                      <Ionicons name="person" size={20} color={role === 'player' ? 'white' : 'rgba(255,255,255,0.6)'} />
+                      <Text style={[styles.roleButtonText, role === 'player' && styles.roleButtonTextActive]}>Player</Text>
                     </TouchableOpacity>
-                  ))}
-                  {teams.length === 0 && (
-                    <Text style={{ color: 'white', textAlign: 'center' }}>No teams found</Text>
-                  )}
+                    <TouchableOpacity
+                      style={[styles.roleButton, role === 'coach' && styles.roleButtonActive]}
+                      onPress={() => setRole('coach')}
+                    >
+                      <Ionicons name="american-football" size={20} color={role === 'coach' ? 'white' : 'rgba(255,255,255,0.6)'} />
+                      <Text style={[styles.roleButtonText, role === 'coach' && styles.roleButtonTextActive]}>Coach</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              )}
-              {errors.teamId && <Text style={styles.fieldErrorText}>{errors.teamId}</Text>}
-            </View>
 
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Email</Text>
-              <TextInput
-                placeholder="Enter your email"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-                style={[styles.input, errors.email && styles.inputError]}
-              />
-              {errors.email && <Text style={styles.fieldErrorText}>{errors.email}</Text>}
-            </View>
+                <View style={styles.row}>
+                  <View style={[styles.inputWrapper, { flex: 1, marginRight: 10 }]}>
+                    <Text style={styles.inputLabel}>First Name</Text>
+                    <TextInput
+                      placeholder="First Name"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={firstName}
+                      onChangeText={setFirstName}
+                      style={[styles.input, errors.firstName && styles.inputError]}
+                    />
+                  </View>
+                  <View style={[styles.inputWrapper, { flex: 1 }]}>
+                    <Text style={styles.inputLabel}>Last Name</Text>
+                    <TextInput
+                      placeholder="Last Name"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={lastName}
+                      onChangeText={setLastName}
+                      style={[styles.input, errors.lastName && styles.inputError]}
+                    />
+                  </View>
+                </View>
 
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                placeholder="Create a password"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-                style={[styles.input, errors.password && styles.inputError]}
-              />
-              {errors.password && <Text style={styles.fieldErrorText}>{errors.password}</Text>}
-            </View>
-          </View>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Select Team</Text>
+                  {loadingTeams ? (
+                    <ActivityIndicator color={DarkColors.primary} />
+                  ) : (
+                    <View style={styles.teamContainer}>
+                      {teams.map((team) => (
+                        <TouchableOpacity
+                          key={team.id}
+                          style={[
+                            styles.teamCard,
+                            teamId === team.id && styles.teamCardActive,
+                            errors.teamId && styles.inputError
+                          ]}
+                          onPress={() => setTeamId(team.id)}
+                        >
+                          {/* Fallback to asset if ID matches, else try URI or placeholder */}
+                          <Image
+                            source={
+                              // Check for ID or Name to assign the local asset
+                              (team.id === 'eb118c2c-77bf-419f-9c81-42f6dc6b6e81' || team.name === 'Sakarya Tatankaları')
+                                ? require('@/assets/images/sakarya-logo.png')
+                                : (team.logoUrl ? { uri: team.logoUrl } : require('@/assets/images/icon.png'))
+                            }
+                            style={styles.teamLogo}
+                            resizeMode="contain"
+                          />
+                          <Text style={[styles.teamName, teamId === team.id && styles.teamNameActive]}>
+                            {team.name}
+                          </Text>
+                          {teamId === team.id && (
+                            <Ionicons name="checkmark-circle" size={24} color={DarkColors.primary} />
+                          )}
+                        </TouchableOpacity>
+                      ))}
+                      {teams.length === 0 && (
+                        <Text style={{ color: 'white', textAlign: 'center' }}>No teams found</Text>
+                      )}
+                    </View>
+                  )}
+                  {errors.teamId && <Text style={styles.fieldErrorText}>{errors.teamId}</Text>}
+                </View>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                isLoading && styles.buttonDisabled,
-                { backgroundColor: DarkColors.primary },
-              ]}
-              onPress={handleRegister}
-              disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={styles.buttonText}>Request Account</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Email</Text>
+                  <TextInput
+                    placeholder="Enter your email"
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                    style={[styles.input, errors.email && styles.inputError]}
+                  />
+                  {errors.email && <Text style={styles.fieldErrorText}>{errors.email}</Text>}
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Password</Text>
+                  <TextInput
+                    placeholder="Create a password"
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    style={[styles.input, errors.password && styles.inputError]}
+                  />
+                  {errors.password && <Text style={styles.fieldErrorText}>{errors.password}</Text>}
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Confirm Password</Text>
+                  <TextInput
+                    placeholder="Confirm your password"
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    secureTextEntry
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    style={[styles.input, errors.confirmPassword && styles.inputError]}
+                  />
+                  {errors.confirmPassword && <Text style={styles.fieldErrorText}>{errors.confirmPassword}</Text>}
+                </View>
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    isLoading && styles.buttonDisabled,
+                    { backgroundColor: DarkColors.primary },
+                  ]}
+                  onPress={handleRegister}
+                  disabled={isLoading}>
+                  {isLoading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>Request Account</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+            </ScrollView>
+          </KeyboardAvoidingView>
 
         </SafeAreaView>
       </BlurView>

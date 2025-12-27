@@ -6,6 +6,9 @@ import {
   ActivityIndicator,
   Alert,
   ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -81,101 +84,113 @@ export const Login = () => {
       resizeMode="cover">
       <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
         <SafeAreaView style={styles.container}>
-          <View style={styles.appHeader}>
-            <Text style={styles.appTitle}>Gridiron Hub</Text>
-          </View>
+          <KeyboardAvoidingView
+            style={{ flex: 1, width: '100%' }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          >
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.appHeader}>
+                <Text style={styles.appTitle}>Gridiron Hub</Text>
+              </View>
 
-          <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
-          </View>
+              <View style={styles.header}>
+                <Text style={styles.title}>Welcome Back</Text>
+                <Text style={styles.subtitle}>Sign in to continue</Text>
+              </View>
 
-          <View style={styles.inputContainer}>
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Email or Username</Text>
-              <TextInput
-                placeholder="Enter your email or username"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  // Clear email error when user types
-                  if (errors.email) {
-                    setErrors((prev) => ({ ...prev, email: '' }));
-                  }
-                }}
-                style={[styles.input, errors.email && styles.inputError]}
-                editable={!isLoading}
-              />
-              {errors.email && <Text style={styles.fieldErrorText}>{errors.email}</Text>}
-            </View>
-
-            <View style={styles.inputWrapper}>
-              <Text style={styles.inputLabel}>Password</Text>
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  placeholder="Enter your password"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  secureTextEntry={!showPassword}
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    // Clear password error when user types
-                    if (errors.password) {
-                      setErrors((prev) => ({ ...prev, password: '' }));
-                    }
-                  }}
-                  style={[styles.passwordInput, errors.password && styles.inputError]}
-                  editable={!isLoading}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}>
-                  <Ionicons
-                    name={showPassword ? 'eye' : 'eye-off'}
-                    size={24}
-                    color="rgba(255, 255, 255, 0.7)"
+              <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Email or Username</Text>
+                  <TextInput
+                    placeholder="Enter your email or username"
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      // Clear email error when user types
+                      if (errors.email) {
+                        setErrors((prev) => ({ ...prev, email: '' }));
+                      }
+                    }}
+                    style={[styles.input, errors.email && styles.inputError]}
+                    editable={!isLoading}
                   />
+                  {errors.email && <Text style={styles.fieldErrorText}>{errors.email}</Text>}
+                </View>
+
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Password</Text>
+                  <View style={styles.passwordContainer}>
+                    <TextInput
+                      placeholder="Enter your password"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      secureTextEntry={!showPassword}
+                      value={password}
+                      onChangeText={(text) => {
+                        setPassword(text);
+                        // Clear password error when user types
+                        if (errors.password) {
+                          setErrors((prev) => ({ ...prev, password: '' }));
+                        }
+                      }}
+                      style={[styles.passwordInput, errors.password && styles.inputError]}
+                      editable={!isLoading}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      style={styles.eyeIcon}>
+                      <Ionicons
+                        name={showPassword ? 'eye' : 'eye-off'}
+                        size={24}
+                        color="rgba(255, 255, 255, 0.7)"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {errors.password && <Text style={styles.fieldErrorText}>{errors.password}</Text>}
+                </View>
+
+                <TouchableOpacity style={styles.forgotPassword}>
+                  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                </TouchableOpacity>
+
+                {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    isLoading && styles.buttonDisabled,
+                    { backgroundColor: DarkColors.primaryDark },
+                  ]}
+                  onPress={() => handleLogin({ role: 'player' })}
+                  disabled={isLoading}>
+                  {isLoading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>Player Login</Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, isLoading && styles.buttonDisabled]}
+                  onPress={() => handleLogin({ role: 'coach' })}
+                  disabled={isLoading}>
+                  {isLoading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>Coach Login</Text>
+                  )}
                 </TouchableOpacity>
               </View>
-              {errors.password && <Text style={styles.fieldErrorText}>{errors.password}</Text>}
-            </View>
-
-            <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-            </TouchableOpacity>
-
-            {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.button,
-                isLoading && styles.buttonDisabled,
-                { backgroundColor: DarkColors.primaryDark },
-              ]}
-              onPress={() => handleLogin({ role: 'player' })}
-              disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={styles.buttonText}>Player Login</Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
-              onPress={() => handleLogin({ role: 'coach' })}
-              disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={styles.buttonText}>Coach Login</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
 
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>

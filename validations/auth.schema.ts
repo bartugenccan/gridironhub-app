@@ -31,7 +31,8 @@ export const loginSchema = z.object({
 });
 
 // Register request schema
-export const registerSchema = z.object({
+// Base schema for API
+export const apiRegisterSchema = z.object({
   email: emailSchema,
   password: strongPasswordSchema,
   role: userRoleSchema,
@@ -47,6 +48,16 @@ export const registerSchema = z.object({
     .max(50, 'Soyad en fazla 50 karakter olabilir')
     .trim(),
 });
+
+// Register request schema (includes confirm password for UI)
+export const registerSchema = apiRegisterSchema
+  .extend({
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Şifreler eşleşmiyor',
+    path: ['confirmPassword'],
+  });
 
 // Forgot password schema
 export const forgotPasswordSchema = z.object({

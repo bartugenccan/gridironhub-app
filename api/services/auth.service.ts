@@ -1,7 +1,12 @@
 import axiosInstance from '../client';
 import { API_ENDPOINTS } from '../endpoints';
 import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../types';
-import { loginSchema, registerSchema, forgotPasswordSchema } from '../types/auth';
+import {
+  loginSchema,
+  registerSchema,
+  apiRegisterSchema,
+  forgotPasswordSchema,
+} from '../types/auth';
 
 const login = async (data: LoginRequest): Promise<LoginResponse> => {
   // Validate request data before API call
@@ -13,7 +18,7 @@ const login = async (data: LoginRequest): Promise<LoginResponse> => {
 
 const register = async (data: RegisterRequest): Promise<void> => {
   // Validate request data before API call
-  const validatedData = registerSchema.parse(data);
+  const validatedData = apiRegisterSchema.parse(data);
 
   await axiosInstance.post(API_ENDPOINTS.AUTH.REGISTER, validatedData);
 };

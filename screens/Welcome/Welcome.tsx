@@ -23,24 +23,15 @@ export const Welcome = () => {
           <View style={styles.subHeaderContainer}>
             <Text style={styles.subHeaderText}>Elevate Your Game</Text>
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.subText}>Choose your role to get started</Text>
+              <Text style={styles.subText}>Join the community to get started</Text>
             </View>
-            <View style={styles.buttonContainer}>
-              <CustomButton
-                title="I am a Player"
-                onPress={() => { }}
-                size="medium"
-                variant="primary"
-                style={{ width: 300 }}
-              />
-              <CustomButton
-                title="I am a Coach"
-                onPress={() => { }}
-                size="medium"
-                variant="lightGray"
-                style={{ marginTop: 10, width: 300 }}
-              />
-            </View>
+            <CustomButton
+              title="Register"
+              onPress={() => navigation.navigate(AppRoutes.SIGN_UP)}
+              size="medium"
+              variant="primary"
+              style={{ width: 300, marginTop: 20 }}
+            />
           </View>
           <TouchableOpacity
             style={{ alignItems: 'center' }}

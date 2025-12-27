@@ -3,18 +3,20 @@ import { User } from './user';
 import {
   loginSchema,
   registerSchema,
+  apiRegisterSchema,
   forgotPasswordSchema,
   type LoginSchema,
   type RegisterSchema,
   type UserRole as ZodUserRole,
 } from '@/validations/auth.schema';
+import { z } from 'zod';
 
 // Export Zod schemas for validation
-export { loginSchema, registerSchema, forgotPasswordSchema };
+export { loginSchema, registerSchema, apiRegisterSchema, forgotPasswordSchema };
 
 // Type aliases using Zod inferred types
 export type LoginRequest = LoginSchema;
-export type RegisterRequest = RegisterSchema;
+export type RegisterRequest = z.infer<typeof apiRegisterSchema>;
 export type UserRole = ZodUserRole;
 
 export interface LoginResponse extends BaseResponse {
