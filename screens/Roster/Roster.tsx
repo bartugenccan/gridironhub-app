@@ -14,7 +14,7 @@ import { Typography } from '@/constants/Typography';
 import { rosterService } from '@/api/services/roster.service';
 import { RosterResponse } from '@/api/types/roster';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RosterStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
@@ -27,9 +27,11 @@ export const Roster = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    fetchRoster();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRoster();
+    }, [])
+  );
 
   const fetchRoster = async () => {
     try {
@@ -93,8 +95,8 @@ export const Roster = () => {
                     <View style={styles.cardContent}>
                       <View style={styles.memberInfo}>
                         <Text style={styles.memberName}>{coach.fullName}</Text>
-                        {coach.primaryPosition && (
-                          <Text style={styles.memberPosition}>{coach.primaryPosition}</Text>
+                        {coach.primaryPosition && coach.primaryPosition.length > 0 && (
+                          <Text style={styles.memberPosition}>{coach.primaryPosition.join(', ')}</Text>
                         )}
                       </View>
                       <MaterialCommunityIcons
@@ -130,8 +132,8 @@ export const Roster = () => {
                           )}
                           <Text style={styles.memberName}>{player.fullName}</Text>
                         </View>
-                        {player.position && (
-                          <Text style={styles.memberPosition}>{player.position}</Text>
+                        {player.position && player.position.length > 0 && (
+                          <Text style={styles.memberPosition}>{player.position.join(', ')}</Text>
                         )}
                       </View>
                       <MaterialCommunityIcons

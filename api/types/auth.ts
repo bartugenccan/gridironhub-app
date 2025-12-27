@@ -34,16 +34,7 @@ export interface LoginResponse extends BaseResponse {
   };
 }
 
+// Registration now puts user in pending state, no immediate session
 export interface RegisterResponse extends BaseResponse {
-  data: {
-    user: {
-      id: string;
-      email: string;
-      role: UserRole;
-      fullName: string;
-      teamId: string;
-      teamName: string;
-    };
-    token: string;
-  };
+  message: string;
 }

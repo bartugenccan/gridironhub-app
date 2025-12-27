@@ -139,18 +139,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (data: RegisterRequest) => {
     try {
       setIsLoading(true);
-      const response = await authService.register(data);
-
-      if (response.data.user && response.data.token) {
-        await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.data.token);
-        await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data.user));
-
-        setToken(response.data.token);
-        setUser(response.data.user);
-
-        // Register for notifications
-        registerToken();
-      }
+      await authService.register(data);
+      // Registration successful but pending approval.
+      // Do not set user/token. The flow will handle navigation to PendingApproval.
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

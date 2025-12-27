@@ -18,12 +18,16 @@ import { Colors, DarkColors } from '@/constants/Colors';
 import { loginSchema } from '@/validations/auth.schema';
 import { getFieldErrors } from '@/utils/validation';
 import { z } from 'zod';
+import { useAppNavigation } from '@/hooks';
+import { AppRoutes } from '@/types';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const navigation = useAppNavigation();
 
   const { login, isLoading } = useAuth();
 
@@ -175,7 +179,7 @@ export const Login = () => {
 
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate(AppRoutes.SIGN_UP)}>
               <Text style={styles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>

@@ -71,8 +71,8 @@ const CalendarDay = ({
               <View
                 style={[
                   styles.calendarDot,
-                  (isSelected || isPast) && styles.calendarDotSelected, // White dot if selected or past (dark bg)
-                  hasWorkouts && !isSelected && !isPast && styles.calendarDotActive, // Primary color dot if active/future
+                  isSelected && styles.calendarDotSelected, // White dot ONLY if selected
+                  !isSelected && styles.calendarDotActive, // Primary color dot if not selected (past or future)
                 ]}
               />
             )}
@@ -144,11 +144,6 @@ export const ScheduleScreen = () => {
   // ... (existing code)
 
   const isLoading = isLoadingWorkouts || isLoadingCheckIns;
-
-  console.log("Gym Checkins: ", checkInHistory);
-  if (checkInError) {
-    console.error("Gym Checkin Error: ", checkInError);
-  }
 
   // Get all workouts
   const allWorkouts = useMemo(() => {

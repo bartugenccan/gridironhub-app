@@ -2,7 +2,7 @@ export interface Coach {
   id: string;
   fullName: string;
   role: 'coach';
-  primaryPosition: string | null;
+  primaryPosition: string[]; // Backend returns "position": ["HC", "OC"] or []
 }
 
 export interface Player {
@@ -10,7 +10,7 @@ export interface Player {
   fullName: string;
   role: 'player';
   jerseyNumber: number | null;
-  position: string | null;
+  position: string[]; // Backend returns "position": ["TE"] or []
 }
 
 export interface RosterResponse {

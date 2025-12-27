@@ -13,6 +13,8 @@ export enum AppRoutes {
   WELCOME = 'Welcome',
   SIGN_UP = 'SignUp',
   LOGIN = 'Login',
+  PENDING_APPROVAL = 'PendingApproval',
+  SET_PASSWORD = 'SetPassword',
 
   // Tab Screens
   DASHBOARD = 'Dashboard',
@@ -31,6 +33,7 @@ export enum AppRoutes {
   PROFILE_EDIT = 'ProfileEdit',
   COACH_DETAIL = 'CoachDetail',
   GYM_CHECKINS = 'GymCheckins',
+  APPROVAL_DASHBOARD = 'ApprovalDashboard',
 
   // Old routes (kept for compatibility)
   HOME = 'Home',

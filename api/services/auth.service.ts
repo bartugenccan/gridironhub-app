@@ -11,15 +11,11 @@ const login = async (data: LoginRequest): Promise<LoginResponse> => {
   return response.data;
 };
 
-const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
+const register = async (data: RegisterRequest): Promise<void> => {
   // Validate request data before API call
   const validatedData = registerSchema.parse(data);
 
-  const response = await axiosInstance.post<RegisterResponse>(
-    API_ENDPOINTS.AUTH.REGISTER,
-    validatedData
-  );
-  return response.data;
+  await axiosInstance.post(API_ENDPOINTS.AUTH.REGISTER, validatedData);
 };
 
 const forgotPassword = async (email: string): Promise<void> => {

@@ -8,6 +8,8 @@ export type AuthStackParamList = {
   [AppRoutes.WELCOME]: undefined;
   [AppRoutes.SIGN_UP]: undefined;
   [AppRoutes.LOGIN]: undefined;
+  [AppRoutes.PENDING_APPROVAL]: undefined;
+  [AppRoutes.SET_PASSWORD]: undefined;
   // Add other auth routes as needed
 };
 
@@ -68,6 +70,7 @@ export type CoachDashboardStackParamList = {
   [AppRoutes.SCHEDULE]: undefined;
   [AppRoutes.PR_REQUESTS]: undefined;
   [AppRoutes.GYM_CHECKINS]: undefined;
+  [AppRoutes.APPROVAL_DASHBOARD]: undefined;
 };
 
 export type CoachTabNavigatorParamList = {

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { CoachDashboardStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
@@ -29,17 +29,20 @@ export const CoachDashboard = () => {
   });
   const [selectedVideoUrl, setSelectedVideoUrl] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchRoster = async () => {
-      try {
-        const roster = await rosterService.getRoster();
-        setPlayerCount({ current: roster.players.length, max: 50 });
-      } catch (error) {
-        console.error('Error fetching roster:', error);
-      }
-    };
-    fetchRoster();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchRoster = async () => {
+        try {
+          const roster = await rosterService.getRoster();
+          setPlayerCount({ current: roster.players.length, max: 50 });
+        } catch (error) {
+          console.error('Error fetching roster:', error);
+        }
+      };
+
+      fetchRoster();
+    }, [])
+  );
 
   const QuickActionButton = ({
     icon,
@@ -95,7 +98,6 @@ export const CoachDashboard = () => {
 
         {/* Quick Actions */}
         <View style={styles.quickActionsRow}>
-          <QuickActionButton icon="person-add" label="Add Player" />
           <QuickActionButton
             icon="barbell"
             label="Add Workout"
@@ -110,6 +112,11 @@ export const CoachDashboard = () => {
             icon="checkmark-done-circle"
             label="Check-ins"
             onPress={() => navigation.navigate(AppRoutes.GYM_CHECKINS)}
+          />
+          <QuickActionButton
+            icon="people-circle"
+            label="Approvals"
+            onPress={() => navigation.navigate(AppRoutes.APPROVAL_DASHBOARD)}
           />
         </View>
 
@@ -189,7 +196,6 @@ export const CoachDashboard = () => {
         {/* Team Strength Progression */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Team Strength Progression</Text>
-          <Text style={styles.sectionSubtitle}>Average Bench Press, Last 30 Days</Text>
           <View style={styles.cardContainer}>
             <View style={styles.chartPlaceholder}>
               <Ionicons name="stats-chart" size={64} color={colors.playerCardBackground} />

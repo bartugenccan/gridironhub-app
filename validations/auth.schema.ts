@@ -34,6 +34,8 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   email: emailSchema,
   password: strongPasswordSchema,
+  role: userRoleSchema,
+  teamId: z.string().min(1, 'Takım Kodu gereklidir').trim(),
   firstName: z
     .string()
     .min(2, 'Ad en az 2 karakter olmalıdır')

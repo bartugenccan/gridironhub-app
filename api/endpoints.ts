@@ -4,6 +4,8 @@ export const API_ENDPOINTS = {
     REGISTER: '/api/auth/register',
     FORGOT_PASSWORD: '/api/auth/forgot-password',
     ME: '/api/auth/me',
+    APPROVE_USER: '/api/auth/approve-user', // POST { userId }
+    GET_PENDING_USERS: '/api/auth/pending-users', // GET
   },
   USER: {
     UPDATE_PROFILE: '/api/user/profile/update',
@@ -44,6 +46,10 @@ export const API_ENDPOINTS = {
     CHECKIN: '/api/gym/checkin',
     HISTORY: '/api/gym/history',
     ALL_CHECKINS: '/api/gym/team-history',
+  },
+  TEAMS: {
+    GET_TEAMS: '/api/teams',
+    GET_TEAM_MEMBERS: '/api/teams/:id/members',
   },
 
   // Add other endpoint groups

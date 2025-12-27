@@ -4,7 +4,9 @@ import { RosterResponse } from '../types/roster';
 
 export const rosterService = {
   getRoster: async (): Promise<RosterResponse> => {
-    const response = await axiosInstance.get<RosterResponse>(API_ENDPOINTS.ROSTER.GET_ROSTER);
+    const response = await axiosInstance.get<RosterResponse>(API_ENDPOINTS.ROSTER.GET_ROSTER, {
+      params: { _t: new Date().getTime() },
+    });
     return response.data;
   },
 };
