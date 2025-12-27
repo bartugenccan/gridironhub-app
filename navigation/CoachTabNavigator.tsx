@@ -1,0 +1,47 @@
+import { CustomTabBar } from '@/components';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { CoachTabNavigatorParamList } from '@/types/navigation/stacks';
+import { TabRoutes, AppRoutes } from '@/types/navigation/routes';
+import { CoachDashboard } from '@/screens/CoachDashboard/CoachDashboard';
+import { CoachProfile } from '@/screens/CoachProfile';
+import { AddWorkout } from '@/screens/AddWorkout';
+import { CoachAnalytics } from '@/screens/CoachAnalytics';
+import { ScheduleScreen } from '@/screens/Schedule';
+import { WorkoutsDetail } from '@/screens/WorkoutsDetail';
+import { PRRequestsScreen } from '@/screens/CoachDashboard/PRRequestsScreen';
+import { CoachGymCheckinsScreen } from '@/screens/CoachGymCheckins/CoachGymCheckinsScreen';
+import { ApprovalDashboardScreen } from '@/screens/CoachDashboard/ApprovalDashboardScreen';
+
+import { TeamNavigator } from './TeamNavigator';
+import { WorkoutsNavigator } from './WorkoutsNavigator';
+import { createStackNavigator } from '@react-navigation/stack';
+
+const Tab = createBottomTabNavigator<CoachTabNavigatorParamList>();
+const Stack = createStackNavigator();
+
+
+const CoachDashboardStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name={AppRoutes.COACH_DASHBOARD} component={CoachDashboard} />
+    <Stack.Screen name={AppRoutes.PR_REQUESTS} component={PRRequestsScreen} />
+    <Stack.Screen name={AppRoutes.ADD_WORKOUT} component={AddWorkout} />
+    <Stack.Screen name={AppRoutes.COACH_ANALYTICS} component={CoachAnalytics} />
+    <Stack.Screen name={AppRoutes.SCHEDULE} component={ScheduleScreen} />
+    <Stack.Screen name={AppRoutes.WORKOUTS_DETAIL} component={WorkoutsDetail} />
+    <Stack.Screen name={AppRoutes.GYM_CHECKINS} component={CoachGymCheckinsScreen} />
+    <Stack.Screen name={AppRoutes.APPROVAL_DASHBOARD} component={ApprovalDashboardScreen} />
+  </Stack.Navigator>
+);
+
+export const CoachTabNavigator = () => {
+  return (
+    <Tab.Navigator
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{ headerShown: false }}>
+      <Tab.Screen name={TabRoutes.COACH_DASHBOARD} component={CoachDashboardStack} />
+      <Tab.Screen name={TabRoutes.COACH_ROSTER} component={TeamNavigator} />
+      <Tab.Screen name={TabRoutes.COACH_WORKOUTS} component={WorkoutsNavigator} />
+      <Tab.Screen name={TabRoutes.COACH_PROFILE} component={CoachProfile} />
+    </Tab.Navigator>
+  );
+};

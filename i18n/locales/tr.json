@@ -1,9 +1,9 @@
 {
   "tabs": {
-    "home": "Anasayfa",
-    "progress": "İlerleme",
-    "history": "Geçmiş",
-    "profile": "Profil"
+    "dashboardtab": "Panel",
+    "rostertab": "Takım",
+    "workoutstab": "Antrenmanlar",
+    "profiletab": "Profil"
   },
   "home": {
     "mainBox": {

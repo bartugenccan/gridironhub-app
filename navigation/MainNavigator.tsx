@@ -1,13 +1,17 @@
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { AppRoutes, MainStackParamList } from '@/types/navigation';
 import { TabNavigator } from './TabNavigator';
+import { CoachTabNavigator } from './CoachTabNavigator';
 import { ModalScreen, NonTabScreen } from '@/screens';
 import { useMemo } from 'react';
 import { Platform } from 'react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MainStack = createStackNavigator<MainStackParamList>();
 
 export const MainNavigator = () => {
+  const { user } = useAuth();
+
   const modalScreenOptions = useMemo(
     () => ({
       presentation: 'modal' as const,
@@ -32,7 +36,11 @@ export const MainNavigator = () => {
   return (
     <MainStack.Navigator screenOptions={screenOptions}>
       <MainStack.Group>
-        <MainStack.Screen name={AppRoutes.TABS} component={TabNavigator} />
+        {user?.role === 'coach' ? (
+          <MainStack.Screen name={AppRoutes.COACH_TABS} component={CoachTabNavigator} />
+        ) : (
+          <MainStack.Screen name={AppRoutes.TABS} component={TabNavigator} />
+        )}
         <MainStack.Screen name={AppRoutes.NON_TAB_SCREEN} component={NonTabScreen} />
       </MainStack.Group>
 

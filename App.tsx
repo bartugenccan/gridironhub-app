@@ -3,39 +3,48 @@ import 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppNavigator } from './navigation/AppNavigator';
-import { useFonts } from 'expo-font';
+import {
+  useFonts,
+  Montserrat_400Regular,
+  Montserrat_600SemiBold,
+  Montserrat_700Bold,
+} from '@expo-google-fonts/montserrat';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { AppState, AppStateStatus, Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 // i18n
 import './i18n';
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { preloadAssets } from './utils/preloadAssets';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function App() {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000,
-            refetchOnReconnect: true,
-            refetchOnWindowFocus: true,
-            retry: 1,
-          },
-          mutations: {
-            retry: 0,
-          },
-        },
-      })
-  );
-
   const [fontsLoaded, fontError] = useFonts({
-    'YuseiMagic-Regular': require('./assets/fonts/YuseiMagic-Regular.ttf'),
+    Montserrat_400Regular,
+    Montserrat_600SemiBold,
+    Montserrat_700Bold,
   });
+
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   useEffect(() => {
     if (fontError) {
@@ -43,41 +52,43 @@ export default function App() {
     }
   }, [fontError]);
 
+  // Preload assets
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      return;
-    }
-
-    const onAppStateChange = (status: AppStateStatus) => {
-      focusManager.setFocused(status === 'active');
-    };
-
-    const subscription = AppState.addEventListener('change', onAppStateChange);
-
-    return () => {
-      subscription.remove();
-    };
+    preloadAssets().then(() => setAssetsLoaded(true));
   }, []);
 
+  useEffect(() => {
+    const hideSplash = async () => {
+      if ((fontsLoaded || fontError) && assetsLoaded) {
+        await SplashScreen.hideAsync();
+      }
+    };
+    hideSplash();
+  }, [fontsLoaded, fontError, assetsLoaded]);
+
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && assetsLoaded) {
       await SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, assetsLoaded]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || !assetsLoaded) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={styles.container} onLayout={onLayoutRootView}>
-      <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
         <SafeAreaProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
+          <QueryClientProvider client={queryClient}>
+            <NavigationContainer>
+              <AuthProvider>
+                <AppNavigator />
+              </AuthProvider>
+            </NavigationContainer>
+          </QueryClientProvider>
         </SafeAreaProvider>
-      </QueryClientProvider>
+      </ThemeProvider>
     </GestureHandlerRootView>
   );
 }

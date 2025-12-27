@@ -1,22 +1,53 @@
 import { NavigatorScreenParams, RouteProp } from '@react-navigation/native';
 import { AppRoutes, TabRoutes } from './routes';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { WorkoutsDetail } from '@/api/types/workoutsDetail';
 
 // Auth Stack
 export type AuthStackParamList = {
+  [AppRoutes.WELCOME]: undefined;
   [AppRoutes.SIGN_UP]: undefined;
+  [AppRoutes.LOGIN]: undefined;
+  [AppRoutes.PENDING_APPROVAL]: undefined;
+  [AppRoutes.SET_PASSWORD]: undefined;
   // Add other auth routes as needed
 };
 
 // Tab Stack Param Lists
-export type HomeStackParamList = {
-  [AppRoutes.HOME]: undefined;
-  [AppRoutes.HOME_DETAIL]: undefined;
+export type DashboardStackParamList = {
+  [AppRoutes.DASHBOARD]: undefined;
+  [AppRoutes.PR_DETAIL]: { liftName: string };
+  [AppRoutes.ADD_PR]: {
+    record?: {
+      id: string;
+      liftName: string;
+      oneRepMax: number;
+    };
+    isEdit?: boolean;
+  };
+  [AppRoutes.SCHEDULE]: undefined;
+};
+
+export type RosterStackParamList = {
+  [AppRoutes.ROSTER]: undefined;
+  [AppRoutes.PLAYER_PROFILE]: { playerId: string };
+  [AppRoutes.COACH_DETAIL]: { coachId: string };
+};
+
+export type WorkoutsStackParamList = {
+  [AppRoutes.WORKOUTS]: undefined;
+  [AppRoutes.WORKOUTS_DETAIL]: { workoutId: string };
 };
 
 export type ProfileStackParamList = {
   [AppRoutes.PROFILE]: undefined;
   [AppRoutes.PROFILE_EDIT]: undefined;
+};
+
+// Old stacks (kept for compatibility)
+export type HomeStackParamList = {
+  [AppRoutes.HOME]: undefined;
+  [AppRoutes.HOME_DETAIL]: undefined;
 };
 
 export type SettingsStackParamList = {
@@ -26,14 +57,33 @@ export type SettingsStackParamList = {
 
 // Tab Navigator
 export type TabNavigatorParamList = {
-  [TabRoutes.HOME]: NavigatorScreenParams<HomeStackParamList>;
+  [TabRoutes.DASHBOARD]: NavigatorScreenParams<DashboardStackParamList>;
+  [TabRoutes.ROSTER]: NavigatorScreenParams<RosterStackParamList>;
+  [TabRoutes.WORKOUTS]: NavigatorScreenParams<WorkoutsStackParamList>;
   [TabRoutes.PROFILE]: NavigatorScreenParams<ProfileStackParamList>;
-  [TabRoutes.SETTINGS]: NavigatorScreenParams<SettingsStackParamList>;
+};
+
+export type CoachDashboardStackParamList = {
+  [AppRoutes.COACH_DASHBOARD]: undefined;
+  [AppRoutes.ADD_WORKOUT]: undefined;
+  [AppRoutes.COACH_ANALYTICS]: undefined;
+  [AppRoutes.SCHEDULE]: undefined;
+  [AppRoutes.PR_REQUESTS]: undefined;
+  [AppRoutes.GYM_CHECKINS]: undefined;
+  [AppRoutes.APPROVAL_DASHBOARD]: undefined;
+};
+
+export type CoachTabNavigatorParamList = {
+  [TabRoutes.COACH_DASHBOARD]: NavigatorScreenParams<CoachDashboardStackParamList>;
+  [TabRoutes.COACH_ROSTER]: NavigatorScreenParams<RosterStackParamList>; // Reusing Roster stack for now
+  [TabRoutes.COACH_WORKOUTS]: NavigatorScreenParams<WorkoutsStackParamList>; // Reusing Workouts stack
+  [TabRoutes.COACH_PROFILE]: undefined;
 };
 
 // Main Stack - Contains both TabNavigator and non-tab screens
 export type MainStackParamList = {
   [AppRoutes.TABS]: NavigatorScreenParams<TabNavigatorParamList>;
+  [AppRoutes.COACH_TABS]: NavigatorScreenParams<CoachTabNavigatorParamList>;
   [AppRoutes.NON_TAB_SCREEN]: undefined;
   [AppRoutes.MODAL_SCREEN]: undefined;
   // Add other non-tab screens here
@@ -49,9 +99,13 @@ export type RootStackParamList = {
 export type AppNavigationProp = NativeStackNavigationProp<
   RootStackParamList &
     MainStackParamList &
-    HomeStackParamList &
+    DashboardStackParamList &
+    RosterStackParamList &
+    WorkoutsStackParamList &
     ProfileStackParamList &
-    SettingsStackParamList
+    HomeStackParamList &
+    SettingsStackParamList &
+    AuthStackParamList
 >;
 export type AppRouteProp<T extends keyof RootStackParamList> = RouteProp<RootStackParamList, T>;
 

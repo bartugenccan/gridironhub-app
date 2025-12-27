@@ -1,49 +1,48 @@
-import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
-import type { AxiosError } from 'axios';
-
 import axiosInstance from '../client';
 import { API_ENDPOINTS } from '../endpoints';
-import type { ErrorResponse } from '../common';
 import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../types';
+import {
+  loginSchema,
+  registerSchema,
+  apiRegisterSchema,
+  forgotPasswordSchema,
+} from '../types/auth';
 
-const login = async (data: LoginRequest) => {
-  const response = await axiosInstance.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, data);
+const login = async (data: LoginRequest): Promise<LoginResponse> => {
+  // Validate request data before API call
+  const validatedData = loginSchema.parse(data);
+
+  const response = await axiosInstance.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, validatedData);
   return response.data;
 };
 
-const register = async (data: RegisterRequest) => {
-  const response = await axiosInstance.post<RegisterResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
-  return response.data;
+const register = async (data: RegisterRequest): Promise<void> => {
+  // Validate request data before API call
+  const validatedData = apiRegisterSchema.parse(data);
+
+  await axiosInstance.post(API_ENDPOINTS.AUTH.REGISTER, validatedData);
 };
 
-type LoginMutationOptions = UseMutationOptions<
-  LoginResponse,
-  AxiosError<ErrorResponse>,
-  LoginRequest
->;
+const forgotPassword = async (email: string): Promise<void> => {
+  // Validate email before API call
+  const validatedData = forgotPasswordSchema.parse({ email });
 
-type RegisterMutationOptions = UseMutationOptions<
-  RegisterResponse,
-  AxiosError<ErrorResponse>,
-  RegisterRequest
->;
+  await axiosInstance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, validatedData);
+};
+
+const validateToken = async (): Promise<LoginResponse> => {
+  const response = await axiosInstance.get<LoginResponse>(API_ENDPOINTS.AUTH.ME, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+    },
+  });
+  return response.data;
+};
 
 export const authService = {
   login,
-
   register,
-
-  // Other auth-related requests
+  forgotPassword,
+  validateToken,
 };
-
-export const useLoginMutation = (options?: LoginMutationOptions) =>
-  useMutation<LoginResponse, AxiosError<ErrorResponse>, LoginRequest>({
-    mutationFn: login,
-    ...(options ?? {}),
-  });
-
-export const useRegisterMutation = (options?: RegisterMutationOptions) =>
-  useMutation<RegisterResponse, AxiosError<ErrorResponse>, RegisterRequest>({
-    mutationFn: register,
-    ...(options ?? {}),
-  });

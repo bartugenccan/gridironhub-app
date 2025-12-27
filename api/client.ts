@@ -1,8 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import ENV from '@/config/env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const publicRoutes = ['/industries', '/auth/login', '/register'];
+const publicRoutes = ['/api/auth/login', '/api/auth/register'];
 
 const axiosInstance = axios.create({
   baseURL: ENV.apiUrl,
@@ -18,16 +18,19 @@ axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig
     const isPublicRoute = publicRoutes.some((route) => config.url?.includes(route));
 
     if (!isPublicRoute) {
-      const accessToken = await SecureStore.getItemAsync('accessToken');
+      const accessToken = await AsyncStorage.getItem('accessToken');
 
       if (accessToken) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${accessToken}`;
+      } else {
+        console.warn('⚠️ No access token found for protected route:', config.url);
       }
     }
 
     return config;
   } catch (error) {
+    console.error('Error in request interceptor:', error);
     return Promise.reject(error);
   }
 });
@@ -35,9 +38,13 @@ axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized
+      console.error('❌ 401 Unauthorized:', error.config?.url);
+      const token = await AsyncStorage.getItem('accessToken');
+      console.log('Token exists:', !!token);
+      console.log('Token preview:', token ? `${token.substring(0, 20)}...` : 'null');
+      // Handle unauthorized - could clear tokens and redirect to login
     }
     return Promise.reject(error);
   }

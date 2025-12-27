@@ -1,5 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { HomeScreen, HomeDetail } from '@/screens';
+import { HomeScreen, HomeDetail, Welcome } from '@/screens';
 import { AppRoutes, HomeStackParamList } from '@/types/navigation';
 
 const Stack = createStackNavigator<HomeStackParamList>();

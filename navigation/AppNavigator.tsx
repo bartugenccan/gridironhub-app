@@ -3,8 +3,9 @@ import { MainNavigator } from './MainNavigator';
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import { AppRoutes, RootStackParamList } from '@/types/navigation';
 import { useMemo, useState, useCallback } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, ActivityIndicator } from 'react-native';
 import { enableScreens } from 'react-native-screens';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Enable native screens optimization
 enableScreens();
@@ -12,7 +13,7 @@ enableScreens();
 const RootStack = createStackNavigator<RootStackParamList>();
 
 export const AppNavigator = () => {
-  const [isAuthenticated, _setIsAuthenticated] = useState<boolean>(true);
+  const { isAuthenticated, isLoading } = useAuth();
 
   const screenOptions = useMemo(
     () => ({
@@ -35,6 +36,14 @@ export const AppNavigator = () => {
     }
     return <RootStack.Screen name={AppRoutes.AUTH} component={AuthNavigator} />;
   }, [isAuthenticated]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return <RootStack.Navigator screenOptions={screenOptions}>{renderScreens()}</RootStack.Navigator>;
 };

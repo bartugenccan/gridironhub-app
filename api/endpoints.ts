@@ -1,13 +1,56 @@
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    FORGOT_PASSWORD: '/auth/forgot-password',
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    FORGOT_PASSWORD: '/api/auth/forgot-password',
+    ME: '/api/auth/me',
+    APPROVE_USER: '/api/auth/approve-user', // POST { userId }
+    GET_PENDING_USERS: '/api/auth/pending-users', // GET
   },
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/profile/update',
-    SETTINGS: '/user/settings',
+    UPDATE_PROFILE: '/api/user/profile/update',
+    GET_PROFILE: '/api/user/profile',
+    GET_TEAM: '/api/user/team',
   },
+  STATS: {
+    GET_PERSONAL_RECORDS: '/api/stats/personal-records',
+    UPDATE_PERSONAL_RECORD: '/api/stats/personal-records',
+    GET_PERSONAL_RECORD_HISTORY: '/api/stats/personal-records/history', // Appending /:liftName in service
+    DELETE_PERSONAL_RECORD: '/api/stats/personal-records', // Appending /:id in service
+    GET_PR_REQUESTS: '/api/stats/requests',
+    CREATE_PR_REQUEST: '/api/stats/requests',
+    UPDATE_PR_REQUEST_STATUS: '/api/stats/requests', // Appending /:id
+  },
+  ROSTER: {
+    GET_ROSTER: '/api/roster',
+  },
+  COACH: {
+    GET_PROFILE: '/api/profiles/coaches', // Appending /:id in service
+    UPDATE_PROFILE: '/api/profiles/coaches', // Appending /:id in service
+  },
+  PLAYER: {
+    GET_PROFILE: '/api/profiles/players', // Appending /:id in service
+    UPDATE_PROFILE: '/api/profiles/players', // Appending /:id in service
+  },
+  WORKOUTS: {
+    GET_WORKOUTS: '/api/workouts',
+    GET_WORKOUTS_DETAIL: '/api/workouts/:id', // Appending /:id in service
+    CREATE_WORKOUT: '/api/workouts',
+    UPDATE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
+    DELETE_WORKOUT: '/api/workouts/:id', // Appending /:id in service
+  },
+  NOTIFICATIONS: {
+    REGISTER_TOKEN: '/api/notifications/register-token',
+  },
+  GYM: {
+    CHECKIN: '/api/gym/checkin',
+    HISTORY: '/api/gym/history',
+    ALL_CHECKINS: '/api/gym/team-history',
+  },
+  TEAMS: {
+    GET_TEAMS: '/api/teams',
+    GET_TEAM_MEMBERS: '/api/teams/:id/members',
+  },
+
   // Add other endpoint groups
 } as const;
