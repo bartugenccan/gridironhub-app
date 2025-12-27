@@ -12,7 +12,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,11 +31,12 @@ type NavigationProp = StackNavigationProp<AuthStackParamList, AppRoutes.SIGN_UP>
 
 export const SignUp = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const firstNameRef = useRef('');
+  const lastNameRef = useRef('');
+  const emailRef = useRef('');
+  const passwordRef = useRef('');
+  const confirmPasswordRef = useRef('');
+
   const [teamId, setTeamId] = useState('');
   const [role, setRole] = useState<UserRole>('player');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -71,12 +72,13 @@ export const SignUp = () => {
     setErrors({});
 
     // Validate with Zod
+    // Validate with Zod
     const result = registerSchema.safeParse({
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
+      firstName: firstNameRef.current,
+      lastName: lastNameRef.current,
+      email: emailRef.current,
+      password: passwordRef.current,
+      confirmPassword: confirmPasswordRef.current,
       teamId,
       role,
     });
@@ -95,8 +97,17 @@ export const SignUp = () => {
     try {
       const { confirmPassword: _, ...registerData } = result.data;
       await register(registerData as any);
-      // Navigation to PendingApprovalScreen on success
-      navigation.navigate(AppRoutes.PENDING_APPROVAL);
+
+      Alert.alert(
+        'Registration Successful',
+        'Your account has been created successfully. You can login once your coach approves your request.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate(AppRoutes.LOGIN),
+          },
+        ]
+      );
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         const fieldErrors = getFieldErrors(error);
@@ -167,8 +178,8 @@ export const SignUp = () => {
                     <TextInput
                       placeholder="First Name"
                       placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                      value={firstName}
-                      onChangeText={setFirstName}
+                      defaultValue={firstNameRef.current}
+                      onChangeText={(text) => firstNameRef.current = text}
                       style={[styles.input, errors.firstName && styles.inputError]}
                     />
                   </View>
@@ -177,8 +188,8 @@ export const SignUp = () => {
                     <TextInput
                       placeholder="Last Name"
                       placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                      value={lastName}
-                      onChangeText={setLastName}
+                      defaultValue={lastNameRef.current}
+                      onChangeText={(text) => lastNameRef.current = text}
                       style={[styles.input, errors.lastName && styles.inputError]}
                     />
                   </View>
@@ -234,8 +245,8 @@ export const SignUp = () => {
                     placeholderTextColor="rgba(255, 255, 255, 0.5)"
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    value={email}
-                    onChangeText={setEmail}
+                    defaultValue={emailRef.current}
+                    onChangeText={(text) => emailRef.current = text}
                     style={[styles.input, errors.email && styles.inputError]}
                   />
                   {errors.email && <Text style={styles.fieldErrorText}>{errors.email}</Text>}
@@ -247,8 +258,8 @@ export const SignUp = () => {
                     placeholder="Create a password"
                     placeholderTextColor="rgba(255, 255, 255, 0.5)"
                     secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
+                    defaultValue={passwordRef.current}
+                    onChangeText={(text) => passwordRef.current = text}
                     style={[styles.input, errors.password && styles.inputError]}
                   />
                   {errors.password && <Text style={styles.fieldErrorText}>{errors.password}</Text>}
@@ -260,8 +271,8 @@ export const SignUp = () => {
                     placeholder="Confirm your password"
                     placeholderTextColor="rgba(255, 255, 255, 0.5)"
                     secureTextEntry
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
+                    defaultValue={confirmPasswordRef.current}
+                    onChangeText={(text) => confirmPasswordRef.current = text}
                     style={[styles.input, errors.confirmPassword && styles.inputError]}
                   />
                   {errors.confirmPassword && <Text style={styles.fieldErrorText}>{errors.confirmPassword}</Text>}

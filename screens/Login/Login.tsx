@@ -9,15 +9,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  TextInput,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TextInput } from 'react-native-gesture-handler';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { UserRole } from '@/api/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { Colors, DarkColors } from '@/constants/Colors';
+import { DarkColors } from '@/constants/Colors';
 import { loginSchema } from '@/validations/auth.schema';
 import { getFieldErrors } from '@/utils/validation';
 import { z } from 'zod';
@@ -25,8 +25,8 @@ import { useAppNavigation } from '@/hooks';
 import { AppRoutes } from '@/types';
 
 export const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const emailRef = useRef('');
+  const passwordRef = useRef('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -40,8 +40,8 @@ export const Login = () => {
 
     // Validate with Zod
     const result = loginSchema.safeParse({
-      email,
-      password,
+      email: emailRef.current,
+      password: passwordRef.current,
       role,
     });
 
@@ -111,9 +111,10 @@ export const Login = () => {
                     placeholderTextColor="rgba(255, 255, 255, 0.5)"
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    value={email}
+                    // value={email} // Removed controlled value
+                    defaultValue={emailRef.current}
                     onChangeText={(text) => {
-                      setEmail(text);
+                      emailRef.current = text;
                       // Clear email error when user types
                       if (errors.email) {
                         setErrors((prev) => ({ ...prev, email: '' }));
@@ -132,9 +133,10 @@ export const Login = () => {
                       placeholder="Enter your password"
                       placeholderTextColor="rgba(255, 255, 255, 0.5)"
                       secureTextEntry={!showPassword}
-                      value={password}
+                      // value={password} // Removed controlled value
+                      defaultValue={passwordRef.current}
                       onChangeText={(text) => {
-                        setPassword(text);
+                        passwordRef.current = text;
                         // Clear password error when user types
                         if (errors.password) {
                           setErrors((prev) => ({ ...prev, password: '' }));

@@ -32,6 +32,7 @@ export const ApprovalDashboardScreen = () => {
 
     const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
     const [refreshing, setRefreshing] = useState(false);
 
     const { user } = useAuth(); // Get current user (coach)
@@ -62,6 +63,7 @@ export const ApprovalDashboardScreen = () => {
 
     const handleApprove = async (userId: string, action: 'approve' | 'reject') => {
         try {
+            setActionLoading((prev) => ({ ...prev, [userId]: true }));
             await coachService.approveUser(userId, action);
             Alert.alert('Success', 'User ' + action + 'ed successfully');
             // Remove from list
@@ -69,6 +71,8 @@ export const ApprovalDashboardScreen = () => {
         } catch (error) {
             console.error('Error approving user:', error);
             Alert.alert('Error', 'Failed to ' + action + ' user');
+        } finally {
+            setActionLoading((prev) => ({ ...prev, [userId]: false }));
         }
     };
 
@@ -89,18 +93,26 @@ export const ApprovalDashboardScreen = () => {
                 </View>
             </View>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={styles.approveButton}
-                    onPress={() => handleApprove(item.userId, 'approve')}
-                >
-                    <Ionicons name="checkmark-circle-outline" size={24} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.rejectButton}
-                    onPress={() => handleApprove(item.userId, 'reject')}
-                >
-                    <Ionicons name="close-circle-outline" size={24} color="white" />
-                </TouchableOpacity>
+                {actionLoading[item.userId] ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                    <>
+                        <TouchableOpacity
+                            style={styles.approveButton}
+                            onPress={() => handleApprove(item.userId, 'approve')}
+                            disabled={actionLoading[item.userId]}
+                        >
+                            <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.rejectButton}
+                            onPress={() => handleApprove(item.userId, 'reject')}
+                            disabled={actionLoading[item.userId]}
+                        >
+                            <Ionicons name="close-circle-outline" size={24} color="white" />
+                        </TouchableOpacity>
+                    </>
+                )}
             </View>
 
         </View>
