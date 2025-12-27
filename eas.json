@@ -11,7 +11,10 @@
       "distribution": "internal"
     },
     "production": {
-      "distribution": "store"
+      "distribution": "store",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://gridironhub-backend.vercel.app"
+      }
     }
   },
   "submit": {
