@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  RefreshControl,
 } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { CustomText } from '@/components';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -21,7 +22,7 @@ import { usePersonalRecords, useDeletePersonalRecord } from '@/hooks/useStats';
 import { useCurrentPlayerProfile } from '@/hooks/usePlayer';
 import { useCheckIn, useCheckInHistory } from '@/hooks/useGym';
 import { formatDate } from '@/utils/formatDate';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DashboardStackParamList } from '@/types/navigation/stacks';
@@ -65,10 +66,11 @@ export const PlayerDashboard = () => {
   const { user } = useAuth();
   const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
 
-  const { data: records, isLoading, error, refetch } = usePersonalRecords();
+  const { data: records, isLoading, error, refetch: refetchRecords } = usePersonalRecords();
   const { mutate: deleteRecord } = useDeletePersonalRecord();
   const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn();
-  const { data: checkInHistory } = useCheckInHistory();
+  const { data: checkInHistory, refetch: refetchCheckIns } = useCheckInHistory();
+  const { data: playerProfile, isLoading: isLoadingProfile, refetch: refetchProfile } = useCurrentPlayerProfile();
 
   const hasCheckedInToday = useMemo(() => {
     if (!checkInHistory?.checkins) return false;
@@ -80,7 +82,22 @@ export const PlayerDashboard = () => {
     // Use startsWith for robust matching
     return checkInHistory.checkins.some(c => c.checkinDate.startsWith(today));
   }, [checkInHistory]);
-  const { data: playerProfile, isLoading: isLoadingProfile } = useCurrentPlayerProfile();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([refetchRecords(), refetchProfile(), refetchCheckIns()]);
+    setRefreshing(false);
+  }, [refetchRecords, refetchProfile, refetchCheckIns]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchRecords();
+      refetchProfile();
+      refetchCheckIns();
+    }, [refetchRecords, refetchProfile, refetchCheckIns])
+  );
 
   const personalRecords = React.useMemo(() => {
     if (!records) return [];
@@ -247,7 +264,7 @@ export const PlayerDashboard = () => {
           <CustomText style={styles.errorText}>
             {error instanceof Error ? error.message : 'Failed to load records'}
           </CustomText>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <TouchableOpacity style={styles.retryButton} onPress={() => refetchRecords()}>
             <CustomText style={styles.retryButtonText}>Retry</CustomText>
           </TouchableOpacity>
         </View>
@@ -276,7 +293,13 @@ export const PlayerDashboard = () => {
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+        }
+      >
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.logoContainer}>
