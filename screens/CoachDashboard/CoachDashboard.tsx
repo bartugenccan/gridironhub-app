@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,27 +21,35 @@ export const CoachDashboard = () => {
   const { colors } = useTheme();
   const styles = getStyles(colors);
   const navigation = useNavigation<CoachDashboardNavigationProp>();
-  const { data: pendingRequests } = usePendingPrRequests();
+  const { data: pendingRequests, refetch: refetchPandings } = usePendingPrRequests();
   const { mutate: updateRequestStatus } = useUpdatePrRequestStatus();
   const [playerCount, setPlayerCount] = React.useState<{ current: number; max: number }>({
     current: 0,
     max: 50,
   });
   const [selectedVideoUrl, setSelectedVideoUrl] = React.useState<string | null>(null);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchRoster = async () => {
+    try {
+      const roster = await rosterService.getRoster();
+      setPlayerCount({ current: roster.players.length, max: 50 });
+    } catch (error) {
+      console.error('Error fetching roster:', error);
+    }
+  };
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([fetchRoster(), refetchPandings()]);
+    setRefreshing(false);
+  }, [refetchPandings]);
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchRoster = async () => {
-        try {
-          const roster = await rosterService.getRoster();
-          setPlayerCount({ current: roster.players.length, max: 50 });
-        } catch (error) {
-          console.error('Error fetching roster:', error);
-        }
-      };
-
       fetchRoster();
-    }, [])
+      refetchPandings();
+    }, [refetchPandings])
   );
 
   const QuickActionButton = ({
@@ -72,7 +80,11 @@ export const CoachDashboard = () => {
         onClose={() => setSelectedVideoUrl(null)}
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.teamHeader}>
@@ -380,7 +392,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
     playerName: {
       fontSize: scale(16),
       fontWeight: '600',
-      color: '#111827',
+      color: '#fff',
     },
     playerDetail: {
       fontSize: scale(13),

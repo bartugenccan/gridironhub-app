@@ -7,9 +7,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  RefreshControl,
+  Modal,
 } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import { CustomText } from '@/components';
+import ConfettiCannon from 'react-native-confetti-cannon';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Swipeable } from 'react-native-gesture-handler';
 import { scale, verticalScale } from 'react-native-size-matters';
@@ -21,7 +24,7 @@ import { usePersonalRecords, useDeletePersonalRecord } from '@/hooks/useStats';
 import { useCurrentPlayerProfile } from '@/hooks/usePlayer';
 import { useCheckIn, useCheckInHistory } from '@/hooks/useGym';
 import { formatDate } from '@/utils/formatDate';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AppRoutes } from '@/types/navigation';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { DashboardStackParamList } from '@/types/navigation/stacks';
@@ -65,10 +68,11 @@ export const PlayerDashboard = () => {
   const { user } = useAuth();
   const navigation = useNavigation<StackNavigationProp<DashboardStackParamList>>();
 
-  const { data: records, isLoading, error, refetch } = usePersonalRecords();
+  const { data: records, isLoading, error, refetch: refetchRecords } = usePersonalRecords();
   const { mutate: deleteRecord } = useDeletePersonalRecord();
   const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn();
-  const { data: checkInHistory } = useCheckInHistory();
+  const { data: checkInHistory, refetch: refetchCheckIns } = useCheckInHistory();
+  const { data: playerProfile, isLoading: isLoadingProfile, refetch: refetchProfile } = useCurrentPlayerProfile();
 
   const hasCheckedInToday = useMemo(() => {
     if (!checkInHistory?.checkins) return false;
@@ -80,7 +84,48 @@ export const PlayerDashboard = () => {
     // Use startsWith for robust matching
     return checkInHistory.checkins.some(c => c.checkinDate.startsWith(today));
   }, [checkInHistory]);
-  const { data: playerProfile, isLoading: isLoadingProfile } = useCurrentPlayerProfile();
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const prevRecordsRef = useRef<string[]>([]);
+  const isFirstLoad = useRef(true);
+
+  // Check for new records (PR approvals)
+  useEffect(() => {
+    if (records) {
+      if (isFirstLoad.current) {
+        // Initial load, just store the IDs
+        prevRecordsRef.current = records.map(r => r.id);
+        isFirstLoad.current = false;
+      } else {
+        const currentIds = records.map(r => r.id);
+        const prevIds = prevRecordsRef.current;
+
+        // If current has more items, or items that weren't in previous
+        const hasNew = currentIds.some(id => !prevIds.includes(id));
+
+        if (hasNew) {
+          setShowCelebration(true);
+        }
+
+        prevRecordsRef.current = currentIds;
+      }
+    }
+  }, [records]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([refetchRecords(), refetchProfile(), refetchCheckIns()]);
+    setRefreshing(false);
+  }, [refetchRecords, refetchProfile, refetchCheckIns]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchRecords();
+      refetchProfile();
+      refetchCheckIns();
+    }, [refetchRecords, refetchProfile, refetchCheckIns])
+  );
 
   const personalRecords = React.useMemo(() => {
     if (!records) return [];
@@ -247,7 +292,7 @@ export const PlayerDashboard = () => {
           <CustomText style={styles.errorText}>
             {error instanceof Error ? error.message : 'Failed to load records'}
           </CustomText>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <TouchableOpacity style={styles.retryButton} onPress={() => refetchRecords()}>
             <CustomText style={styles.retryButtonText}>Retry</CustomText>
           </TouchableOpacity>
         </View>
@@ -276,7 +321,49 @@ export const PlayerDashboard = () => {
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showCelebration}
+        onRequestClose={() => setShowCelebration(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.celebrationCard}>
+            <MaterialCommunityIcons name="trophy" size={scale(50)} color="#FFD700" />
+            <CustomText style={styles.celebrationTitle}>New PR Approved!</CustomText>
+            <CustomText style={styles.celebrationMessage}>
+              Congratulations! Your new Personal Record has been approved by your coach.
+            </CustomText>
+            <TouchableOpacity
+              style={styles.celebrationButton}
+              onPress={() => setShowCelebration(false)}
+            >
+              <CustomText style={styles.celebrationButtonText}>Awesome!</CustomText>
+            </TouchableOpacity>
+          </View>
+          {showCelebration && (
+            <ConfettiCannon
+              count={200}
+              origin={{ x: -10, y: 0 }}
+              fadeOut={true}
+              fallSpeed={3000}
+            />
+          )}
+        </View>
+      </Modal>
+
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            progressViewOffset={verticalScale(50)}
+          />
+        }
+      >
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.logoContainer}>
@@ -294,12 +381,12 @@ export const PlayerDashboard = () => {
         {/* Player Info Section */}
         <View style={styles.playerInfoSection}>
           <View style={styles.playerHeaderRow}>
-            <View style={styles.playerImageContainer}>
+            {/*  <View style={styles.playerImageContainer}>
               <Image
                 source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }}
                 style={styles.playerImage}
               />
-            </View>
+            </View> */}
             <View style={styles.playerInfoContainer}>
               <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
               <CustomText style={styles.playerPosition}>
@@ -716,5 +803,58 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       fontSize: scale(12),
       fontFamily: Typography.fontFamily.semiBold,
       marginTop: verticalScale(4),
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: scale(20),
+    },
+    celebrationCard: {
+      backgroundColor: '#fff',
+      borderRadius: scale(20),
+      padding: scale(24),
+      alignItems: 'center',
+      width: '100%',
+      maxWidth: scale(320),
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.30,
+      shadowRadius: 4.65,
+      elevation: 8,
+    },
+    celebrationTitle: {
+      fontSize: scale(24),
+      fontFamily: 'BebasNeue_400Regular',
+      color: colors.primary,
+      marginTop: verticalScale(16),
+    },
+    celebrationMessage: {
+      fontSize: scale(16),
+      color: '#666',
+      textAlign: 'center',
+      marginTop: verticalScale(8),
+      marginBottom: verticalScale(24),
+      lineHeight: scale(22),
+    },
+    celebrationButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: scale(32),
+      paddingVertical: verticalScale(12),
+      borderRadius: scale(12),
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    celebrationButtonText: {
+      color: '#fff',
+      fontSize: scale(18),
+      fontFamily: 'BebasNeue_400Regular',
     },
   });

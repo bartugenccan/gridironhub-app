@@ -9,6 +9,7 @@ import {
   Montserrat_600SemiBold,
   Montserrat_700Bold,
 } from '@expo-google-fonts/montserrat';
+import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
@@ -27,8 +28,9 @@ Notifications.setNotificationHandler({
 
 // i18n
 import './i18n';
+import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { preloadAssets } from './utils/preloadAssets';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -37,11 +39,17 @@ const queryClient = new QueryClient();
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
+const ThemedStatusBar = () => {
+  const { theme } = useTheme();
+  return <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />;
+};
+
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
     Montserrat_400Regular,
     Montserrat_600SemiBold,
     Montserrat_700Bold,
+    BebasNeue_400Regular,
   });
 
   const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -79,6 +87,7 @@ export default function App() {
   return (
     <GestureHandlerRootView style={styles.container} onLayout={onLayoutRootView}>
       <ThemeProvider>
+        <ThemedStatusBar />
         <SafeAreaProvider>
           <QueryClientProvider client={queryClient}>
             <NavigationContainer>

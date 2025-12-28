@@ -51,7 +51,6 @@ export const useNotifications = () => {
             projectId,
           })
         ).data;
-        console.log('Expo Push Token:', token);
       } catch (e) {
         console.error('Error getting push token:', e);
       }

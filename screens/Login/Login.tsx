@@ -94,10 +94,6 @@ export const Login = () => {
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >
-              <View style={styles.appHeader}>
-                <Text style={styles.appTitle}>Gridiron Hub</Text>
-              </View>
-
               <View style={styles.header}>
                 <Text style={styles.title}>Welcome Back</Text>
                 <Text style={styles.subtitle}>Sign in to continue</Text>

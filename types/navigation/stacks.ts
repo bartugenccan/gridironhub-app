@@ -5,6 +5,7 @@ import { WorkoutsDetail } from '@/api/types/workoutsDetail';
 
 // Auth Stack
 export type AuthStackParamList = {
+  [AppRoutes.ONBOARDING]: undefined;
   [AppRoutes.WELCOME]: undefined;
   [AppRoutes.SIGN_UP]: undefined;
   [AppRoutes.LOGIN]: undefined;
