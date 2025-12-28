@@ -25,6 +25,8 @@ interface AuthContextType {
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (user: AuthUser) => void;
+  hasSeenOnboarding: boolean;
+  completeOnboarding: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,7 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN: 'accessToken',
   REFRESH_TOKEN: 'refreshToken',
   USER: 'userData',
+  ONBOARDING_COMPLETED: 'onboardingCompleted',
 } as const;
 
 interface AuthProviderProps {
@@ -44,6 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const { registerForPushNotificationsAsync } = useNotifications();
 
   const registerToken = async () => {
@@ -66,6 +70,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const storedToken = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
       const storedUser = await AsyncStorage.getItem(STORAGE_KEYS.USER);
+      const onboardingStatus = await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
+
+      if (onboardingStatus === 'true') {
+        setHasSeenOnboarding(true);
+      }
 
       if (storedToken && storedUser) {
         // First, set the stored user and token to avoid flash
@@ -173,6 +182,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
   };
 
+  const completeOnboarding = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
+      setHasSeenOnboarding(true);
+    } catch (error) {
+      console.error('Error saving onboarding status:', error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
@@ -182,6 +200,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateUser,
+    hasSeenOnboarding,
+    completeOnboarding,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

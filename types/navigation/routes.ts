@@ -10,6 +10,7 @@ export enum AppRoutes {
   MODAL_SCREEN = 'ModalScreen',
 
   // Auth Stack
+  ONBOARDING = 'Onboarding',
   WELCOME = 'Welcome',
   SIGN_UP = 'SignUp',
   LOGIN = 'Login',

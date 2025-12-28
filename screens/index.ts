@@ -15,6 +15,7 @@ import { CoachDashboard } from './CoachDashboard';
 import { CoachAnalytics } from './CoachAnalytics';
 import { ScheduleScreen } from './Schedule';
 import { CoachDetail } from './CoachDetail';
+import { Onboarding } from './Onboarding/Onboarding';
 
 export {
   NonTabScreen,
@@ -34,4 +35,5 @@ export {
   CoachAnalytics,
   ScheduleScreen,
   CoachDetail,
+  Onboarding,
 };
