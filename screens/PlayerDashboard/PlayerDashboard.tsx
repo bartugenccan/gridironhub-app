@@ -317,12 +317,12 @@ export const PlayerDashboard = () => {
         {/* Player Info Section */}
         <View style={styles.playerInfoSection}>
           <View style={styles.playerHeaderRow}>
-            <View style={styles.playerImageContainer}>
+            {/*  <View style={styles.playerImageContainer}>
               <Image
                 source={{ uri: 'https://picsum.photos/seed/picsum/200/300' }}
                 style={styles.playerImage}
               />
-            </View>
+            </View> */}
             <View style={styles.playerInfoContainer}>
               <CustomText style={styles.playerName}>{user?.fullName || 'Player Name'}</CustomText>
               <CustomText style={styles.playerPosition}>
