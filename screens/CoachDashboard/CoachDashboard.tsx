@@ -392,7 +392,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
     playerName: {
       fontSize: scale(16),
       fontWeight: '600',
-      color: '#111827',
+      color: '#fff',
     },
     playerDetail: {
       fontSize: scale(13),
