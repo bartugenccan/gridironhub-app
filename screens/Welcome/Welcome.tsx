@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: '#fff',
-    fontSize: scale(32),
-    fontWeight: 'bold',
+    fontSize: scale(42),
+    fontFamily: 'BebasNeue_400Regular',
   },
   subHeaderContainer: {
     flex: 1,
@@ -74,12 +74,15 @@ const styles = StyleSheet.create({
   },
   subHeaderText: {
     color: '#fff',
-    fontSize: scale(34),
-    fontWeight: 'bold',
+    fontSize: scale(36),
+    fontFamily: 'BebasNeue_400Regular',
+    textAlign: 'center',
   },
   subText: {
     color: '#fff',
     fontSize: scale(16),
+    fontFamily: 'BebasNeue_400Regular',
+    textAlign: 'center',
   },
   buttonContainer: {
     justifyContent: 'center',
