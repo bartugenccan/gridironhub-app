@@ -8,9 +8,11 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Modal,
 } from 'react-native';
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import { CustomText } from '@/components';
+import ConfettiCannon from 'react-native-confetti-cannon';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Swipeable } from 'react-native-gesture-handler';
 import { scale, verticalScale } from 'react-native-size-matters';
@@ -84,6 +86,32 @@ export const PlayerDashboard = () => {
   }, [checkInHistory]);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const prevRecordsRef = useRef<string[]>([]);
+  const isFirstLoad = useRef(true);
+
+  // Check for new records (PR approvals)
+  useEffect(() => {
+    if (records) {
+      if (isFirstLoad.current) {
+        // Initial load, just store the IDs
+        prevRecordsRef.current = records.map(r => r.id);
+        isFirstLoad.current = false;
+      } else {
+        const currentIds = records.map(r => r.id);
+        const prevIds = prevRecordsRef.current;
+
+        // If current has more items, or items that weren't in previous
+        const hasNew = currentIds.some(id => !prevIds.includes(id));
+
+        if (hasNew) {
+          setShowCelebration(true);
+        }
+
+        prevRecordsRef.current = currentIds;
+      }
+    }
+  }, [records]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -293,6 +321,37 @@ export const PlayerDashboard = () => {
 
   return (
     <View style={styles.mainContainer}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showCelebration}
+        onRequestClose={() => setShowCelebration(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.celebrationCard}>
+            <MaterialCommunityIcons name="trophy" size={scale(50)} color="#FFD700" />
+            <CustomText style={styles.celebrationTitle}>New PR Approved!</CustomText>
+            <CustomText style={styles.celebrationMessage}>
+              Congratulations! Your new Personal Record has been approved by your coach.
+            </CustomText>
+            <TouchableOpacity
+              style={styles.celebrationButton}
+              onPress={() => setShowCelebration(false)}
+            >
+              <CustomText style={styles.celebrationButtonText}>Awesome!</CustomText>
+            </TouchableOpacity>
+          </View>
+          {showCelebration && (
+            <ConfettiCannon
+              count={200}
+              origin={{ x: -10, y: 0 }}
+              fadeOut={true}
+              fallSpeed={3000}
+            />
+          )}
+        </View>
+      </Modal>
+
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -744,5 +803,58 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       fontSize: scale(12),
       fontFamily: Typography.fontFamily.semiBold,
       marginTop: verticalScale(4),
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: scale(20),
+    },
+    celebrationCard: {
+      backgroundColor: '#fff',
+      borderRadius: scale(20),
+      padding: scale(24),
+      alignItems: 'center',
+      width: '100%',
+      maxWidth: scale(320),
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.30,
+      shadowRadius: 4.65,
+      elevation: 8,
+    },
+    celebrationTitle: {
+      fontSize: scale(24),
+      fontFamily: 'BebasNeue_400Regular',
+      color: colors.primary,
+      marginTop: verticalScale(16),
+    },
+    celebrationMessage: {
+      fontSize: scale(16),
+      color: '#666',
+      textAlign: 'center',
+      marginTop: verticalScale(8),
+      marginBottom: verticalScale(24),
+      lineHeight: scale(22),
+    },
+    celebrationButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: scale(32),
+      paddingVertical: verticalScale(12),
+      borderRadius: scale(12),
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    celebrationButtonText: {
+      color: '#fff',
+      fontSize: scale(18),
+      fontFamily: 'BebasNeue_400Regular',
     },
   });
