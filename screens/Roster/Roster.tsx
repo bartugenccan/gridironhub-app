@@ -30,6 +30,10 @@ export const Roster = () => {
   useFocusEffect(
     React.useCallback(() => {
       fetchRoster();
+
+      return () => {
+        setSearchQuery('');
+      };
     }, [])
   );
 
