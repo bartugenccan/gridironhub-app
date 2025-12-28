@@ -13,6 +13,7 @@ import { VideoPlayerModal } from '@/components';
 import { Linking, Alert } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { rosterService } from '@/api';
+import { Colors } from '@/constants/Colors';
 
 type CoachDashboardNavigationProp = StackNavigationProp<CoachDashboardStackParamList>;
 
@@ -385,14 +386,14 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       width: scale(40),
       height: scale(40),
       borderRadius: scale(20),
-      backgroundColor: '#1F2937',
+      backgroundColor: colors.background,
       justifyContent: 'center',
       alignItems: 'center',
     },
     playerName: {
       fontSize: scale(16),
       fontWeight: '600',
-      color: '#fff',
+      color: colors.text,
     },
     playerDetail: {
       fontSize: scale(13),

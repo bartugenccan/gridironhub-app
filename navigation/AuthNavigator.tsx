@@ -14,7 +14,7 @@ export const AuthNavigator = () => {
   return (
     <Auth.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName={hasSeenOnboarding ? AppRoutes.ONBOARDING : AppRoutes.ONBOARDING}
+      initialRouteName={hasSeenOnboarding ? AppRoutes.WELCOME : AppRoutes.ONBOARDING}
     >
       <Auth.Screen name={AppRoutes.ONBOARDING} component={Onboarding} />
       <Auth.Screen name={AppRoutes.WELCOME} component={Welcome} />
