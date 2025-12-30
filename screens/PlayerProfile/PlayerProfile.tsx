@@ -15,6 +15,7 @@ import { usePlayerProfile } from '@/hooks/usePlayer';
 import { RosterStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
 import { scale, verticalScale } from 'react-native-size-matters';
+import { LoadingAnimation } from '@/components';
 
 type PlayerProfileRouteProp = RouteProp<RosterStackParamList, AppRoutes.PLAYER_PROFILE>;
 
@@ -31,8 +32,7 @@ export const PlayerProfile = () => {
         return (
             <SafeAreaView style={styles.container}>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={colors.primary} />
-                    <Text style={styles.loadingText}>Loading player profile...</Text>
+                    <LoadingAnimation />
                 </View>
             </SafeAreaView>
         );
