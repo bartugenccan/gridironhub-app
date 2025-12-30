@@ -21,6 +21,8 @@ import { AppRoutes } from '@/types/navigation/routes';
 import { useCreatePrRequest } from '@/hooks/useStats';
 import { useVideoPicker } from '@/hooks/useVideoPicker';
 import { personalRecordSchema } from '@/validations/stats.schema';
+import { supabase } from '@/utils/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LIFT_OPTIONS = [
   'Bench Press',
@@ -39,14 +41,16 @@ export const AddPRScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<AddPRScreenRouteProp>();
   const { isEdit, record } = route.params || {};
+  const { user } = useAuth();
 
   const [liftName, setLiftName] = useState(record?.liftName || '');
   const [oneRepMax, setOneRepMax] = useState(record?.oneRepMax?.toString() || '');
   const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutate: createRequest, isPending: isLoading } = useCreatePrRequest();
   const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!liftName) {
       Alert.alert('Error', 'Please select a lift');
       return;
@@ -69,36 +73,65 @@ export const AddPRScreen = () => {
       }
     }
 
-    // Create FormData
-    const formData = new FormData();
-    formData.append('liftName', liftName);
-    formData.append('value', oneRepMax);
-    if (isEdit && record?.id) {
-      formData.append('strengthLogId', record.id);
-    }
+    try {
+      if (!video) throw new Error('No video selected');
 
-    // Add video file
-    const videoFile = {
-      uri: video.uri,
-      type: video.type || 'video/mp4',
-      name: video.name || 'video.mp4',
-    } as any;
+      setIsSubmitting(true);
+      // 1. Upload Video to Supabase Storage
+      const fileExt = video.uri.split('.').pop();
+      const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
+      const videoAsset = {
+        uri: video.uri,
+        name: fileName,
+        type: video.type || `video/${fileExt}`,
+      } as any;
 
-    formData.append('video', videoFile);
+      const formData = new FormData();
+      formData.append('file', videoAsset);
 
-    createRequest(
-      formData as any, // Cast to any to avoid type issues with FormData in React Native
-      {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('pr-videos')
+        .upload(fileName, formData, {
+          contentType: video.type || `video/${fileExt}`,
+        });
+
+      if (uploadError) {
+        throw new Error('Video upload failed: ' + uploadError.message);
+      }
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('pr-videos')
+        .getPublicUrl(fileName);
+
+      // 3. Send to Backend
+      const requestData: any = {
+        liftName,
+        value: Number(oneRepMax),
+        videoUrl: publicUrl,
+      };
+
+      if (isEdit && record?.id) {
+        requestData.strengthLogId = record.id;
+      }
+
+      createRequest(requestData, {
         onSuccess: () => {
           Alert.alert('Success', 'PR Request sent to coach for approval', [
             { text: 'OK', onPress: () => navigation.goBack() },
           ]);
         },
         onError: (error: any) => {
+          setIsSubmitting(false);
           Alert.alert('Error', error.message || 'Failed to submit PR Request');
         },
-      }
-    );
+      });
+
+    } catch (error: any) {
+      setIsSubmitting(false);
+      console.error('Error submitting PR:', error);
+      Alert.alert('Error', error.message || 'An error occurred');
+    }
   };
 
   return (
@@ -189,10 +222,10 @@ export const AddPRScreen = () => {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.saveButton, isLoading && styles.saveButtonDisabled]}
+          style={[styles.saveButton, (isLoading || isSubmitting) && styles.saveButtonDisabled]}
           onPress={handleSave}
-          disabled={isLoading}>
-          {isLoading ? (
+          disabled={isLoading || isSubmitting}>
+          {isLoading || isSubmitting ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <CustomText style={styles.saveButtonText}>Submit for Approval</CustomText>
