@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { scale, verticalScale } from 'react-native-size-matters';
 
-import { CustomText, LoadingAnimation } from '@/components';
+import { CustomText } from '@/components';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { rosterService } from '@/api/services/roster.service';
@@ -180,7 +180,7 @@ export const CoachAnalytics = () => {
     if (loading) {
       return (
         <View style={styles.centeredContainer}>
-          <LoadingAnimation size={scale(48)} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       );
     }
