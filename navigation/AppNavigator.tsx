@@ -6,6 +6,7 @@ import { useMemo, useState, useCallback } from 'react';
 import { Platform, View, ActivityIndicator } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import { useAuth } from '@/contexts/AuthContext';
+import { LoadingAnimation } from '@/components';
 
 // Enable native screens optimization
 enableScreens();
@@ -40,7 +41,7 @@ export const AppNavigator = () => {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <LoadingAnimation />
       </View>
     );
   }

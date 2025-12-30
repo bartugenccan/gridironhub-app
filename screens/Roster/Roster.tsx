@@ -20,6 +20,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RosterStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
 import { supabase } from '@/utils/supabase';
+import { LoadingAnimation } from '@/components';
+import { scale } from 'react-native-size-matters';
 
 export const Roster = () => {
   const { colors } = useTheme();
@@ -155,7 +157,7 @@ export const Roster = () => {
         }
       >
         {loading && !refreshing ? (
-          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+          <LoadingAnimation />
         ) : (
           <>
             {/* Coaches Section */}
