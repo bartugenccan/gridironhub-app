@@ -169,10 +169,10 @@ export const AddPRScreen = () => {
           <TextInput
             style={styles.input}
             value={oneRepMax}
-            onChangeText={setOneRepMax}
+            onChangeText={(text) => setOneRepMax(text.replace(/[^0-9]/g, ''))}
             placeholder="Enter weight/time"
             placeholderTextColor={colors.textSecondary}
-            keyboardType="numeric"
+            keyboardType="number-pad"
           />
         </View>
 
