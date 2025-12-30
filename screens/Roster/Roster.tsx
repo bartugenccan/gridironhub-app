@@ -6,8 +6,9 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
@@ -18,6 +19,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RosterStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
+import { supabase } from '@/utils/supabase';
 
 export const Roster = () => {
   const { colors } = useTheme();
@@ -25,10 +27,12 @@ export const Roster = () => {
   const navigation = useNavigation<StackNavigationProp<RosterStackParamList>>();
   const [roster, setRoster] = useState<RosterResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Fetch roster when screen comes into focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchRoster();
 
       return () => {
@@ -37,17 +41,51 @@ export const Roster = () => {
     }, [])
   );
 
+  // Subscribe to realtime changes on team_members table
+  useEffect(() => {
+    const channel = supabase
+      .channel('roster-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'team_members',
+        },
+        (payload) => {
+          console.log('Roster change detected:', payload);
+          // Refetch roster when any change occurs
+          fetchRoster();
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const fetchRoster = async () => {
     try {
-      setLoading(true);
+      if (!refreshing) {
+        setLoading(true);
+      }
       const data = await rosterService.getRoster();
       setRoster(data);
     } catch (error) {
       console.error('Failed to fetch roster:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  // Pull-to-refresh handler
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchRoster();
+  }, []);
 
   const filteredCoaches = roster?.coaches.filter((coach) =>
     coach.fullName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,7 +96,7 @@ export const Roster = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.headerContainer}>
         <Text style={styles.text}>Team Roster</Text>
       </View>
@@ -79,8 +117,17 @@ export const Roster = () => {
         />
       </View>
 
-      <ScrollView style={styles.contentContainer}>
-        {loading ? (
+      <ScrollView
+        style={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
+      >
+        {loading && !refreshing ? (
           <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
         ) : (
           <>
