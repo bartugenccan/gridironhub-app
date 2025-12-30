@@ -475,12 +475,12 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       color: colors.primary,
     },
     playerName: {
-      fontSize: scale(16),
+      fontSize: scale(12),
       fontWeight: '600',
       color: colors.text,
     },
     playerMeta: {
-      fontSize: scale(12),
+      fontSize: scale(10),
       color: colors.textSecondary,
       marginTop: verticalScale(2),
     },
