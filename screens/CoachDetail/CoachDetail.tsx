@@ -9,7 +9,6 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { Typography } from '@/constants/Typography';
-import { LoadingAnimation } from '@/components';
 type CoachProfileRouteProp = RouteProp<RosterStackParamList, AppRoutes.COACH_DETAIL>;
 
 export const CoachDetail = () => {
@@ -23,7 +22,7 @@ export const CoachDetail = () => {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
-          <LoadingAnimation />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
