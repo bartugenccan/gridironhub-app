@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,6 +26,7 @@ export const Roster = () => {
   const navigation = useNavigation<StackNavigationProp<RosterStackParamList>>();
   const [roster, setRoster] = useState<RosterResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useFocusEffect(
@@ -37,16 +39,24 @@ export const Roster = () => {
     }, [])
   );
 
-  const fetchRoster = async () => {
+  const fetchRoster = async (isManualRefresh = false) => {
     try {
-      setLoading(true);
+      if (!isManualRefresh && !roster) {
+        setLoading(true);
+      }
       const data = await rosterService.getRoster();
       setRoster(data);
     } catch (error) {
       console.error('Failed to fetch roster:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchRoster(true);
   };
 
   const filteredCoaches = roster?.coaches.filter((coach) =>
@@ -79,7 +89,11 @@ export const Roster = () => {
         />
       </View>
 
-      <ScrollView style={styles.contentContainer}>
+      <ScrollView
+        style={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
+        }>
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
         ) : (

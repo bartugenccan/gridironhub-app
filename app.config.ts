@@ -18,7 +18,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.arionapps.gridironhubapp',
-    buildNumber: '4',
+    buildNumber: '8',
   },
   android: {
     adaptiveIcon: {
