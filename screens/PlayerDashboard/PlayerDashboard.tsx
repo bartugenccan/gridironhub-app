@@ -87,28 +87,38 @@ export const PlayerDashboard = () => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const prevRecordsRef = useRef<string[]>([]);
+  const prevWeightsRef = useRef<Record<string, number>>({});
   const isFirstLoad = useRef(true);
 
-  // Check for new records (PR approvals)
   useEffect(() => {
     if (records) {
       if (isFirstLoad.current) {
-        // Initial load, just store the IDs
-        prevRecordsRef.current = records.map(r => r.id);
+        // Initial load, store current weights for each exercise
+        const weights: Record<string, number> = {};
+        records.forEach(r => {
+          weights[r.liftName] = r.oneRepMax;
+        });
+        prevWeightsRef.current = weights;
         isFirstLoad.current = false;
       } else {
-        const currentIds = records.map(r => r.id);
-        const prevIds = prevRecordsRef.current;
+        // Check for genuine improvements or new exercises
+        const hasImproved = records.some(r => {
+          const prevWeight = prevWeightsRef.current[r.liftName];
+          // Trigger if it's a new exercise (prevWeight is undefined)
+          // OR if the weight has actually increased
+          return prevWeight === undefined || r.oneRepMax > prevWeight;
+        });
 
-        // If current has more items, or items that weren't in previous
-        const hasNew = currentIds.some(id => !prevIds.includes(id));
-
-        if (hasNew) {
+        if (hasImproved) {
           setShowCelebration(true);
         }
 
-        prevRecordsRef.current = currentIds;
+        // Update stored weights for next comparison
+        const newWeights: Record<string, number> = {};
+        records.forEach(r => {
+          newWeights[r.liftName] = r.oneRepMax;
+        });
+        prevWeightsRef.current = newWeights;
       }
     }
   }, [records]);
