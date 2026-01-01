@@ -6,23 +6,36 @@ import { Image } from 'react-native';
  * Call this function when the app starts
  */
 export const preloadAssets = async (): Promise<void> => {
-  try {
-    const imageAssets = [
-      require('@/assets/images/login.png'),
-      require('@/assets/images/sakarya-logo.png'),
-      require('@/assets/images/icon.png'),
-      require('@/assets/images/splash.png'),
-      require('@/assets/images/welcome.png'),
-    ];
+  const PRELOAD_TIMEOUT = 5000; // 5 seconds timeout
 
-    const cacheImages = imageAssets.map((image) => {
-      // Use expo-asset to download/cache local assets
-      return Asset.fromModule(image).downloadAsync();
-    });
+  const preloadPromise = (async () => {
+    try {
+      const imageAssets = [
+        require('@/assets/images/login.png'),
+        require('@/assets/images/sakarya-logo.png'),
+        require('@/assets/images/icon.png'),
+        require('@/assets/images/splash.png'),
+        require('@/assets/images/welcome.png'),
+      ];
 
-    await Promise.all(cacheImages);
-    console.log('✅ All assets preloaded successfully');
-  } catch (error) {
-    console.warn('⚠️ Failed to preload some assets:', error);
-  }
+      const cacheImages = imageAssets.map((image) => {
+        return Asset.fromModule(image).downloadAsync();
+      });
+
+      await Promise.all(cacheImages);
+      console.log('✅ All assets preloaded successfully');
+    } catch (error) {
+      console.warn('⚠️ Failed to preload some assets:', error);
+      // We don't rethrow here to allow the app to boot even if some assets fail
+    }
+  })();
+
+  const timeoutPromise = new Promise<void>((resolve) => {
+    setTimeout(() => {
+      console.warn('🕒 Asset preloading timed out after', PRELOAD_TIMEOUT, 'ms');
+      resolve();
+    }, PRELOAD_TIMEOUT);
+  });
+
+  return Promise.race([preloadPromise, timeoutPromise]);
 };

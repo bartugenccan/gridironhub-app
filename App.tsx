@@ -60,9 +60,37 @@ export default function App() {
     }
   }, [fontError]);
 
-  // Preload assets
+  // Preload assets with safety timeout
   useEffect(() => {
-    preloadAssets().then(() => setAssetsLoaded(true));
+    let isMounted = true;
+    const SAFETY_TIMEOUT = 7000; // 7 seconds safety timeout
+
+    const timeoutId = setTimeout(() => {
+      if (isMounted && !assetsLoaded) {
+        console.warn('⚠️ Safety timeout reached: Forcing assetsLoaded to true');
+        setAssetsLoaded(true);
+      }
+    }, SAFETY_TIMEOUT);
+
+    preloadAssets()
+      .then(() => {
+        if (isMounted) {
+          console.log('📦 Assets loaded status set to true');
+          setAssetsLoaded(true);
+        }
+      })
+      .catch((err) => {
+        console.error('❌ Error in preloadAssets:', err);
+        if (isMounted) setAssetsLoaded(true); // Still proceed
+      })
+      .finally(() => {
+        clearTimeout(timeoutId);
+      });
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
