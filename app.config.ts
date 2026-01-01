@@ -8,9 +8,9 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   userInterfaceStyle: 'light',
-  newArchEnabled: true,
+  newArchEnabled: false,
   splash: {
-    image: './assets/images/splash.png',
+    image: './assets/images/icon.png',
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
@@ -35,7 +35,6 @@ const config: ExpoConfig = {
     tsconfigPaths: true,
   },
   plugins: [
-    'expo-splash-screen',
     'expo-secure-store',
     [
       'expo-image-picker',
@@ -47,6 +46,7 @@ const config: ExpoConfig = {
     'expo-video',
     'expo-asset',
   ],
+
   extra: {
     eas: {
       projectId: 'fed09264-0585-4b29-98d1-be32ec2dae04',
