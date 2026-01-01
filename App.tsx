@@ -13,7 +13,6 @@ import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
-import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -36,8 +35,6 @@ import { preloadAssets } from './utils/preloadAssets';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();
-
-SplashScreen.preventAutoHideAsync().catch(() => null);
 
 const ThemedStatusBar = () => {
   const { theme } = useTheme();
@@ -93,27 +90,13 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const hideSplash = async () => {
-      if ((fontsLoaded || fontError) && assetsLoaded) {
-        await SplashScreen.hideAsync();
-      }
-    };
-    hideSplash();
-  }, [fontsLoaded, fontError, assetsLoaded]);
-
-  const onLayoutRootView = useCallback(async () => {
-    if ((fontsLoaded || fontError) && assetsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError, assetsLoaded]);
 
   if (!fontsLoaded || !assetsLoaded) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView style={styles.container} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={styles.container}>
       <ThemeProvider>
         <ThemedStatusBar />
         <SafeAreaProvider>
