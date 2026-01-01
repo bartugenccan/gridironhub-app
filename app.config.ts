@@ -8,9 +8,9 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   userInterfaceStyle: 'light',
-  newArchEnabled: false,
+  newArchEnabled: true,
   splash: {
-    image: './assets/images/icon.png',
+    image: './assets/images/splash.png',
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
@@ -18,7 +18,7 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.arionapps.gridironhubapp',
-    buildNumber: '9',
+    buildNumber: '11',
   },
   android: {
     adaptiveIcon: {
@@ -35,6 +35,7 @@ const config: ExpoConfig = {
     tsconfigPaths: true,
   },
   plugins: [
+    'expo-splash-screen',
     'expo-secure-store',
     [
       'expo-image-picker',
