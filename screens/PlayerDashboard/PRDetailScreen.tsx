@@ -27,6 +27,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { VideoPreview } from '@/components';
 import { useVideoPicker } from '@/hooks/useVideoPicker';
 import { personalRecordSchema } from '@/validations/stats.schema';
+import { supabase } from '@/utils/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 type PRDetailScreenRouteProp = RouteProp<DashboardStackParamList, typeof AppRoutes.PR_DETAIL>;
 
@@ -41,9 +43,11 @@ export const PRDetailScreen = () => {
     const { data: historyData, isLoading } = usePersonalRecordHistory(liftName);
     const { mutate: createRequest, isPending: isSubmitting } = useCreatePrRequest();
     const { mutate: deleteRecord } = useDeletePersonalRecord();
+    const { user } = useAuth();
 
     const [newMax, setNewMax] = useState('');
     const [notes, setNotes] = useState('');
+    const [isUploading, setIsUploading] = useState(false);
     const { video, isLoading: isVideoLoading, pickVideo, clearVideo } = useVideoPicker();
 
     const history = React.useMemo(() => {
@@ -71,7 +75,7 @@ export const PRDetailScreen = () => {
         );
     };
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         if (!newMax) {
             Alert.alert('Error', 'Please enter a new max weight');
             return;
@@ -89,40 +93,72 @@ export const PRDetailScreen = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('liftName', liftName);
-        formData.append('value', newMax);
+        try {
+            setIsUploading(true);
 
-        // Add video file
-        const videoFile = {
-            uri: video.uri,
-            type: video.type || 'video/mp4',
-            name: video.name || 'video.mp4',
-        } as any;
+            // 1. Upload Video to Supabase Storage
+            const fileExt = video.uri.split('.').pop();
+            const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
+            const videoAsset = {
+                uri: video.uri,
+                name: fileName,
+                type: video.type || `video/${fileExt}`,
+            } as any;
 
-        formData.append('video', videoFile);
+            const formData = new FormData();
+            formData.append('file', videoAsset);
 
-        createRequest(
-            formData as any,
-            {
-                onSuccess: () => {
-                    Alert.alert('Success', 'PR Request sent to coach for approval', [
-                        {
-                            text: 'OK',
-                            onPress: () => {
-                                setNewMax('');
-                                setNotes('');
-                                clearVideo();
-                            },
-                        },
-                    ]);
-                },
-                onError: (error: any) => {
-                    console.error('Error creating PR request:', error);
-                    Alert.alert('Error', error.message || 'Failed to submit PR request');
-                },
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('pr-videos')
+                .upload(fileName, formData, {
+                    contentType: video.type || `video/${fileExt}`,
+                });
+
+            if (uploadError) {
+                throw new Error('Video upload failed: ' + uploadError.message);
             }
-        );
+
+            // 2. Get Public URL
+            const {
+                data: { publicUrl },
+            } = supabase.storage.from('pr-videos').getPublicUrl(fileName);
+
+            // 3. Send to Backend
+            const requestData: any = {
+                liftName,
+                value: Number(newMax),
+                videoUrl: publicUrl,
+                notes,
+            };
+
+            createRequest(
+                requestData,
+                {
+                    onSuccess: () => {
+                        setIsUploading(false);
+                        Alert.alert('Success', 'PR Request sent to coach for approval', [
+                            {
+                                text: 'OK',
+                                onPress: () => {
+                                    setNewMax('');
+                                    setNotes('');
+                                    clearVideo();
+                                },
+                            },
+                        ]);
+                    },
+                    onError: (error: any) => {
+                        setIsUploading(false);
+                        console.error('Error creating PR request:', error);
+                        Alert.alert('Error', error.message || 'Failed to submit PR request');
+                    },
+                }
+            );
+        } catch (error: any) {
+            setIsUploading(false);
+            console.error('Error submitting PR:', error);
+            Alert.alert('Error', error.message || 'An error occurred');
+        }
     };
 
     const getChartData = () => {
@@ -260,11 +296,11 @@ export const PRDetailScreen = () => {
                             </View>
 
                             <TouchableOpacity
-                                style={[styles.updateButton, (isSubmitting || isVideoLoading) && styles.disabledButton]}
+                                style={[styles.updateButton, (isSubmitting || isVideoLoading || isUploading) && styles.disabledButton]}
                                 onPress={handleUpdate}
-                                disabled={isSubmitting || isVideoLoading}
+                                disabled={isSubmitting || isVideoLoading || isUploading}
                             >
-                                {isSubmitting ? (
+                                {isSubmitting || isUploading ? (
                                     <ActivityIndicator color="#fff" />
                                 ) : (
                                     <CustomText style={styles.updateButtonText}>Submit for Approval</CustomText>
