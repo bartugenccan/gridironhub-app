@@ -590,7 +590,7 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       padding: scale(5),
     },
     playerInfoSection: {
-      paddingVertical: verticalScale(20),
+      paddingVertical: verticalScale(12),
       paddingHorizontal: scale(20),
     },
     playerHeaderRow: {

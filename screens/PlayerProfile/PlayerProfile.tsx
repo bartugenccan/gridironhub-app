@@ -32,7 +32,6 @@ export const PlayerProfile = () => {
             <SafeAreaView style={styles.container}>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={colors.primary} />
-                    <Text style={styles.loadingText}>Loading player profile...</Text>
                 </View>
             </SafeAreaView>
         );

@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/Typography';
@@ -19,6 +19,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RosterStackParamList } from '@/types/navigation/stacks';
 import { AppRoutes } from '@/types/navigation/routes';
+import { supabase } from '@/utils/supabase';
 
 export const Roster = () => {
   const { colors } = useTheme();
@@ -28,9 +29,31 @@ export const Roster = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCoachPosition, setSelectedCoachPosition] = useState<string>('All');
+  const [selectedPlayerPosition, setSelectedPlayerPosition] = useState<string>('All');
 
+  // Extract unique positions from roster
+  const coachPositions = React.useMemo(() => {
+    if (!roster) return ['All'];
+    const positions = new Set<string>();
+    roster.coaches.forEach(coach => {
+      coach.primaryPosition?.forEach(pos => positions.add(pos));
+    });
+    return ['All', ...Array.from(positions)];
+  }, [roster]);
+
+  const playerPositions = React.useMemo(() => {
+    if (!roster) return ['All'];
+    const positions = new Set<string>();
+    roster.players.forEach(player => {
+      player.position?.forEach(pos => positions.add(pos));
+    });
+    return ['All', ...Array.from(positions)];
+  }, [roster]);
+
+  // Fetch roster when screen comes into focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchRoster();
 
       return () => {
@@ -63,12 +86,22 @@ export const Roster = () => {
     coach.fullName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredPlayers = roster?.players.filter((player) =>
-    player.fullName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCoaches = roster?.coaches.filter((coach) => {
+    const matchesSearch = coach.fullName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPosition = selectedCoachPosition === 'All' ||
+      coach.primaryPosition?.includes(selectedCoachPosition);
+    return matchesSearch && matchesPosition;
+  });
+
+  const filteredPlayers = roster?.players.filter((player) => {
+    const matchesSearch = player.fullName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPosition = selectedPlayerPosition === 'All' ||
+      player.position?.includes(selectedPlayerPosition);
+    return matchesSearch && matchesPosition;
+  });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.headerContainer}>
         <Text style={styles.text}>Team Roster</Text>
       </View>
@@ -101,6 +134,35 @@ export const Roster = () => {
             {/* Coaches Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Coaches ({filteredCoaches?.length || 0})</Text>
+
+              {/* Coach Position Filter */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.sectionFilterContainer}
+                contentContainerStyle={styles.filterContentContainer}
+              >
+                {coachPositions.map((position) => (
+                  <TouchableOpacity
+                    key={position}
+                    style={[
+                      styles.filterChip,
+                      selectedCoachPosition === position && styles.filterChipSelected,
+                    ]}
+                    onPress={() => setSelectedCoachPosition(position)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        selectedCoachPosition === position && styles.filterChipTextSelected,
+                      ]}
+                    >
+                      {position}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
               {filteredCoaches && filteredCoaches.length > 0 ? (
                 filteredCoaches.map((coach) => (
                   <TouchableOpacity
@@ -133,6 +195,35 @@ export const Roster = () => {
             {/* Players Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Players ({filteredPlayers?.length || 0})</Text>
+
+              {/* Player Position Filter */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.sectionFilterContainer}
+                contentContainerStyle={styles.filterContentContainer}
+              >
+                {playerPositions.map((position) => (
+                  <TouchableOpacity
+                    key={position}
+                    style={[
+                      styles.filterChip,
+                      selectedPlayerPosition === position && styles.filterChipSelected,
+                    ]}
+                    onPress={() => setSelectedPlayerPosition(position)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        selectedPlayerPosition === position && styles.filterChipTextSelected,
+                      ]}
+                    >
+                      {position}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
               {filteredPlayers && filteredPlayers.length > 0 ? (
                 filteredPlayers.map((player) => (
                   <TouchableOpacity
@@ -218,9 +309,36 @@ const getStyles = (colors: typeof import('@/constants/Colors').LightColors) =>
       paddingVertical: 4,
       fontFamily: Typography.fontFamily.semiBold,
     },
+    sectionFilterContainer: {
+      marginBottom: 12,
+      maxHeight: 40,
+    },
+    filterContentContainer: {
+      gap: 8,
+    },
+    filterChip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      backgroundColor: colors.cardBackground,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    filterChipSelected: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    filterChipText: {
+      fontSize: 14,
+      fontFamily: Typography.fontFamily.semiBold,
+      color: colors.text,
+    },
+    filterChipTextSelected: {
+      color: '#FFFFFF',
+    },
     contentContainer: {
       flex: 1,
-      marginTop: 24,
+      marginTop: 16,
       marginHorizontal: 16,
     },
     loader: {
