@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { CustomText } from '@/components/CustomText';
 import { scale, verticalScale } from 'react-native-size-matters';
@@ -11,6 +12,7 @@ import { TabRoutes } from '@/types/navigation/routes';
 const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const getIconName = (routeName: string, isFocused: boolean) => {
     // Use original route names instead of translated ones
@@ -38,7 +40,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.tabBarBackground }]}>
+    <View style={[styles.container, { backgroundColor: colors.tabBarBackground, paddingBottom: insets.bottom }]}>
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
 
@@ -91,14 +93,15 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: verticalScale(76),
-    paddingBottom: verticalScale(12),
+    // height removed to allow dynamic sizing based on padding
   },
   tabButton: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopWidth: 1,
+    paddingTop: verticalScale(12), // Maintain visual spacing from top border
+    paddingBottom: verticalScale(2), // Default bottom padding
   },
   tabContent: {
     alignItems: 'center',
