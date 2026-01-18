@@ -13,6 +13,10 @@ const login = async (data: LoginRequest): Promise<LoginResponse> => {
   const validatedData = loginSchema.parse(data);
 
   const response = await axiosInstance.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, validatedData);
+
+  console.log('Login response: ', response.data);
+  console.log('Endpoint: ', axiosInstance.defaults.baseURL);
+
   return response.data;
 };
 
