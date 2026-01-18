@@ -10,13 +10,13 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://gridironhub-backend.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://api.gridiron-hub.net"
       }
     },
     "production": {
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://gridironhub-backend.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://api.gridiron-hub.net"
       }
     }
   },
