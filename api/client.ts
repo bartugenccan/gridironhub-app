@@ -39,6 +39,24 @@ axiosInstance.interceptors.request.use(async (config: InternalAxiosRequestConfig
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    // Debug logging for all errors
+    console.error('🔴 API Error:', {
+      status: error.response?.status,
+      url: error.config?.url,
+      baseURL: error.config?.baseURL,
+      fullURL: `${error.config?.baseURL}${error.config?.url}`,
+      method: error.config?.method,
+      data: error.response?.data,
+    });
+
+    if (error.response?.status === 404) {
+      console.error('❌ 404 Not Found - Full details:', {
+        requestedURL: error.config?.url,
+        baseURL: error.config?.baseURL,
+        envApiUrl: ENV.apiUrl,
+      });
+    }
+
     if (error.response?.status === 401) {
       console.error('❌ 401 Unauthorized:', error.config?.url);
       const token = await AsyncStorage.getItem('accessToken');
