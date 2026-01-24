@@ -41,12 +41,14 @@ export const apiRegisterSchema = z.object({
     .string()
     .min(2, 'Ad en az 2 karakter olmalıdır')
     .max(50, 'Ad en fazla 50 karakter olabilir')
-    .trim(),
+    .trim()
+    .transform((val) => val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()),
   lastName: z
     .string()
     .min(2, 'Soyad en az 2 karakter olmalıdır')
     .max(50, 'Soyad en fazla 50 karakter olabilir')
-    .trim(),
+    .trim()
+    .transform((val) => val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()),
 });
 
 // Register request schema (includes confirm password for UI)

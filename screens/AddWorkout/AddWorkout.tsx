@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { CustomText } from '@/components';
 import { Typography } from '@/constants/Typography';
+import { playerPositions } from '@/constants/PlayerPositions';
 import { scale, verticalScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -55,7 +56,6 @@ export const AddWorkout = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const positions = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
 
   const togglePosition = (position: string) => {
     setFormData((prev) => {
@@ -115,9 +115,9 @@ export const AddWorkout = () => {
         equipmentNeeded:
           formData.equipmentNeededInput.trim().length > 0
             ? formData.equipmentNeededInput
-                .split(',')
-                .map((item) => item.trim())
-                .filter((item) => item.length > 0)
+              .split(',')
+              .map((item) => item.trim())
+              .filter((item) => item.length > 0)
             : undefined,
         scheduledDate: formData.scheduledDate || undefined,
         youtubeUrl: validatedData.youtubeUrl?.trim() || undefined,
@@ -293,10 +293,10 @@ export const AddWorkout = () => {
               ]}>
               {formData.scheduledDate
                 ? new Date(formData.scheduledDate + 'T00:00:00').toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })
                 : 'Select date'}
             </CustomText>
             <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
@@ -362,7 +362,7 @@ export const AddWorkout = () => {
               Target Positions *
             </CustomText>
             <View style={styles.positionsGrid}>
-              {positions.map((position) => {
+              {playerPositions.map((position) => {
                 const isSelected = formData.assignedToPositions?.includes(position);
                 return (
                   <TouchableOpacity
