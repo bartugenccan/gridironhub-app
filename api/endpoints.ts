@@ -3,6 +3,7 @@ export const API_ENDPOINTS = {
     LOGIN: '/api/auth/login',
     REGISTER: '/api/auth/register',
     FORGOT_PASSWORD: '/api/auth/forgot-password',
+    RESET_PASSWORD: '/api/auth/reset-password',
     ME: '/api/auth/me',
     APPROVE_USER: '/api/auth/approve-user', // POST { userId }
     GET_PENDING_USERS: '/api/auth/pending-users', // GET

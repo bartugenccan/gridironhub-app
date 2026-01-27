@@ -154,9 +154,12 @@ export const Login = () => {
                   {errors.password && <Text style={styles.fieldErrorText}>{errors.password}</Text>}
                 </View>
 
-                <TouchableOpacity style={styles.forgotPassword}>
+                {/* <TouchableOpacity
+                  style={styles.forgotPassword}
+                  onPress={() => navigation.navigate(AppRoutes.FORGOT_PASSWORD)}
+                >
                   <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
               </View>

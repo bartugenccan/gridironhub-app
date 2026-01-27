@@ -17,6 +17,10 @@ export { loginSchema, registerSchema, apiRegisterSchema, forgotPasswordSchema };
 // Type aliases using Zod inferred types
 export type LoginRequest = LoginSchema;
 export type RegisterRequest = z.infer<typeof apiRegisterSchema>;
+export type ResetPasswordRequest = {
+  accessToken: string;
+  newPassword: string;
+};
 export type UserRole = ZodUserRole;
 
 export interface LoginResponse extends BaseResponse {

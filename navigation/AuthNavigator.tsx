@@ -22,6 +22,8 @@ export const AuthNavigator = () => {
       <Auth.Screen name={AppRoutes.LOGIN} component={Login} />
       <Auth.Screen name={AppRoutes.PENDING_APPROVAL} component={PendingApprovalScreen} />
       <Auth.Screen name={AppRoutes.SET_PASSWORD} component={SetPasswordScreen} />
+      {/* <Auth.Screen name={AppRoutes.FORGOT_PASSWORD} component={ForgotPasswordScreen} />
+      <Auth.Screen name={AppRoutes.RESET_PASSWORD} component={ResetPasswordScreen} /> */}
     </Auth.Navigator>
   );
 };

@@ -1,6 +1,12 @@
 import axiosInstance from '../client';
 import { API_ENDPOINTS } from '../endpoints';
-import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../types';
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordRequest,
+} from '../types';
 import {
   loginSchema,
   registerSchema,
@@ -27,11 +33,17 @@ const register = async (data: RegisterRequest): Promise<void> => {
   await axiosInstance.post(API_ENDPOINTS.AUTH.REGISTER, validatedData);
 };
 
-const forgotPassword = async (email: string): Promise<void> => {
+const forgotPassword = async (email: string, redirectTo?: string): Promise<void> => {
   // Validate email before API call
-  const validatedData = forgotPasswordSchema.parse({ email });
+  const validatedData = forgotPasswordSchema.parse({ email, redirectTo });
 
   await axiosInstance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, validatedData);
+};
+
+const resetPassword = async (data: ResetPasswordRequest): Promise<void> => {
+  // Validate password (min length etc) - generally validated by schema before calling this,
+  // but passing it to API. The API expects { accessToken, newPassword }
+  await axiosInstance.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
 };
 
 const validateToken = async (): Promise<LoginResponse> => {
@@ -48,5 +60,6 @@ export const authService = {
   login,
   register,
   forgotPassword,
+  resetPassword,
   validateToken,
 };

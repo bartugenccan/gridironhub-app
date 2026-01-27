@@ -11,6 +11,8 @@ export type AuthStackParamList = {
   [AppRoutes.LOGIN]: undefined;
   [AppRoutes.PENDING_APPROVAL]: undefined;
   [AppRoutes.SET_PASSWORD]: undefined;
+  [AppRoutes.FORGOT_PASSWORD]: undefined;
+  [AppRoutes.RESET_PASSWORD]: undefined;
   // Add other auth routes as needed
 };
 

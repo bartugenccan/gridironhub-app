@@ -16,6 +16,8 @@ export enum AppRoutes {
   LOGIN = 'Login',
   PENDING_APPROVAL = 'PendingApproval',
   SET_PASSWORD = 'SetPassword',
+  FORGOT_PASSWORD = 'ForgotPassword',
+  RESET_PASSWORD = 'ResetPassword',
 
   // Tab Screens
   DASHBOARD = 'Dashboard',

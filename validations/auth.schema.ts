@@ -64,6 +64,7 @@ export const registerSchema = apiRegisterSchema
 // Forgot password schema
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
+  redirectTo: z.string().optional(),
 });
 
 // Type exports

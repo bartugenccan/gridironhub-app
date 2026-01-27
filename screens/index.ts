@@ -6,7 +6,7 @@ import { SignUp } from './SignUp';
 import { ModalScreen } from './ModalScreen';
 import { HomeDetail } from './HomeDetail';
 import { Welcome } from './Welcome';
-import { Login } from './Login';
+import { Login, ForgotPasswordScreen, ResetPasswordScreen } from './Login';
 import { PlayerDashboard } from './PlayerDashboard';
 import { Roster } from './Roster';
 import { WorkoutsScreen } from './WorkoutsScreen';
@@ -27,6 +27,8 @@ export {
   HomeDetail,
   Welcome,
   Login,
+  ForgotPasswordScreen,
+  ResetPasswordScreen,
   PlayerDashboard,
   Roster,
   WorkoutsScreen,

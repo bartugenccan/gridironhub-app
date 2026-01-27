@@ -3,6 +3,7 @@ import 'react-native-gesture-handler';
 import React, { useCallback, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AppNavigator } from './navigation/AppNavigator';
+import linking from './navigation/linking';
 import {
   useFonts,
   Montserrat_400Regular,
@@ -129,7 +130,7 @@ export default function App() {
         <ThemedStatusBar />
         <SafeAreaProvider>
           <QueryClientProvider client={queryClient}>
-            <NavigationContainer>
+            <NavigationContainer linking={linking}>
               <AuthProvider>
                 <AppNavigator />
               </AuthProvider>

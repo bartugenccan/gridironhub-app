@@ -3,6 +3,7 @@ import type { ExpoConfig } from '@expo/config-types';
 const config: ExpoConfig = {
   name: 'GridIron Hub',
   slug: 'gridironhub-app',
+  scheme: 'gridironhub',
   owner: 'bartugenccan',
   version: '1.0.0',
   orientation: 'portrait',
